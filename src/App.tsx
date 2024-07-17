@@ -1,8 +1,8 @@
 import './App.css';
 import { BaseLayout } from './layout/BaseLayout';
 
-function App() {
+export function App() {
   return (<BaseLayout />);
 }
 
-export default App;
+

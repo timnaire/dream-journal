@@ -21,7 +21,7 @@ const defaultState: AppState = {
 
 export const AppContext = createContext<AppState>(defaultState);
 
-export default function AppContextProvider({ children }: any) {
+export function AppContextProvider({ children }: any) {
     const [state, setState] = useState(defaultState);
 
     const setAppState = (newState: Partial<AppState>) => {

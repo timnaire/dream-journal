@@ -29,7 +29,7 @@ export function SignIn() {
         <Container sx={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
             <Box component={Paper} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', sm: '80%', md: '50%', lg: '30%' }, padding: '25px' }}>
                 <Typography variant="h3" component="h3" >
-                    Diary
+                    Dream Journal
                 </Typography>
                 <Box component="span" sx={{ paddingLeft: '3px', marginBottom: '32px', fontSize: '12px' }}>
                     Don't have an account? Click here to&nbsp;

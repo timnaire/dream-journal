@@ -1,9 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
-import App from "./App";
-import ProtectedRoute from "./core/auth/ProtectedRoute";
+import { ProtectedRoute } from "./core/auth/ProtectedRoute";
+import { App } from "./App";
 import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
-import AppContextProvider from "./core/context/AppContext";
+import { Home } from "./pages/Home";
+
 
 export const appRoutes = createBrowserRouter([
   {
@@ -15,8 +16,8 @@ export const appRoutes = createBrowserRouter([
         element: <App />,
         children: [
           {
-            path: '/test',
-            element: <div>test route here</div>,
+            path: '/',
+            element: <Home></Home>,
           }
         ]
       },
