@@ -1,6 +1,26 @@
 import { Box, Button, Container, Link, Paper, TextField, Typography } from "@mui/material";
+import { ErrorMessage, Formik } from "formik";
+
+interface User {
+    firstname: string;
+    lastname: string;
+    username: string;
+    password: string;
+    confirmPassword: string;
+}
 
 export function SignUp() {
+    const initialValues: User = {
+        firstname: '',
+        lastname: '',
+        username: '',
+        password: '',
+        confirmPassword: '',
+    }
+
+    const handleSignup = (values: User, setSubmitting: (isSubmitting: boolean) => void) => {
+        console.log(values);
+    }
 
     return (
         <Container sx={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
@@ -15,29 +35,70 @@ export function SignUp() {
                     </Link>
                 </Box>
 
-                {/* <Formik
+                <Formik
                     initialValues={initialValues}
                     validate={values => {
-                        const errors = {} as Credentials;
+                        const errors = {} as User;
+                        if (!values.firstname) {
+                            errors.firstname = 'Required';
+                        }
+                        if (!values.lastname) {
+                            errors.lastname = 'Required';
+                        }
                         if (!values.username) {
                             errors.username = 'Required';
                         }
-
                         if (!values.password) {
                             errors.password = 'Required';
                         }
+                        if (!values.confirmPassword) {
+                            errors.confirmPassword = 'Required';
+                        }
+                        if (values.password !== values.confirmPassword) {
+                            errors.confirmPassword = 'Confirm password must be the same.';
+                        }
                         return errors;
                     }}
-                    onSubmit={(values, { setSubmitting }) => handleSignin(values, setSubmitting)}>
+                    onSubmit={(values, { setSubmitting }) => handleSignup(values, setSubmitting)}>
                     {({ values, errors, handleChange, handleSubmit, isSubmitting }) => (
-                        <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column' }} onSubmit={handleSubmit}>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <TextField
+                                        type="text"
+                                        name="firstname"
+                                        label="Firstname"
+                                        variant="standard"
+                                        sx={{ marginBottom: errors.firstname ? '0' : '25px' }}
+                                        value={values.firstname}
+                                        onChange={handleChange}
+                                    />
+                                    <ErrorMessage name="firstname">
+                                        {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                    </ErrorMessage>
+                                </Box>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <TextField
+                                        type="text"
+                                        name="lastname"
+                                        label="Lastname"
+                                        variant="standard"
+                                        sx={{ marginBottom: errors.username ? '0' : '25px' }}
+                                        value={values.lastname}
+                                        onChange={handleChange}
+                                    />
+                                    <ErrorMessage name="lastname">
+                                        {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                    </ErrorMessage>
+                                </Box>
+                            </Box>
+
                             <TextField
                                 type="text"
                                 name="username"
                                 label="Username"
                                 variant="standard"
                                 sx={{ marginBottom: errors.username ? '0' : '25px' }}
-                                InputProps={usernameIcon}
                                 value={values.username}
                                 onChange={handleChange}
                             />
@@ -51,63 +112,30 @@ export function SignUp() {
                                 label="Password"
                                 variant="standard"
                                 sx={{ marginBottom: errors.password ? '0' : '25px' }}
-                                InputProps={passwordIcon}
                                 value={values.password}
                                 onChange={handleChange}
                             />
                             <ErrorMessage name="password">
                                 {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
                             </ErrorMessage>
-                            <Button type="submit" variant="contained" disabled={isSubmitting}>Sign in</Button>
+
+                            <TextField
+                                type="password"
+                                name="confirmPassword"
+                                label="Confirm Password"
+                                variant="standard"
+                                sx={{ marginBottom: errors.confirmPassword ? '0' : '25px' }}
+                                value={values.confirmPassword}
+                                onChange={handleChange}
+                            />
+                            <ErrorMessage name="confirmPassword">
+                                {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                            </ErrorMessage>
+
+                            <Button type="submit" variant="contained" disabled={isSubmitting}>Sign up</Button>
                         </Box>
                     )}
-                </Formik> */}
-
-                <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <TextField
-                            type="text"
-                            name="firstname"
-                            label="Firstname"
-                            variant="standard"
-                            sx={{ marginBottom: '25px' }}
-                        />
-
-                        <TextField
-                            type="text"
-                            name="lastname"
-                            label="Lastname"
-                            variant="standard"
-                            sx={{ marginBottom: '25px' }}
-                        />
-                    </Box>
-
-                    <TextField
-                        type="text"
-                        name="username"
-                        label="Username"
-                        variant="standard"
-                        sx={{ marginBottom: '25px' }}
-                    />
-
-                    <TextField
-                        type="password"
-                        name="password"
-                        label="Password"
-                        variant="standard"
-                        sx={{ marginBottom: '25px' }}
-                    />
-
-                    <TextField
-                        type="password"
-                        name="confirmpassword"
-                        label="Confirm Password"
-                        variant="standard"
-                        sx={{ marginBottom: '25px' }}
-                    />
-
-                    <Button type="submit" variant="contained">Sign up</Button>
-                </Box>
+                </Formik>
 
             </Box>
         </Container>
