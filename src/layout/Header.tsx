@@ -15,9 +15,6 @@ import { Drawer, Link, List, ListItem, ListItemButton, ListItemIcon } from '@mui
 import { ArchiveOutlined, AutoStoriesOutlined, LibraryBooksOutlined } from '@mui/icons-material';
 import { AppContext } from '../core/context/AppContext';
 
-const pages = ['Collections', 'Archive'];
-const settings = ['Profile', 'Logout'];
-
 function Header() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
     const [open, setOpen] = useState(false);

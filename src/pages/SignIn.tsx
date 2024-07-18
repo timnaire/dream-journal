@@ -1,28 +1,50 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import { Box, Button, Container, InputAdornment, Link, Paper, TextField, Typography } from "@mui/material";
 import { AccountCircleOutlined, KeyOutlined } from "@mui/icons-material";
 import { AppContext } from "../core/context/AppContext";
+import { ErrorMessage, Formik } from "formik";
 
+interface Credentials {
+    username: string;
+    password: string;
+}
 
 export function SignIn() {
     const { isAuthenticated, setAppState } = useContext(AppContext);
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const initialValues: Credentials = {
+        username: '',
+        password: ''
+    };
+
+    const usernameIcon = {
+        startAdornment: (
+            <InputAdornment position="start">
+                <AccountCircleOutlined />
+            </InputAdornment>
+        ),
+    };
+
+    const passwordIcon = {
+        startAdornment: (
+            <InputAdornment position="start">
+                <KeyOutlined />
+            </InputAdornment>
+        ),
+    };
 
     // If user is already authenticated redirect to the main page
     if (isAuthenticated) {
         return <Navigate to="/" replace />
     }
 
-    const handleSignin = () => {
+    const handleSignin = (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
         // TODO: implement sign in
-        if (username === 'admin' && password === 'test1234') {
+        if (values.username === 'admin' && values.password === 'test1234') {
             localStorage.setItem('isAuthenticated', 'true');
             setAppState({ isAuthenticated: true });
-            setUsername('');
-            setPassword('');
         }
+        setSubmitting(false);
     }
 
     return (
@@ -39,37 +61,54 @@ export function SignIn() {
                     </Link>
                 </Box>
 
-                <TextField
-                    value={username}
-                    type="text"
-                    label="Username"
-                    variant="standard"
-                    sx={{ marginBottom: '25px' }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <AccountCircleOutlined />
-                            </InputAdornment>
-                        ),
+                <Formik
+                    initialValues={initialValues}
+                    validate={values => {
+                        const errors = {} as Credentials;
+                        if (!values.username) {
+                            errors.username = 'Required';
+                        }
+
+                        if (!values.password) {
+                            errors.password = 'Required';
+                        }
+                        return errors;
                     }}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-                <TextField
-                    value={password}
-                    type="password"
-                    label="Password"
-                    variant="standard"
-                    sx={{ marginBottom: '25px' }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <KeyOutlined />
-                            </InputAdornment>
-                        ),
-                    }}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <Button variant="contained" onClick={handleSignin}>Sign in</Button>
+                    onSubmit={(values, { setSubmitting }) => handleSignin(values, setSubmitting)}>
+                    {({ values, errors, handleChange, handleSubmit, isSubmitting }) => (
+                        <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column' }}>
+                            <TextField
+                                type="text"
+                                name="username"
+                                label="Username"
+                                variant="standard"
+                                sx={{ marginBottom: errors.username ? '0' : '25px' }}
+                                InputProps={usernameIcon}
+                                value={values.username}
+                                onChange={handleChange}
+                            />
+                            <ErrorMessage name="username">
+                                {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                            </ErrorMessage>
+
+                            <TextField
+                                type="password"
+                                name="password"
+                                label="Password"
+                                variant="standard"
+                                sx={{ marginBottom: errors.password ? '0' : '25px' }}
+                                InputProps={passwordIcon}
+                                value={values.password}
+                                onChange={handleChange}
+                            />
+                            <ErrorMessage name="password">
+                                {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                            </ErrorMessage>
+                            <Button type="submit" variant="contained" disabled={isSubmitting}>Sign in</Button>
+                        </Box>
+                    )}
+                </Formik>
+
                 <Box component="span" sx={{ textAlign: 'center', marginTop: '10px', fontSize: '12px' }}>
                     Forgot your password?&nbsp;
                     <Link href="/forgot-password" underline="none">

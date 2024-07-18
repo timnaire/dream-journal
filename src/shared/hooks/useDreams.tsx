@@ -18,7 +18,6 @@ export function useDreams() {
                 const getDreams = async () => {
                     const response = await fetch('../mock/home/dreams.json', headers);
                     const data = await response.json();
-                    console.log('data', data);
                     setDreams(data);
                 }
 

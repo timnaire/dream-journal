@@ -1,42 +1,73 @@
-import { EditOutlined } from "@mui/icons-material";
-import { Avatar, Box, Button, Chip, Container, Paper, Stack, Typography } from "@mui/material";
+import { CheckOutlined, EditOutlined } from "@mui/icons-material";
+import { Box, Button, Container, Modal, TextField, Typography } from "@mui/material";
 import { useDreams } from "../shared/hooks/useDreams";
+import { Dream } from "../shared/components/Dream";
+import { useState } from "react";
+import { Formik } from "formik";
+import moment from "moment";
 
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 600,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+};
 
 export function Home() {
     const { dreams } = useDreams();
+    const [writeDream, setWriteDream] = useState(false);
+    const date = moment().format('ll');
+
+    const handleWriteDreamOpen = () => setWriteDream(true);
+    const handleWriteDreamClose = () => setWriteDream(false);
 
     return (
         <Container>
             <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, alignItems: 'center', overflow: 'hidden', p: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'end', p: '10px', width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
-                    <Button variant="contained"><EditOutlined sx={{ mr: '6px' }} /> Write a dream</Button>
+                    <Button variant="contained" onClick={handleWriteDreamOpen}><EditOutlined sx={{ mr: '6px' }} /> Write a dream</Button>
                 </Box>
 
-                {dreams.map((dream) => (
-                    <Paper key={dream.id} elevation={1} sx={{ p: '10px', width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
-                        <Stack spacing={2} direction="column" alignItems="center">
-                            <Stack direction="row" alignItems="start" sx={{ width: '100%' }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    {/* Initial Name */}
-                                    <Avatar>{dream.user.firstName.slice(0, 1)}</Avatar>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                        <Typography variant="h6" sx={{ ml: '10px' }}>{dream.user.fullName}</Typography>
-                                        <Typography sx={{ ml: '10px', fontSize: '10px' }}>{dream.time}</Typography>
+                {/* Dream entries */}
+                {dreams.map((dream) => <Dream key={dream.id} dream={dream} />)}
+            </Box>
+
+            <Modal open={writeDream} aria-labelledby="write-dream" aria-describedby="write-dream-entry" >
+                <Box sx={style}>
+                    {/* Title */}
+                    <Typography variant="h6" component="h2">
+                        Dream - {date}
+                    </Typography>
+
+                    {/* Body */}
+                    <Box sx={{ mt: 2 }}>
+                        <Formik initialValues={{ title: '', dream: '' }} onSubmit={(values, { setSubmitting }) => {
+                            setTimeout(() => {
+                                alert(JSON.stringify(values, null, 2));
+                                setSubmitting(false);
+                            }, 2000);
+                        }}>
+                            {({ values, handleChange, handleSubmit, isSubmitting }) => (
+                                <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit}>
+                                    {/* Fields */}
+                                    <TextField name="title" label="Title of your dream" fullWidth={true} sx={{ mb: '12px' }} value={values.title} onChange={handleChange} />
+                                    <TextField name="dream" label="Enter your dream" fullWidth={true} multiline rows={4} value={values.dream} onChange={handleChange} />
+
+                                    {/* Actions */}
+                                    <Box sx={{ display: 'flex', justifyContent: 'end', mt: '12px' }}>
+                                        <Button variant="outlined" onClick={handleWriteDreamClose} sx={{ mr: '6px' }}>Close</Button>
+                                        <Button variant="contained" type="submit" disabled={isSubmitting}><CheckOutlined sx={{ mr: '6px' }} /> Save Dream</Button>
                                     </Box>
                                 </Box>
-                            </Stack>
-                            <Stack sx={{ minWidth: 0 }}>
-                                <Typography variant="h5" sx={{ mb: '6px' }}>{dream.title}</Typography>
-                                <Typography variant="caption">{dream.dream}</Typography>
-                                <Box sx={{ mt: '6px' }}>
-                                    {dream.categories.map(category => <Chip key={category} label={category} sx={{ mr: '4px' }} />)}
-                                </Box>
-                            </Stack>
-                        </Stack>
-                    </Paper>
-                ))}
-            </Box>
-        </Container>
+                            )}
+                        </Formik>
+                    </Box>
+                </Box>
+            </Modal>
+        </Container >
     );
 }
