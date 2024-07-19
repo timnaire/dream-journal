@@ -1,21 +1,13 @@
 import { useContext, useState } from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import { Drawer, Link, List, ListItem, ListItemButton, ListItemIcon } from '@mui/material';
+import { Avatar, Button, Container, Divider, Drawer, IconButton, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Toolbar, Tooltip, Typography } from '@mui/material';
 import { ArchiveOutlined, AutoStoriesOutlined, LibraryBooksOutlined } from '@mui/icons-material';
 import { AppContext } from '../core/context/AppContext';
+import { AvatarCard } from '../shared/components/AvatarCard';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import MenuIcon from '@mui/icons-material/Menu';
 
-function Header() {
+export function Header() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
     const [open, setOpen] = useState(false);
     const { setAppState } = useContext(AppContext);
@@ -120,9 +112,9 @@ function Header() {
 
                     {/* Profile */}
                     <Box sx={{ flexGrow: 0 }}>
-                        <Tooltip title="User profile">
+                        <Tooltip title="Your profile and settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="User name" src="/static/images/avatar/2.jpg" />
+                                <Avatar alt="User name" src="/static/images/avatar/2.jpg">TD</Avatar>
                             </IconButton>
                         </Tooltip>
                         <Menu
@@ -141,12 +133,23 @@ function Header() {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
-                            <MenuItem onClick={handleCloseUserMenu}>
-                                <Typography textAlign="center">Profile</Typography>
-                            </MenuItem>
-                            <MenuItem onClick={handleLogout}>
-                                <Typography textAlign="center">Logout</Typography>
-                            </MenuItem>
+                            <MenuList dense>
+                                <Box sx={{ px: '12px' }}>
+                                    <Box sx={{ mb: '6px', fontSize: '14px' }}>Account</Box>
+                                    <AvatarCard name="Timmy Donaire" nameVariant="caption" caption="timmydonaire@gmail.com" />
+                                </Box>
+                                <MenuItem component="a" href="/profile">
+                                    <ListItemText>
+                                        Manage Account
+                                    </ListItemText>
+                                </MenuItem>
+                                <Divider />
+                                <MenuItem onClick={handleLogout}>
+                                    <ListItemText>
+                                        Sign out
+                                    </ListItemText>
+                                </MenuItem>
+                            </MenuList>
                         </Menu>
                     </Box>
                 </Toolbar>
@@ -154,4 +157,3 @@ function Header() {
         </AppBar>
     );
 }
-export default Header;

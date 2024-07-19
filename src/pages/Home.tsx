@@ -28,7 +28,7 @@ export function Home() {
     return (
         <Container>
             <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, alignItems: 'center', overflow: 'hidden', p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'end', p: '10px', width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'end', py: '10px', width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
                     <Button variant="contained" onClick={handleWriteDreamOpen}><EditOutlined sx={{ mr: '6px' }} /> Write a dream</Button>
                 </Box>
 

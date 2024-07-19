@@ -56,7 +56,6 @@ export function SignIn() {
                 <Box component="span" sx={{ paddingLeft: '3px', marginBottom: '32px', fontSize: '12px' }}>
                     Don't have an account? Click here to&nbsp;
                     <Link href="/sign-up" underline="none">
-
                         Sign Up
                     </Link>
                 </Box>
@@ -68,24 +67,24 @@ export function SignIn() {
                         if (!values.username) {
                             errors.username = 'Required';
                         }
-
                         if (!values.password) {
                             errors.password = 'Required';
                         }
                         return errors;
                     }}
                     onSubmit={(values, { setSubmitting }) => handleSignin(values, setSubmitting)}>
-                    {({ values, errors, handleChange, handleSubmit, isSubmitting }) => (
+                    {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
                         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column' }}>
                             <TextField
                                 type="text"
                                 name="username"
                                 label="Username"
                                 variant="standard"
-                                sx={{ marginBottom: errors.username ? '0' : '25px' }}
+                                sx={{ marginBottom: errors.username && touched.username ? '0' : '25px' }}
                                 InputProps={usernameIcon}
                                 value={values.username}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                             />
                             <ErrorMessage name="username">
                                 {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
@@ -96,10 +95,11 @@ export function SignIn() {
                                 name="password"
                                 label="Password"
                                 variant="standard"
-                                sx={{ marginBottom: errors.password ? '0' : '25px' }}
+                                sx={{ marginBottom: errors.password && touched.password ? '0' : '25px' }}
                                 InputProps={passwordIcon}
                                 value={values.password}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                             />
                             <ErrorMessage name="password">
                                 {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}

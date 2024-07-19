@@ -1,9 +1,10 @@
 export interface DreamProps {
   id: string;
   user: {
-    firstName: string;
-    lastName: string;
-    fullName: string;
+    firstname: string;
+    lastname: string;
+    fullname: string;
+    email: string;
   };
   title: string;
   dream: string;

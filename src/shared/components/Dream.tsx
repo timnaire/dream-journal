@@ -1,20 +1,14 @@
-import { Avatar, Box, Chip, Paper, Stack, Typography } from "@mui/material";
+import { Box, Card, Chip, Stack, Typography } from "@mui/material";
 import { DreamProps } from "../models/dream";
+import { AvatarCard } from "./AvatarCard";
 
 export function Dream({ dream }: { dream: DreamProps }) {
     return (
-        <Paper elevation={1} sx={{ p: '10px', width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
-            <Stack spacing={2} direction="column" alignItems="center">
+        <Card elevation={1} sx={{ width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
+            <Stack spacing={2} direction="column" alignItems="center" sx={{ p: '10px' }}>
                 {/* User information */}
                 <Stack direction="row" alignItems="start" sx={{ width: '100%' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        {/* Initial Name */}
-                        <Avatar>{dream.user.firstName.slice(0, 1)}</Avatar>
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                            <Typography variant="h6" sx={{ ml: '10px' }}>{dream.user.fullName}</Typography>
-                            <Typography sx={{ ml: '10px', fontSize: '10px' }}>{dream.time}</Typography>
-                        </Box>
-                    </Box>
+                    <AvatarCard name={dream.user.fullname} nameVariant="h6" caption={dream.time} />
                 </Stack>
 
                 {/* Body */}
@@ -26,6 +20,6 @@ export function Dream({ dream }: { dream: DreamProps }) {
                     </Box>
                 </Stack>
             </Stack>
-        </Paper>
+        </Card>
     );
 }

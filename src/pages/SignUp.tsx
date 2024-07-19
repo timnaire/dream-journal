@@ -60,7 +60,7 @@ export function SignUp() {
                         return errors;
                     }}
                     onSubmit={(values, { setSubmitting }) => handleSignup(values, setSubmitting)}>
-                    {({ values, errors, handleChange, handleSubmit, isSubmitting }) => (
+                    {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
                         <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column' }} onSubmit={handleSubmit}>
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -69,9 +69,10 @@ export function SignUp() {
                                         name="firstname"
                                         label="Firstname"
                                         variant="standard"
-                                        sx={{ marginBottom: errors.firstname ? '0' : '25px' }}
+                                        sx={{ marginBottom: errors.firstname && touched.firstname ? '0' : '25px' }}
                                         value={values.firstname}
                                         onChange={handleChange}
+                                        onBlur={handleBlur}
                                     />
                                     <ErrorMessage name="firstname">
                                         {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
@@ -83,9 +84,10 @@ export function SignUp() {
                                         name="lastname"
                                         label="Lastname"
                                         variant="standard"
-                                        sx={{ marginBottom: errors.username ? '0' : '25px' }}
+                                        sx={{ marginBottom: errors.lastname && touched.lastname ? '0' : '25px' }}
                                         value={values.lastname}
                                         onChange={handleChange}
+                                        onBlur={handleBlur}
                                     />
                                     <ErrorMessage name="lastname">
                                         {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
@@ -98,9 +100,10 @@ export function SignUp() {
                                 name="username"
                                 label="Username"
                                 variant="standard"
-                                sx={{ marginBottom: errors.username ? '0' : '25px' }}
+                                sx={{ marginBottom: errors.username && touched.username ? '0' : '25px' }}
                                 value={values.username}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                             />
                             <ErrorMessage name="username">
                                 {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
@@ -111,9 +114,10 @@ export function SignUp() {
                                 name="password"
                                 label="Password"
                                 variant="standard"
-                                sx={{ marginBottom: errors.password ? '0' : '25px' }}
+                                sx={{ marginBottom: errors.password && touched.password ? '0' : '25px' }}
                                 value={values.password}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                             />
                             <ErrorMessage name="password">
                                 {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
@@ -124,9 +128,10 @@ export function SignUp() {
                                 name="confirmPassword"
                                 label="Confirm Password"
                                 variant="standard"
-                                sx={{ marginBottom: errors.confirmPassword ? '0' : '25px' }}
+                                sx={{ marginBottom: errors.confirmPassword && touched.confirmPassword ? '0' : '25px' }}
                                 value={values.confirmPassword}
                                 onChange={handleChange}
+                                onBlur={handleBlur}
                             />
                             <ErrorMessage name="confirmPassword">
                                 {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}

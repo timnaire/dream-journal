@@ -4,6 +4,7 @@ import { App } from "./App";
 import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
 import { Home } from "./pages/Home";
+import { Profile } from "./pages/Profile";
 
 
 export const appRoutes = createBrowserRouter([
@@ -17,7 +18,11 @@ export const appRoutes = createBrowserRouter([
         children: [
           {
             path: '/',
-            element: <Home></Home>,
+            element: <Home />,
+          },
+          {
+            path: '/profile',
+            element: <Profile />,
           }
         ]
       },
