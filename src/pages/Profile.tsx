@@ -32,11 +32,11 @@ export function Profile() {
                 </Box>
             </Card>
             <Typography variant="h6">
-                Unforgettable  Dreams
+                Favorite  Dreams
             </Typography>
             <Grid container spacing={2}>
                 {[0, 1, 2, 3, 4, 5].map(item => (
-                    <Grid xs={12} sm={6} md={12} lg={6}>
+                    <Grid key={item} xs={12} sm={6} md={12} lg={6}>
                         <Card sx={{ p: '10px' }}>Test dream here</Card>
                     </Grid>
                 ))}

@@ -1,5 +1,5 @@
 import { CheckOutlined, EditOutlined } from "@mui/icons-material";
-import { Box, Button, Container, Modal, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Container, FormControlLabel, FormGroup, Modal, TextField, Typography } from "@mui/material";
 import { useDreams } from "../shared/hooks/useDreams";
 import { Dream } from "../shared/components/Dream";
 import { useState } from "react";
@@ -56,6 +56,13 @@ export function Home() {
                                     {/* Fields */}
                                     <TextField name="title" label="Title of your dream" fullWidth={true} sx={{ mb: '12px' }} value={values.title} onChange={handleChange} />
                                     <TextField name="dream" label="Enter your dream" fullWidth={true} multiline rows={4} value={values.dream} onChange={handleChange} />
+
+                                    <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
+                                        <FormControlLabel control={<Checkbox />} label="Recurrent" />
+                                        <FormControlLabel control={<Checkbox />} label="Nightmare" />
+                                        <FormControlLabel control={<Checkbox />} label="Sleep paralysis" />
+                                        <FormControlLabel control={<Checkbox />} label="Favorite" />
+                                    </FormGroup>
 
                                     {/* Actions */}
                                     <Box sx={{ display: 'flex', justifyContent: 'end', mt: '12px' }}>

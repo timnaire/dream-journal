@@ -54,12 +54,12 @@ export function Header() {
                     </Typography>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        <Button sx={{ my: 2, color: 'white', display: 'block' }} >Collection</Button>
-                        <Button sx={{ my: 2, color: 'white', display: 'block' }} >Archived</Button>
+                        {/* <Button sx={{ my: 2, color: 'white', display: 'block' }} >Collection</Button>
+                        <Button sx={{ my: 2, color: 'white', display: 'block' }} >Archived</Button> */}
                     </Box>
 
                     {/* Mobile */}
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                    {/* <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
                             aria-label="mobile menu"
@@ -88,7 +88,7 @@ export function Header() {
                                 </List>
                             </Box>
                         </Drawer>
-                    </Box>
+                    </Box> */}
 
                     <AutoStoriesOutlined sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
                     <Typography
