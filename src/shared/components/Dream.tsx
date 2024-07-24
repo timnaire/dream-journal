@@ -1,6 +1,6 @@
-import { Box, Card, Chip, Stack, Typography } from "@mui/material";
-import { DreamProps } from "../models/dream";
-import { AvatarCard } from "./AvatarCard";
+import { Box, Card, Chip, Stack, Typography } from '@mui/material';
+import { DreamProps } from '../models/dream';
+import { AvatarCard } from './AvatarCard';
 
 export function Dream({ dream }: { dream: DreamProps }) {
     return (

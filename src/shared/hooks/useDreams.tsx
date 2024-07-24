@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { DreamProps } from "../models/dream";
+import useSWR from "swr";
 
 const headers = {
     headers: {
@@ -8,30 +8,15 @@ const headers = {
     }
 };
 
+const fetcher = (url: string) => fetch(url, headers).then(r => r.json());
+
 export function useDreams() {
-    const [dreams, setDreams] = useState<DreamProps[]>([]);
-    useEffect(() => {
-        let mounted = true;
+    const { data, error, isLoading } = useSWR<DreamProps[]>('../mock/home/dreams.json', fetcher);
 
-        if (mounted) {
-            try {
-                const getDreams = async () => {
-                    const response = await fetch('../mock/home/dreams.json', headers);
-                    const data = await response.json();
-                    setDreams(data);
-                }
-
-                getDreams();
-            } catch (error) {
-                console.error('Error', error);
-            }
-        }
-
-        return () => {
-            mounted = false;
-        }
-    }, []);
-
-    return { dreams };
+    return {
+        dreams: data,
+        isLoading,
+        isError: error
+    };
 }
 

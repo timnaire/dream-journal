@@ -1,4 +1,4 @@
-import { useErrorBoundary } from "react-error-boundary";
+import { useErrorBoundary } from 'react-error-boundary';
 
 export const ErrorFallback = ({ error }: any) => {
   const { resetBoundary } = useErrorBoundary();

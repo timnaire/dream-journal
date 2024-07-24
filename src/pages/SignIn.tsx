@@ -1,14 +1,17 @@
-import { useContext } from "react";
-import { Navigate } from "react-router-dom";
-import { Box, Button, Container, InputAdornment, Link, Paper, TextField, Typography } from "@mui/material";
-import { AccountCircleOutlined, KeyOutlined } from "@mui/icons-material";
-import { AppContext } from "../core/context/AppContext";
-import { ErrorMessage, Formik } from "formik";
+import { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
+import { Box, Button, Container, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
+import { AccountCircleOutlined, KeyOutlined } from '@mui/icons-material';
+import { AppContext } from '../core/context/AppContext';
+import { ErrorMessage, Formik } from 'formik';
+import * as yup from 'yup';
 
 interface Credentials {
     username: string;
     password: string;
 }
+
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export function SignIn() {
     const { isAuthenticated, setAppState } = useContext(AppContext);
@@ -16,6 +19,11 @@ export function SignIn() {
         username: '',
         password: ''
     };
+
+    const signInSchema = yup.object().shape({
+        username: yup.string().trim().required('Username is required'),
+        password: yup.string().trim().required('Password is required'),
+    });
 
     const usernameIcon = {
         startAdornment: (
@@ -40,11 +48,21 @@ export function SignIn() {
 
     const handleSignin = (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
         // TODO: implement sign in
-        if (values.username === 'admin' && values.password === 'test1234') {
-            localStorage.setItem('isAuthenticated', 'true');
-            setAppState({ isAuthenticated: true });
-        }
-        setSubmitting(false);
+        // if (values.username === 'admin' && values.password === 'test1234') {
+        //     localStorage.setItem('isAuthenticated', 'true');
+        //     setAppState({ isAuthenticated: true });
+        // }
+        fetch(BASE_URL + '/sign-in', {
+            method: 'POST',
+            body: JSON.stringify(values),
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        }).then(res => {
+            console.log('res', res.json());
+            setSubmitting(false);
+        });
     }
 
     return (
@@ -62,16 +80,7 @@ export function SignIn() {
 
                 <Formik
                     initialValues={initialValues}
-                    validate={values => {
-                        const errors = {} as Credentials;
-                        if (!values.username) {
-                            errors.username = 'Required';
-                        }
-                        if (!values.password) {
-                            errors.password = 'Required';
-                        }
-                        return errors;
-                    }}
+                    validationSchema={signInSchema}
                     onSubmit={(values, { setSubmitting }) => handleSignin(values, setSubmitting)}>
                     {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
                         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column' }}>

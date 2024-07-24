@@ -1,10 +1,10 @@
-import { CheckOutlined, EditOutlined } from "@mui/icons-material";
-import { Box, Button, Checkbox, Container, FormControlLabel, FormGroup, Modal, TextField, Typography } from "@mui/material";
-import { useDreams } from "../shared/hooks/useDreams";
-import { Dream } from "../shared/components/Dream";
-import { useState } from "react";
-import { Formik } from "formik";
-import moment from "moment";
+import { useState } from 'react';
+import { CheckOutlined, EditOutlined } from '@mui/icons-material';
+import { Box, Button, Checkbox, Container, FormControlLabel, FormGroup, Modal, TextField, Typography } from '@mui/material';
+import { useDreams } from '../shared/hooks/useDreams';
+import { Dream } from '../shared/components/Dream';
+import { Formik } from 'formik';
+import moment from 'moment';
 
 const style = {
     position: 'absolute',
@@ -18,16 +18,16 @@ const style = {
 };
 
 export function Home() {
-    const { dreams } = useDreams();
-    console.log('dreams', dreams);
+    const { dreams, isLoading } = useDreams();
+
     const [writeDream, setWriteDream] = useState(false);
     const date = moment().format('ll');
 
     const handleWriteDreamOpen = () => setWriteDream(true);
     const handleWriteDreamClose = () => setWriteDream(false);
 
-    if (dreams.length === 0) {
-        <div>Loading...</div>
+    if (isLoading) {
+        return (<div>Loading...</div>);
     }
 
     return (
@@ -38,7 +38,7 @@ export function Home() {
                 </Box>
 
                 {/* Dream entries */}
-                {dreams.map((dream) => <Dream key={dream.id} dream={dream} />)}
+                {dreams && dreams.map((dream) => <Dream key={dream.id} dream={dream} />)}
             </Box>
 
             <Modal open={writeDream} aria-labelledby="write-dream" aria-describedby="write-dream-entry" >

@@ -1,5 +1,5 @@
-import { Avatar, Box, Typography } from "@mui/material";
-import { Variant } from "@mui/material/styles/createTypography";
+import { Avatar, Box, Typography } from '@mui/material';
+import { Variant } from '@mui/material/styles/createTypography';
 
 interface AvatarCardProps {
     name: string;

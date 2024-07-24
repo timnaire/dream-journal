@@ -1,5 +1,6 @@
-import { Box, Button, Container, Link, Paper, TextField, Typography } from "@mui/material";
-import { ErrorMessage, Formik } from "formik";
+import { Box, Button, Container, Link, Paper, TextField, Typography } from '@mui/material';
+import { ErrorMessage, Formik } from 'formik';
+import * as yup from 'yup';
 
 interface User {
     firstname: string;
@@ -8,6 +9,8 @@ interface User {
     password: string;
     confirmPassword: string;
 }
+
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export function SignUp() {
     const initialValues: User = {
@@ -18,8 +21,26 @@ export function SignUp() {
         confirmPassword: '',
     }
 
+    const signUpSchema = yup.object().shape({
+        firstname: yup.string().trim().required('Firstname is required'),
+        lastname: yup.string().trim().required('Lastname is required'),
+        username: yup.string().trim().required('Username is required'),
+        password: yup.string().required('Password is required'),
+        confirmPassword: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required('Confirm Password is required'),
+    });
+
     const handleSignup = (values: User, setSubmitting: (isSubmitting: boolean) => void) => {
-        console.log(values);
+        fetch(BASE_URL + '/sign-in', {
+            method: 'POST',
+            body: JSON.stringify(values),
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        }).then(res => {
+            console.log('res', res.json());
+            setSubmitting(false);
+        });
     }
 
     return (
@@ -37,28 +58,7 @@ export function SignUp() {
 
                 <Formik
                     initialValues={initialValues}
-                    validate={values => {
-                        const errors = {} as User;
-                        if (!values.firstname) {
-                            errors.firstname = 'Required';
-                        }
-                        if (!values.lastname) {
-                            errors.lastname = 'Required';
-                        }
-                        if (!values.username) {
-                            errors.username = 'Required';
-                        }
-                        if (!values.password) {
-                            errors.password = 'Required';
-                        }
-                        if (!values.confirmPassword) {
-                            errors.confirmPassword = 'Required';
-                        }
-                        if (values.password !== values.confirmPassword) {
-                            errors.confirmPassword = 'Confirm password must be the same.';
-                        }
-                        return errors;
-                    }}
+                    validationSchema={signUpSchema}
                     onSubmit={(values, { setSubmitting }) => handleSignup(values, setSubmitting)}>
                     {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
                         <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column' }} onSubmit={handleSubmit}>
