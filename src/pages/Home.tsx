@@ -5,6 +5,7 @@ import { useDreams } from '../shared/hooks/useDreams';
 import { Dream } from '../shared/components/Dream';
 import { Formik } from 'formik';
 import moment from 'moment';
+import { useApi } from '../shared/hooks/useApi';
 
 const style = {
     position: 'absolute',
@@ -19,11 +20,14 @@ const style = {
 
 export function Home() {
     const { dreams, isLoading } = useDreams();
-
     const [writeDream, setWriteDream] = useState(false);
+    const { httpGet } = useApi();
     const date = moment().format('ll');
 
-    const handleWriteDreamOpen = () => setWriteDream(true);
+    const handleWriteDreamOpen = () => {
+        setWriteDream(true);
+        httpGet('/users');
+    };
     const handleWriteDreamClose = () => setWriteDream(false);
 
     if (isLoading) {

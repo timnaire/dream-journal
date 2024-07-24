@@ -1,6 +1,7 @@
 import { Box, Button, Container, Link, Paper, TextField, Typography } from '@mui/material';
 import { ErrorMessage, Formik } from 'formik';
 import * as yup from 'yup';
+import { useApi } from '../shared/hooks/useApi';
 
 interface User {
     firstname: string;
@@ -13,6 +14,7 @@ interface User {
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export function SignUp() {
+    const { httpPost } = useApi();
     const initialValues: User = {
         firstname: '',
         lastname: '',
@@ -30,16 +32,9 @@ export function SignUp() {
     });
 
     const handleSignup = (values: User, setSubmitting: (isSubmitting: boolean) => void) => {
-        fetch(BASE_URL + '/sign-in', {
-            method: 'POST',
-            body: JSON.stringify(values),
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        }).then(res => {
-            console.log('res', res.json());
-            setSubmitting(false);
+        httpPost('/sign-up', values).then(data => {
+            console.log('data', data);
+            setTimeout(() => setSubmitting(false), 5000);
         });
     }
 

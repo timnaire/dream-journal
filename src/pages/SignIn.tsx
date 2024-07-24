@@ -5,6 +5,7 @@ import { AccountCircleOutlined, KeyOutlined } from '@mui/icons-material';
 import { AppContext } from '../core/context/AppContext';
 import { ErrorMessage, Formik } from 'formik';
 import * as yup from 'yup';
+import { useApi } from '../shared/hooks/useApi';
 
 interface Credentials {
     username: string;
@@ -15,6 +16,7 @@ const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export function SignIn() {
     const { isAuthenticated, setAppState } = useContext(AppContext);
+    const { httpPost } = useApi();
     const initialValues: Credentials = {
         username: '',
         password: ''
@@ -46,23 +48,34 @@ export function SignIn() {
         return <Navigate to="/" replace />
     }
 
-    const handleSignin = (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
+    const handleSignin = async (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
         // TODO: implement sign in
         // if (values.username === 'admin' && values.password === 'test1234') {
         //     localStorage.setItem('isAuthenticated', 'true');
         //     setAppState({ isAuthenticated: true });
         // }
-        fetch(BASE_URL + '/sign-in', {
-            method: 'POST',
-            body: JSON.stringify(values),
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        }).then(res => {
-            console.log('res', res.json());
-            setSubmitting(false);
+        // fetch(BASE_URL + '/sign-in', {
+        //     method: 'POST',
+        //     body: JSON.stringify(values),
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Accept': 'application/json'
+        //     }
+        // }).then(res => {
+        //     console.log('res', res.json());
+        //     setSubmitting(false);
+        // });
+        httpPost('/sign-in', values).then(data => {
+            console.log('data', data);
+            setTimeout(() => setSubmitting(false), 5000);
         });
+
+
+        setTimeout(() => {
+            httpPost('/users', values).then(data => {
+                console.log('data', data);
+            });
+        }, 10000);
     }
 
     return (
