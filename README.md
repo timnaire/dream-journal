@@ -2,6 +2,11 @@
 
 Dream Journal is a record of your dreams written in React.
 
+## Tech Stack
+
+React and MUI
+
+Note: This is a React practice and Design can be achieved using Tailwind but choosen to do the hard coding with the sx in MUI to fully grasp its functionality and API.
 
 ## Contributing
 
