@@ -1,13 +1,16 @@
 import axios, { AxiosInstance } from 'axios';
+import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
-export interface ApiResponse<T> {
+export interface ApiResponse<T = any> {
     success: boolean;
     data: T;
     message: string;
 }
 
 export function useApi() {
+    const [isError, setIsError] = useState(false);
+    const [error, setError] = useState('');
     const instance: AxiosInstance = axios.create({
         baseURL: process.env.REACT_APP_API_BASE_URL,
         headers: {
@@ -17,15 +20,26 @@ export function useApi() {
         withCredentials: true
     });
 
+    instance.interceptors.request.use((config) => {
+        setIsError(false);
+        setError('');
+        return config;
+    });
+
     instance.interceptors.response.use((config) => {
         const response = config.data;
         if (response && typeof response === 'object' && ('redirect' in response)) {
             <Navigate to={response.redirect} replace />;
         }
+        if (response && typeof response === 'object' && ('success' in response)) {
+            setIsError(!response.success);
+            setError(response.message);
+        }
         return config;
     }, (error) => {
         const Unauthorized = 401;
         if (error.response.status === Unauthorized) {
+            localStorage.removeItem('isAuthenticated');
             return <Navigate to={error.response.data.redirect} replace />;
         }
         return Promise.reject(error);
@@ -63,5 +77,5 @@ export function useApi() {
         }
     }
 
-    return { httpGet, httpPost, httpPut, httpDelete }
+    return { isError, error, httpGet, httpPost, httpPut, httpDelete }
 }

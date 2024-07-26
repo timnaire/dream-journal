@@ -7,12 +7,14 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useApi } from '../shared/hooks/useApi';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 export function Header() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
     const [open, setOpen] = useState(false);
-    const { setAppState } = useContext(AppContext);
+    const { isAuthenticated, setAppState } = useContext(AppContext);
     const { httpPost } = useApi();
+    const navigation = useNavigate();
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
@@ -28,8 +30,20 @@ export function Header() {
 
     const handleSignOut = () => {
         httpPost('/auth/sign-out', {}).then(res => {
+            console.log('called me second');
+            localStorage.removeItem('isAuthenticated');
             setAppState({ isAuthenticated: false });
         });
+    }
+
+    const handleRoute = (href: string) => {
+        handleCloseUserMenu();
+        navigation(href);
+    };
+
+    // If user is already authenticated redirect to the main page
+    if (!isAuthenticated) {
+        return <Navigate to="/sign-in" replace />
     }
 
     return (
@@ -42,7 +56,6 @@ export function Header() {
                         variant="h6"
                         noWrap
                         component="a"
-                        href="/"
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -51,7 +64,9 @@ export function Header() {
                             letterSpacing: '.3rem',
                             color: 'inherit',
                             textDecoration: 'none',
+                            cursor: 'pointer'
                         }}
+                        onClick={() => handleRoute('/')}
                     >
                         Dream Journal
                     </Typography>
@@ -141,7 +156,7 @@ export function Header() {
                                     <Box sx={{ mb: '6px', fontSize: '14px' }}>Account</Box>
                                     <AvatarCard name="Timmy Donaire" nameVariant="caption" caption="timmydonaire@gmail.com" />
                                 </Box>
-                                <MenuItem component="a" href="/profile">
+                                <MenuItem onClick={() => handleRoute('/profile')}>
                                     <ListItemText>
                                         Manage Account
                                     </ListItemText>

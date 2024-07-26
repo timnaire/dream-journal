@@ -1,7 +1,7 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Box, Button, CircularProgress, Container, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
-import { AccountCircleOutlined, KeyOutlined } from '@mui/icons-material';
+import { Alert, Box, Button, CircularProgress, Container, IconButton, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
+import { AccountCircleOutlined, KeyOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
 import { AppContext, UserProps } from '../core/context/AppContext';
 import { ErrorMessage, Formik } from 'formik';
 import * as yup from 'yup';
@@ -12,25 +12,34 @@ interface Credentials {
     password: string;
 }
 
+const signInSchema = yup.object().shape({
+    username: yup.string().trim().required('Username is required'),
+    password: yup.string().trim().required('Password is required'),
+});
+
+const usernameIcon = {
+    startAdornment: (
+        <InputAdornment position="start">
+            <AccountCircleOutlined />
+        </InputAdornment>
+    ),
+};
+
+
 export function SignIn() {
     const { isAuthenticated, setAppState } = useContext(AppContext);
-    const { httpPost } = useApi();
+    const { isError, error, httpPost } = useApi();
+    const [showPassword, setShowPassword] = useState(false);
+
     const initialValues: Credentials = {
         username: '',
         password: ''
     };
 
-    const signInSchema = yup.object().shape({
-        username: yup.string().trim().required('Username is required'),
-        password: yup.string().trim().required('Password is required'),
-    });
+    const handleClickShowPassword = () => setShowPassword((show: boolean) => !show);
 
-    const usernameIcon = {
-        startAdornment: (
-            <InputAdornment position="start">
-                <AccountCircleOutlined />
-            </InputAdornment>
-        ),
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
     };
 
     const passwordIcon = {
@@ -39,6 +48,18 @@ export function SignIn() {
                 <KeyOutlined />
             </InputAdornment>
         ),
+        endAdornment: (
+            <InputAdornment position="end">
+                <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+            </InputAdornment>
+        )
     };
 
     // If user is already authenticated redirect to the main page
@@ -48,11 +69,10 @@ export function SignIn() {
 
     const handleSignin = async (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
         httpPost<ApiResponse<UserProps>>('/auth/sign-in', values).then(res => {
-            console.log('res', res);
             if (res && res.success) {
+                localStorage.setItem('isAuthenticated', 'true');
                 setAppState({ isAuthenticated: true, user: res.data });
             }
-            // setTimeout(() => setSubmitting(false), 5000);
         }).finally(() => setSubmitting(false));
     }
 
@@ -73,46 +93,50 @@ export function SignIn() {
                     initialValues={initialValues}
                     validationSchema={signInSchema}
                     onSubmit={(values, { setSubmitting }) => {
-                        console.log('form submitted');
                         handleSignin(values, setSubmitting);
                     }}>
-                    {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting, isValid }) => (
+                    {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
                         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column' }}>
                             <TextField
                                 type="text"
                                 name="username"
                                 label="Username"
                                 variant="standard"
-                                sx={{ marginBottom: errors.username && touched.username ? '0' : '25px' }}
+                                sx={{ mb: errors.username && touched.username ? '0' : '25px' }}
                                 InputProps={usernameIcon}
                                 value={values.username}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             <ErrorMessage name="username">
-                                {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                {msg => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
                             </ErrorMessage>
 
                             <TextField
-                                type="password"
+                                type={showPassword ? 'text' : 'password'}
                                 name="password"
                                 label="Password"
                                 variant="standard"
-                                sx={{ marginBottom: errors.password && touched.password ? '0' : '25px' }}
+                                sx={{ mb: errors.password && touched.password ? '0' : '25px' }}
                                 InputProps={passwordIcon}
                                 value={values.password}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             <ErrorMessage name="password">
-                                {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                {msg => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
                             </ErrorMessage>
                             <Button type="submit" variant="contained" disabled={isSubmitting}> {isSubmitting ? <CircularProgress size={25} /> : ' Sign in'} </Button>
+                            {isError && (
+                                <Alert variant="outlined" severity="error" sx={{ mt: '10px' }}>
+                                    {error}
+                                </Alert>
+                            )}
                         </Box>
                     )}
                 </Formik>
 
-                <Box component="span" sx={{ textAlign: 'center', marginTop: '10px', fontSize: '12px' }}>
+                <Box component="span" sx={{ textAlign: 'center', mt: '10px', fontSize: '12px' }}>
                     Forgot your password?&nbsp;
                     <Link href="/forgot-password" underline="none">
                         Click here

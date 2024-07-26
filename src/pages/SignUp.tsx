@@ -1,7 +1,8 @@
-import { Box, Button, CircularProgress, Container, Link, Paper, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Container, Link, Paper, TextField, Typography } from '@mui/material';
 import { ErrorMessage, Formik } from 'formik';
 import * as yup from 'yup';
-import { useApi } from '../shared/hooks/useApi';
+import { ApiResponse, useApi } from '../shared/hooks/useApi';
+import { useState } from 'react';
 
 interface User {
     firstname: string;
@@ -12,7 +13,8 @@ interface User {
 }
 
 export function SignUp() {
-    const { httpPost } = useApi();
+    const [data, setData] = useState();
+    const { isError, error, httpPost } = useApi();
     const initialValues: User = {
         firstname: '',
         lastname: '',
@@ -30,9 +32,11 @@ export function SignUp() {
     });
 
     const handleSignup = (values: User, setSubmitting: (isSubmitting: boolean) => void) => {
-        httpPost('/sign-up', values).then(data => {
+        httpPost<ApiResponse>('/auth/sign-up', values).then(response => {
             console.log('data', data);
-            setTimeout(() => setSubmitting(false), 5000);
+            setData(response.data);
+        }).finally(() => {
+            setSubmitting(false);
         });
     }
 
@@ -62,13 +66,13 @@ export function SignUp() {
                                         name="firstname"
                                         label="Firstname"
                                         variant="standard"
-                                        sx={{ marginBottom: errors.firstname && touched.firstname ? '0' : '25px' }}
+                                        sx={{ mb: errors.firstname && touched.firstname ? '0' : '25px' }}
                                         value={values.firstname}
                                         onChange={handleChange}
                                         onBlur={handleBlur}
                                     />
                                     <ErrorMessage name="firstname">
-                                        {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                        {msg => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
                                     </ErrorMessage>
                                 </Box>
                                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -77,13 +81,13 @@ export function SignUp() {
                                         name="lastname"
                                         label="Lastname"
                                         variant="standard"
-                                        sx={{ marginBottom: errors.lastname && touched.lastname ? '0' : '25px' }}
+                                        sx={{ mb: errors.lastname && touched.lastname ? '0' : '25px' }}
                                         value={values.lastname}
                                         onChange={handleChange}
                                         onBlur={handleBlur}
                                     />
                                     <ErrorMessage name="lastname">
-                                        {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                        {msg => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
                                     </ErrorMessage>
                                 </Box>
                             </Box>
@@ -93,13 +97,13 @@ export function SignUp() {
                                 name="username"
                                 label="Username"
                                 variant="standard"
-                                sx={{ marginBottom: errors.username && touched.username ? '0' : '25px' }}
+                                sx={{ mb: errors.username && touched.username ? '0' : '25px' }}
                                 value={values.username}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             <ErrorMessage name="username">
-                                {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                {msg => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
                             </ErrorMessage>
 
                             <TextField
@@ -107,13 +111,13 @@ export function SignUp() {
                                 name="password"
                                 label="Password"
                                 variant="standard"
-                                sx={{ marginBottom: errors.password && touched.password ? '0' : '25px' }}
+                                sx={{ mb: errors.password && touched.password ? '0' : '25px' }}
                                 value={values.password}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             <ErrorMessage name="password">
-                                {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                {msg => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
                             </ErrorMessage>
 
                             <TextField
@@ -121,16 +125,21 @@ export function SignUp() {
                                 name="confirmPassword"
                                 label="Confirm Password"
                                 variant="standard"
-                                sx={{ marginBottom: errors.confirmPassword && touched.confirmPassword ? '0' : '25px' }}
+                                sx={{ mb: errors.confirmPassword && touched.confirmPassword ? '0' : '25px' }}
                                 value={values.confirmPassword}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                             />
                             <ErrorMessage name="confirmPassword">
-                                {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
+                                {msg => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
                             </ErrorMessage>
 
                             <Button type="submit" variant="contained" disabled={isSubmitting}>{isSubmitting ? <CircularProgress size={25} /> : ' Sign up'} </Button>
+                            {data && (
+                                <Alert variant="outlined" severity={isError ? 'error' : 'success'} sx={{ mt: '10px' }}>
+                                    {isError ? error : 'Successfully registered.'}
+                                </Alert>
+                            )}
                         </Box>
                     )}
                 </Formik>
