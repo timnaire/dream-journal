@@ -1,18 +1,16 @@
 import { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Box, Button, Container, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
 import { AccountCircleOutlined, KeyOutlined } from '@mui/icons-material';
-import { AppContext } from '../core/context/AppContext';
+import { AppContext, UserProps } from '../core/context/AppContext';
 import { ErrorMessage, Formik } from 'formik';
 import * as yup from 'yup';
-import { useApi } from '../shared/hooks/useApi';
+import { ApiResponse, useApi } from '../shared/hooks/useApi';
 
 interface Credentials {
     username: string;
     password: string;
 }
-
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export function SignIn() {
     const { isAuthenticated, setAppState } = useContext(AppContext);
@@ -49,33 +47,13 @@ export function SignIn() {
     }
 
     const handleSignin = async (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
-        // TODO: implement sign in
-        // if (values.username === 'admin' && values.password === 'test1234') {
-        //     localStorage.setItem('isAuthenticated', 'true');
-        //     setAppState({ isAuthenticated: true });
-        // }
-        // fetch(BASE_URL + '/sign-in', {
-        //     method: 'POST',
-        //     body: JSON.stringify(values),
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Accept': 'application/json'
-        //     }
-        // }).then(res => {
-        //     console.log('res', res.json());
-        //     setSubmitting(false);
-        // });
-        httpPost('/sign-in', values).then(data => {
-            console.log('data', data);
-            setTimeout(() => setSubmitting(false), 5000);
-        });
-
-
-        setTimeout(() => {
-            httpPost('/users', values).then(data => {
-                console.log('data', data);
-            });
-        }, 10000);
+        httpPost<ApiResponse<UserProps>>('/auth/sign-in', values).then(res => {
+            console.log('res', res);
+            if (res && res.success) {
+                setAppState({ isAuthenticated: true, user: res.data });
+            }
+            // setTimeout(() => setSubmitting(false), 5000);
+        }).finally(() => setSubmitting(false));
     }
 
     return (
@@ -94,8 +72,11 @@ export function SignIn() {
                 <Formik
                     initialValues={initialValues}
                     validationSchema={signInSchema}
-                    onSubmit={(values, { setSubmitting }) => handleSignin(values, setSubmitting)}>
-                    {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+                    onSubmit={(values, { setSubmitting }) => {
+                        console.log('form submitted');
+                        handleSignin(values, setSubmitting);
+                    }}>
+                    {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting, isValid }) => (
                         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column' }}>
                             <TextField
                                 type="text"
@@ -126,7 +107,7 @@ export function SignIn() {
                             <ErrorMessage name="password">
                                 {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
                             </ErrorMessage>
-                            <Button type="submit" variant="contained" disabled={isSubmitting}>Sign in</Button>
+                            <Button type="submit" variant="contained" disabled={isSubmitting}> {isSubmitting ? <CircularProgress size={25} /> : ' Sign in'} </Button>
                         </Box>
                     )}
                 </Formik>

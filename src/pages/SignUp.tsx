@@ -1,4 +1,4 @@
-import { Box, Button, Container, Link, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Link, Paper, TextField, Typography } from '@mui/material';
 import { ErrorMessage, Formik } from 'formik';
 import * as yup from 'yup';
 import { useApi } from '../shared/hooks/useApi';
@@ -10,8 +10,6 @@ interface User {
     password: string;
     confirmPassword: string;
 }
-
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export function SignUp() {
     const { httpPost } = useApi();
@@ -132,7 +130,7 @@ export function SignUp() {
                                 {msg => <Box sx={{ color: 'red', marginBottom: '25px' }}>{msg}</Box>}
                             </ErrorMessage>
 
-                            <Button type="submit" variant="contained" disabled={isSubmitting}>Sign up</Button>
+                            <Button type="submit" variant="contained" disabled={isSubmitting}>{isSubmitting ? <CircularProgress size={25} /> : ' Sign up'} </Button>
                         </Box>
                     )}
                 </Formik>

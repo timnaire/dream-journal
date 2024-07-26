@@ -6,11 +6,13 @@ import { AvatarCard } from '../shared/components/AvatarCard';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useApi } from '../shared/hooks/useApi';
 
 export function Header() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
     const [open, setOpen] = useState(false);
     const { setAppState } = useContext(AppContext);
+    const { httpPost } = useApi();
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
@@ -24,9 +26,10 @@ export function Header() {
         setOpen(newOpen);
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('isAuthenticated');
-        setAppState({ isAuthenticated: false });
+    const handleSignOut = () => {
+        httpPost('/auth/sign-out', {}).then(res => {
+            setAppState({ isAuthenticated: false });
+        });
     }
 
     return (
@@ -144,7 +147,7 @@ export function Header() {
                                     </ListItemText>
                                 </MenuItem>
                                 <Divider />
-                                <MenuItem onClick={handleLogout}>
+                                <MenuItem onClick={handleSignOut}>
                                     <ListItemText>
                                         Sign out
                                     </ListItemText>

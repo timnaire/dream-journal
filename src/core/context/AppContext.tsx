@@ -3,11 +3,11 @@ import { createContext, useState } from 'react';
 export interface UserProps {
     firstName: string;
     lastName: string;
+    username: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
-/**
- * Application state interface
- */
 export interface AppState {
     user?: UserProps;
     isAuthenticated?: boolean;
@@ -22,11 +22,13 @@ const defaultState: AppState = {
 export const AppContext = createContext<AppState>(defaultState);
 
 export function AppContextProvider({ children }: any) {
-    const [state, setState] = useState(defaultState);
+    const [state, setState] = useState<AppState>(defaultState);
 
     const setAppState = (newState: Partial<AppState>) => {
         setState({ ...state, ...newState });
     }
+
+    console.log('state', state);
 
     return (
         <AppContext.Provider value={{ ...state, setAppState }}>

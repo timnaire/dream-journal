@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { CheckOutlined, EditOutlined } from '@mui/icons-material';
 import { Box, Button, Checkbox, Container, FormControlLabel, FormGroup, Modal, TextField, Typography } from '@mui/material';
 import { useDreams } from '../shared/hooks/useDreams';
@@ -6,6 +6,7 @@ import { Dream } from '../shared/components/Dream';
 import { Formik } from 'formik';
 import moment from 'moment';
 import { useApi } from '../shared/hooks/useApi';
+import { AppContext } from '../core/context/AppContext';
 
 const style = {
     position: 'absolute',
@@ -19,6 +20,7 @@ const style = {
 };
 
 export function Home() {
+    const { user } = useContext(AppContext);
     const { dreams, isLoading } = useDreams();
     const [writeDream, setWriteDream] = useState(false);
     const { httpGet } = useApi();
@@ -36,6 +38,11 @@ export function Home() {
 
     return (
         <Container>
+
+            <Box display="flex" justifyContent="center">
+                Hi Welcome, {user?.firstName}
+            </Box>
+
             <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, alignItems: 'center', overflow: 'hidden', p: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'end', py: '10px', width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
                     <Button variant="contained" onClick={handleWriteDreamOpen}><EditOutlined sx={{ mr: '6px' }} /> Write a dream</Button>
