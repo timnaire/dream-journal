@@ -4,8 +4,8 @@ import { Alert, Box, Button, CircularProgress, Container, IconButton, InputAdorn
 import { AccountCircleOutlined, KeyOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
 import { AppContext, UserProps } from '../core/context/AppContext';
 import { ErrorMessage, Formik } from 'formik';
-import * as yup from 'yup';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
+import * as yup from 'yup';
 
 interface Credentials {
     username: string;
@@ -25,7 +25,6 @@ const usernameIcon = {
     ),
 };
 
-
 export function SignIn() {
     const { isAuthenticated, setAppState } = useContext(AppContext);
     const { isError, error, httpPost } = useApi();
@@ -36,9 +35,9 @@ export function SignIn() {
         password: ''
     };
 
-    const handleClickShowPassword = () => setShowPassword((show: boolean) => !show);
+    const handleClickShowPassword = (): void => setShowPassword((show: boolean) => !show);
 
-    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>): void => {
         event.preventDefault();
     };
 
@@ -70,8 +69,7 @@ export function SignIn() {
     const handleSignin = async (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
         httpPost<ApiResponse<UserProps>>('/auth/sign-in', values).then(res => {
             if (res && res.success) {
-                localStorage.setItem('isAuthenticated', 'true');
-                setAppState({ isAuthenticated: true, user: res.data });
+                setAppState({ loading: false, isAuthenticated: true, user: res.data });
             }
         }).finally(() => setSubmitting(false));
     }

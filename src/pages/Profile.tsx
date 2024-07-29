@@ -1,4 +1,6 @@
-import { Box, Card, Container, Typography } from '@mui/material';
+import { useContext } from 'react';
+import { Avatar, Box, Card, Container, Typography } from '@mui/material';
+import { AppContext } from '../core/context/AppContext';
 import Grid from '@mui/material/Unstable_Grid2';
 
 const avatarStyle = {
@@ -14,18 +16,25 @@ const avatarStyle = {
 };
 
 export function Profile() {
+    const { user } = useContext(AppContext);
+
     return (
         <Container sx={{ width: { xs: '100%', md: '60%' } }}>
             <Card sx={{ marginY: '25px', p: '12px' }}>
-                <Box sx={{ display: 'flex' }}>
-                    <Box sx={avatarStyle}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {/* <Box sx={avatarStyle}>
                         TD
-                    </Box>
+                    </Box> */}
+                    <Avatar
+                        alt={user?.fullname}
+                        src="/static/images/avatar/1.jpg"
+                        sx={{ width: 56, height: 56 }}
+                    />
                     <Box sx={{ flexGrow: 1 }}>
-                        <Typography sx={{ ml: "25px", marginTop: '12px' }}>
-                            Name: Timmy Donaire
+                        <Typography sx={{ ml: "25px" }}>
+                            Name: {user?.fullname}
                             <br />
-                            Email: timmydonaire@gmail.com
+                            Email: {user?.email}
                             <br />
                         </Typography>
                     </Box>

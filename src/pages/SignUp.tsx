@@ -1,8 +1,8 @@
 import { Alert, Box, Button, CircularProgress, Container, Link, Paper, TextField, Typography } from '@mui/material';
 import { ErrorMessage, Formik } from 'formik';
-import * as yup from 'yup';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { useState } from 'react';
+import * as yup from 'yup';
 
 interface User {
     firstname: string;
@@ -12,9 +12,18 @@ interface User {
     confirmPassword: string;
 }
 
+const signUpSchema = yup.object().shape({
+    firstname: yup.string().trim().required('Firstname is required'),
+    lastname: yup.string().trim().required('Lastname is required'),
+    username: yup.string().trim().required('Username is required'),
+    password: yup.string().required('Password is required'),
+    confirmPassword: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required('Confirm Password is required'),
+});
+
 export function SignUp() {
     const [data, setData] = useState();
     const { isError, error, httpPost } = useApi();
+
     const initialValues: User = {
         firstname: '',
         lastname: '',
@@ -23,17 +32,8 @@ export function SignUp() {
         confirmPassword: '',
     }
 
-    const signUpSchema = yup.object().shape({
-        firstname: yup.string().trim().required('Firstname is required'),
-        lastname: yup.string().trim().required('Lastname is required'),
-        username: yup.string().trim().required('Username is required'),
-        password: yup.string().required('Password is required'),
-        confirmPassword: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required('Confirm Password is required'),
-    });
-
-    const handleSignup = (values: User, setSubmitting: (isSubmitting: boolean) => void) => {
+    const handleSignup = (values: User, setSubmitting: (isSubmitting: boolean) => void): void => {
         httpPost<ApiResponse>('/auth/sign-up', values).then(response => {
-            console.log('data', data);
             setData(response.data);
         }).finally(() => {
             setSubmitting(false);

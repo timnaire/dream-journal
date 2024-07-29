@@ -1,5 +1,5 @@
-import { DreamProps } from "../models/dream";
-import useSWR from "swr";
+import { DreamProps } from '../models/dream';
+import useSWR from 'swr';
 
 const headers = {
     headers: {

@@ -5,6 +5,15 @@ import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
 import { Home } from "./pages/Home";
 import { Profile } from "./pages/Profile";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "./shared/components/ErrorFallback";
+import { ErrorInfo } from "react";
+
+
+const logError = (error: Error, info: ErrorInfo) => {
+  console.info(error.message, info);
+};
+
 
 
 export const appRoutes = createBrowserRouter([
@@ -30,11 +39,11 @@ export const appRoutes = createBrowserRouter([
   },
   {
     path: '/sign-in',
-    element: <SignIn />
+    element: <ErrorBoundary FallbackComponent={ErrorFallback} onError={logError}><SignIn /></ErrorBoundary>
   },
   {
     path: '/sign-up',
-    element: <SignUp />
+    element: <ErrorBoundary FallbackComponent={ErrorFallback} onError={logError}><SignUp /></ErrorBoundary>
   },
   {
     path: '/forgot-password',

@@ -39,7 +39,6 @@ export function useApi() {
     }, (error) => {
         const Unauthorized = 401;
         if (error.response.status === Unauthorized) {
-            localStorage.removeItem('isAuthenticated');
             return <Navigate to={error.response.data.redirect} replace />;
         }
         return Promise.reject(error);

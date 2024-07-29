@@ -2,13 +2,13 @@ import { Avatar, Box, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 interface AvatarCardProps {
-    name: string;
+    name?: string;
     nameVariant: Variant;
-    caption: string;
+    caption?: string;
 }
 
 export function AvatarCard({ name, nameVariant, caption }: AvatarCardProps) {
-    const defaultAvatar = name.split(' ').map(n => n.slice(0, 1)).join('');
+    const defaultAvatar = name ? name.split(' ').map(n => n.slice(0, 1)).join('') : '';
 
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', mb: '6px', cursor: 'default' }}>
