@@ -2,10 +2,11 @@ import { useContext, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Alert, Box, Button, CircularProgress, Container, IconButton, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
 import { AccountCircleOutlined, KeyOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
-import { AppContext, UserProps } from '../core/context/AppContext';
+import { AppContext } from '../core/context/AppContext';
 import { ErrorMessage, Formik } from 'formik';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import * as yup from 'yup';
+import { UserModel } from '../shared/models/user';
 
 interface Credentials {
     username: string;
@@ -67,7 +68,7 @@ export function SignIn() {
     }
 
     const handleSignin = async (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
-        httpPost<ApiResponse<UserProps>>('/auth/sign-in', values).then(res => {
+        httpPost<ApiResponse<UserModel>>('/auth/sign-in', values).then(res => {
             if (res && res.success) {
                 setAppState({ loading: false, isAuthenticated: true, user: res.data });
             }

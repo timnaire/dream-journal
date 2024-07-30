@@ -40,11 +40,45 @@ export function Profile() {
                     </Box>
                 </Box>
             </Card>
+
             <Typography variant="h6">
-                Favorite  Dreams
+                Recently favorite  Dreams
             </Typography>
-            <Grid container spacing={2}>
-                {[0, 1, 2, 3, 4, 5].map(item => (
+            <Grid container spacing={2} sx={{ mb: '10px' }}>
+                {[0, 1, 2, 3].map(item => (
+                    <Grid key={item} xs={12} sm={6} md={12} lg={6}>
+                        <Card sx={{ p: '10px' }}>Test dream here</Card>
+                    </Grid>
+                ))}
+            </Grid>
+
+            <Typography variant="h6">
+                Recently nightmare  Dreams
+            </Typography>
+            <Grid container spacing={2} sx={{ mb: '10px' }}>
+                {[0, 1, 2, 3].map(item => (
+                    <Grid key={item} xs={12} sm={6} md={12} lg={6}>
+                        <Card sx={{ p: '10px' }}>Test dream here</Card>
+                    </Grid>
+                ))}
+            </Grid>
+
+            <Typography variant="h6">
+                Recently sleep paralysis  Dreams
+            </Typography>
+            <Grid container spacing={2} sx={{ mb: '10px' }}>
+                {[0, 1, 2, 3].map(item => (
+                    <Grid key={item} xs={12} sm={6} md={12} lg={6}>
+                        <Card sx={{ p: '10px' }}>Test dream here</Card>
+                    </Grid>
+                ))}
+            </Grid>
+
+            <Typography variant="h6">
+                Recently Recurrent  Dreams
+            </Typography>
+            <Grid container spacing={2} sx={{ mb: '10px' }}>
+                {[0, 1, 2, 3].map(item => (
                     <Grid key={item} xs={12} sm={6} md={12} lg={6}>
                         <Card sx={{ p: '10px' }}>Test dream here</Card>
                     </Grid>

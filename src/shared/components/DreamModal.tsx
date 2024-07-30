@@ -2,15 +2,20 @@ import { CheckOutlined } from '@mui/icons-material';
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, Modal, styled, TextField, Typography } from '@mui/material';
 import { Formik } from 'formik';
 import { useApi } from '../hooks/useApi';
+import { DreamModel } from '../models/dream';
 import moment from 'moment';
 import * as yup from 'yup';
 
+
 interface DreamModalProps {
     isOpen: boolean;
-    handleWriteDreamClose: () => void;
+    editDream: DreamModel | null;
+    writeDreamClose: () => void;
+    dreamSaved: () => void;
 }
 
 interface Dreams {
+    id?: string;
     title: string;
     dream: string;
     recurrent: boolean;
@@ -34,6 +39,7 @@ const ModalBox = styled(Box)(({ theme }) => ({
 }));
 
 const dreamSchema = yup.object().shape({
+    id: yup.string().trim(),
     title: yup.string().trim().required('Title is required'),
     dream: yup.string().trim().required('Dream is required'),
     recurrent: yup.boolean(),
@@ -42,25 +48,36 @@ const dreamSchema = yup.object().shape({
     favorite: yup.boolean(),
 });
 
-export function DreamModal({ isOpen, handleWriteDreamClose }: DreamModalProps) {
-    const { httpPost } = useApi();
+export function DreamModal({ isOpen, editDream, writeDreamClose, dreamSaved }: DreamModalProps) {
+    const { httpPost, httpPut } = useApi();
     const date = moment().format('ll');
-
+    console.log('editDream', editDream);
     const initializeDream: Dreams = {
-        title: 'Title here',
-        dream: 'My dream here',
-        recurrent: false,
-        nightmare: false,
-        paralysis: false,
-        favorite: false,
+        id: editDream ? editDream.id : '',
+        title: editDream ? editDream.title : 'Title here',
+        dream: editDream ? editDream.dream : 'My dream here',
+        recurrent: editDream ? editDream.recurrent : false,
+        nightmare: editDream ? editDream.nightmare : false,
+        paralysis: editDream ? editDream.paralysis : false,
+        favorite: editDream ? editDream.favorite : false,
     }
 
-    // TODO: Post an api call to save dreams
     const handleSubmit = (values: Dreams, setSubmitting: ((isSubmitting: boolean) => void)) => {
-        console.log('values', values);
-        setTimeout(() => {
-            setSubmitting(false);
-        }, 5000);
+        if (values.id) {
+            httpPut('/dreams', values).then(res => {
+                dreamSaved();
+                writeDreamClose();
+            }).finally(() => {
+                setSubmitting(false);
+            });
+        } else {
+            httpPost('/dreams', values).then(res => {
+                dreamSaved();
+                writeDreamClose();
+            }).finally(() => {
+                setSubmitting(false);
+            });
+        }
     };
 
     return (
@@ -84,15 +101,15 @@ export function DreamModal({ isOpen, handleWriteDreamClose }: DreamModalProps) {
                                 <TextField name="dream" label="Enter your dream" fullWidth={true} multiline rows={4} value={values.dream} onChange={handleChange} />
 
                                 <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
-                                    <FormControlLabel name="recurrent" value={values.dream} onChange={handleChange} control={<Checkbox />} label="Recurrent" />
-                                    <FormControlLabel name="nightmare" value={values.dream} onChange={handleChange} control={<Checkbox />} label="Nightmare" />
-                                    <FormControlLabel name="paralysis" value={values.dream} onChange={handleChange} control={<Checkbox />} label="Sleep paralysis" />
-                                    <FormControlLabel name="favorite" value={values.dream} onChange={handleChange} control={<Checkbox />} label="Favorite" />
+                                    <FormControlLabel name="recurrent" checked={values.recurrent} value={values.recurrent} onChange={handleChange} control={<Checkbox />} label="Recurrent" />
+                                    <FormControlLabel name="nightmare" checked={values.nightmare} value={values.nightmare} onChange={handleChange} control={<Checkbox />} label="Nightmare" />
+                                    <FormControlLabel name="paralysis" checked={values.paralysis} value={values.paralysis} onChange={handleChange} control={<Checkbox />} label="Sleep paralysis" />
+                                    <FormControlLabel name="favorite" checked={values.favorite} value={values.favorite} onChange={handleChange} control={<Checkbox />} label="Favorite" />
                                 </FormGroup>
 
                                 {/* Actions */}
                                 <Box sx={{ display: 'flex', justifyContent: 'end', mt: '12px' }}>
-                                    <Button variant="outlined" onClick={handleWriteDreamClose} sx={{ mr: '6px' }}>Close</Button>
+                                    <Button variant="outlined" onClick={writeDreamClose} sx={{ mr: '6px' }}>Close</Button>
                                     <Button variant="contained" type="submit" disabled={isSubmitting}><CheckOutlined sx={{ mr: '6px' }} /> Save Dream</Button>
                                 </Box>
                             </Box>

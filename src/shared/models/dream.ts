@@ -1,13 +1,14 @@
-export interface DreamProps {
+import { UserModel } from "./user";
+
+export interface DreamModel {
   id: string;
-  user: {
-    firstname: string;
-    lastname: string;
-    fullname: string;
-    email: string;
-  };
   title: string;
   dream: string;
-  time: string;
-  categories: string[];
+  created: string;
+  // categories: string[];
+  user: UserModel;
+  recurrent: boolean;
+  nightmare: boolean;
+  paralysis: boolean;
+  favorite: boolean;
 }

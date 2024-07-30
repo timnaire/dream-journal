@@ -11,6 +11,7 @@ export interface ApiResponse<T = any> {
 export function useApi() {
     const [isError, setIsError] = useState(false);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
     const instance: AxiosInstance = axios.create({
         baseURL: process.env.REACT_APP_API_BASE_URL,
         headers: {
@@ -20,21 +21,18 @@ export function useApi() {
         withCredentials: true
     });
 
-    instance.interceptors.request.use((config) => {
-        setIsError(false);
-        setError('');
-        return config;
-    });
-
     instance.interceptors.response.use((config) => {
         const response = config.data;
         if (response && typeof response === 'object' && ('redirect' in response)) {
             <Navigate to={response.redirect} replace />;
         }
         if (response && typeof response === 'object' && ('success' in response)) {
-            setIsError(!response.success);
-            setError(response.message);
+            if (!response.success) {
+                setIsError(!response.success);
+                setError(response.message);
+            }
         }
+        setIsLoading(false);
         return config;
     }, (error) => {
         const Unauthorized = 401;
@@ -76,5 +74,5 @@ export function useApi() {
         }
     }
 
-    return { isError, error, httpGet, httpPost, httpPut, httpDelete }
+    return { isLoading, isError, error, httpGet, httpPost, httpPut, httpDelete }
 }
