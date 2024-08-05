@@ -4,15 +4,15 @@ import { AppContext } from '../context/AppContext';
 import { Loading } from '../../shared/components/Loading';
 
 export function ProtectedRoute() {
-    const { isAuthenticated, loading } = useContext(AppContext);
+  const { isAuthenticated, loading } = useContext(AppContext);
 
-    if (loading) {
-        return <Loading />;
-    }
+  if (loading) {
+    return <Loading />;
+  }
 
-    if (!isAuthenticated) {
-        return <Navigate to="/sign-in" replace />;
-    }
+  if (!isAuthenticated) {
+    return <Navigate to="/sign-in" replace />;
+  }
 
-    return <Outlet />;
-};
+  return <Outlet />;
+}
