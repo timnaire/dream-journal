@@ -60,7 +60,7 @@ const dreamSchema = yup.object().shape({
 export function DreamModal({ isOpen, editDream, writeDreamClose, dreamSaved }: DreamModalProps) {
   const { httpPost, httpPut } = useApi();
   const date = moment().format('ll');
-  console.log('editDream', editDream);
+
   const initializeDream: Dreams = {
     id: editDream ? editDream.id : '',
     title: editDream ? editDream.title : 'Title here',

@@ -50,7 +50,7 @@ export function Home() {
   };
 
   return (
-    <Container>
+    <Container className="h-fit">
       <Box
         sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, alignItems: 'center', overflow: 'hidden', p: 3 }}
       >

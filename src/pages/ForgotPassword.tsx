@@ -48,36 +48,22 @@ export function ForgotPassword() {
   };
 
   return (
-    <Container sx={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          flexGrow: 1,
-          alignItems: 'center',
-          justifyContent: 'space-around',
-        }}
-      >
-        <BibliophileSvg width={width} height={height} />
-        <Box
-          component={Paper}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: { xs: '100%', sm: '80%', md: '50%', lg: '30%' },
-            padding: '25px',
-            margin: '25px',
-          }}
-        >
-          <Typography variant="h3" component="h3">
-            Dream Journal
-          </Typography>
-          <Box component="span" sx={{ paddingLeft: '3px', marginBottom: '32px', fontSize: '12px' }}>
-            Click here to get back to&nbsp;
-            <Link to="/sign-in" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
-              Sign in
-            </Link>
-          </Box>
+    <Container className="flex h-screen justify-center self-center">
+      <div className="flex flex-col md:flex-row md:justify-around self-center grow">
+        <BibliophileSvg className="self-center" width={width} height={height} />
+        <Box component={Paper} className="flex flex-col self-center p-5 md:p-5 w-96">
+
+          <div>
+            <Typography className="text-3xl md:text-4xl lg:text-5xl">
+              Dream Journal
+            </Typography>
+            <div className="text-[12px]">
+              Click here to get back to&nbsp;
+              <Link to="/sign-in" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
+                Sign in
+              </Link>
+            </div>
+          </div>
 
           <Formik
             initialValues={initialState}
@@ -91,6 +77,7 @@ export function ForgotPassword() {
                 autoComplete="off"
                 sx={{ display: 'flex', flexDirection: 'column' }}
                 onSubmit={handleSubmit}
+                className="grow justify-center"
               >
                 <TextField
                   type="text"
@@ -114,7 +101,7 @@ export function ForgotPassword() {
             )}
           </Formik>
         </Box>
-      </Box>
+      </div>
     </Container>
   );
 }

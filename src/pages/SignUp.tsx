@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { ReactComponent as BibliophileSvg } from './../assets/illustrations/bibliophile.svg';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '../shared/hooks/useIsMobile';
+import { usePasswordWithIcon } from '../shared/hooks/usePasswordWithIcon';
 import * as yup from 'yup';
 
 interface User {
@@ -29,10 +30,13 @@ const signUpSchema = yup.object().shape({
 export function SignUp() {
   const [data, setData] = useState();
   const { isError, error, httpPost } = useApi();
-  const theme = useTheme();
   const { isMobile } = useIsMobile();
+  const theme = useTheme();
   const width = isMobile ? 250 : 500;
   const height = isMobile ? 300 : 450;
+
+  const password = usePasswordWithIcon();
+  const confirmPassword = usePasswordWithIcon();
 
   const initialValues: User = {
     firstname: '',
@@ -53,36 +57,20 @@ export function SignUp() {
   };
 
   return (
-    <Container sx={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          flexGrow: 1,
-          alignItems: 'center',
-          justifyContent: 'space-around',
-        }}
-      >
-        <BibliophileSvg width={width} height={height} />
-        <Box
-          component={Paper}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: { xs: '100%', sm: '80%', md: '50%', lg: '30%' },
-            padding: '25px',
-            margin: '25px',
-          }}
-        >
-          <Typography variant="h3" component="h3">
+    <Container className="flex h-screen justify-center self-center">
+      <div className="flex flex-col md:flex-row md:justify-around self-center grow">
+        <BibliophileSvg className="self-center" width={width} height={height} />
+        <Box component={Paper} className="flex flex-col self-center p-5 md:p-5 w-96">
+          
+          <Typography className="text-3xl md:text-4xl lg:text-5xl">
             Dream Journal
           </Typography>
-          <Box component="span" sx={{ paddingLeft: '3px', marginBottom: '32px', fontSize: '12px' }}>
+          <div className="text-[12px]">
             Already have an account? Click here to&nbsp;
             <Link to="/sign-in" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
               Sign in
             </Link>
-          </Box>
+          </div>
 
           <Formik
             initialValues={initialValues}
@@ -97,8 +85,8 @@ export function SignUp() {
                 sx={{ display: 'flex', flexDirection: 'column' }}
                 onSubmit={handleSubmit}
               >
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex flex-col grow">
                     <TextField
                       type="text"
                       name="firstname"
@@ -110,10 +98,10 @@ export function SignUp() {
                       onBlur={handleBlur}
                     />
                     <ErrorMessage name="firstname">
-                      {(msg) => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
+                      {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
                     </ErrorMessage>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  </div>
+                  <div className="flex flex-col grow">
                     <TextField
                       type="text"
                       name="lastname"
@@ -125,10 +113,10 @@ export function SignUp() {
                       onBlur={handleBlur}
                     />
                     <ErrorMessage name="lastname">
-                      {(msg) => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
+                      {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
                     </ErrorMessage>
-                  </Box>
-                </Box>
+                  </div>
+                </div>
 
                 <TextField
                   type="text"
@@ -141,35 +129,37 @@ export function SignUp() {
                   onBlur={handleBlur}
                 />
                 <ErrorMessage name="username">
-                  {(msg) => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
+                  {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
                 </ErrorMessage>
 
                 <TextField
-                  type="password"
+                  type={password.show ? 'text' : 'password'}
                   name="password"
                   label="Password"
                   variant="standard"
                   sx={{ mb: errors.password && touched.password ? '0' : '25px' }}
+                  InputProps={password.icon}
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
                 />
                 <ErrorMessage name="password">
-                  {(msg) => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
+                  {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
                 </ErrorMessage>
 
                 <TextField
-                  type="password"
+                  type={confirmPassword.show ? 'text' : 'password'}
                   name="confirmPassword"
                   label="Confirm Password"
                   variant="standard"
                   sx={{ mb: errors.confirmPassword && touched.confirmPassword ? '0' : '25px' }}
+                  InputProps={confirmPassword.icon}
                   value={values.confirmPassword}
                   onChange={handleChange}
                   onBlur={handleBlur}
                 />
                 <ErrorMessage name="confirmPassword">
-                  {(msg) => <Box sx={{ color: 'red', mb: '25px' }}>{msg}</Box>}
+                  {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
                 </ErrorMessage>
 
                 <Button type="submit" variant="contained" disabled={isSubmitting}>
@@ -184,7 +174,7 @@ export function SignUp() {
             )}
           </Formik>
         </Box>
-      </Box>
-    </Container>
+      </div>
+    </Container >
   );
 }

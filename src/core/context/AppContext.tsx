@@ -12,7 +12,7 @@ export interface AppState {
 const defaultState: AppState = {
   loading: true,
   isAuthenticated: false,
-  setAppState: (newState?: Partial<AppState>): void => {},
+  setAppState: (newState?: Partial<AppState>): void => { },
 };
 
 export const AppContext = createContext<AppState>(defaultState);

@@ -5,6 +5,7 @@ import reportWebVitals from './reportWebVitals';
 import { RouterProvider } from 'react-router-dom';
 import { appRoutes } from './AppRouting';
 import { AppContextProvider } from './core/context/AppContext';
+import { CssBaseline } from '@mui/material';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,6 +13,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
+    <CssBaseline />
     <AppContextProvider>
       <RouterProvider router={appRoutes} />
     </AppContextProvider>
