@@ -9,10 +9,11 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { ReactComponent as BibliophileSvg } from './../assets/illustrations/undraw_bibliophile_re_xarc.svg';
+import { ReactComponent as BibliophileSvg } from './../assets/illustrations/bibliophile.svg';
 import { ErrorMessage, Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import { AccountCircleOutlined } from '@mui/icons-material';
+import { useIsMobile } from '../shared/hooks/useIsMobile';
 import * as yup from 'yup';
 
 interface InitialState {
@@ -33,6 +34,9 @@ const usernameIcon = {
 
 export function ForgotPassword() {
   const theme = useTheme();
+  const { isMobile } = useIsMobile();
+  const width = isMobile ? 250 : 500;
+  const height = isMobile ? 300 : 450;
 
   const initialState: InitialState = {
     username: '',
@@ -45,9 +49,16 @@ export function ForgotPassword() {
 
   return (
     <Container sx={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
-      <Box sx={{ display: 'flex', flexGrow: 1, alignItems: 'center', justifyContent: 'space-between' }}>
-        <BibliophileSvg />
-
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'space-around',
+        }}
+      >
+        <BibliophileSvg width={width} height={height} />
         <Box
           component={Paper}
           sx={{
@@ -55,6 +66,7 @@ export function ForgotPassword() {
             flexDirection: 'column',
             width: { xs: '100%', sm: '80%', md: '50%', lg: '30%' },
             padding: '25px',
+            margin: '25px',
           }}
         >
           <Typography variant="h3" component="h3">

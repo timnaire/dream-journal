@@ -19,7 +19,8 @@ import { AppContext } from '../core/context/AppContext';
 import { ErrorMessage, Formik } from 'formik';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { UserModel } from '../shared/models/user';
-import { ReactComponent as BibliophileSvg } from './../assets/illustrations/undraw_bibliophile_re_xarc.svg';
+import { ReactComponent as BibliophileSvg } from './../assets/illustrations/bibliophile.svg';
+import { useIsMobile } from '../shared/hooks/useIsMobile';
 import * as yup from 'yup';
 
 interface Credentials {
@@ -45,6 +46,9 @@ export function SignIn() {
   const { isError, error, httpPost } = useApi();
   const [showPassword, setShowPassword] = useState(false);
   const theme = useTheme();
+  const { isMobile } = useIsMobile();
+  const width = isMobile ? 250 : 500;
+  const height = isMobile ? 300 : 450;
 
   const initialValues: Credentials = {
     username: '',
@@ -94,8 +98,16 @@ export function SignIn() {
 
   return (
     <Container sx={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
-      <Box sx={{ display: 'flex', flexGrow: 1, alignItems: 'center', justifyContent: 'space-between' }}>
-        <BibliophileSvg />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'space-around',
+        }}
+      >
+        <BibliophileSvg width={width} height={height} />
         <Box
           component={Paper}
           sx={{
@@ -104,6 +116,7 @@ export function SignIn() {
             height: '100%',
             width: { xs: '100%', sm: '80%', md: '50%', lg: '30%' },
             padding: '25px',
+            margin: '25px',
           }}
         >
           <Typography variant="h3" component="h3">
