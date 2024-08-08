@@ -9,11 +9,10 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { ReactComponent as BibliophileSvg } from './../assets/illustrations/bibliophile.svg';
+import { ReactComponent as BgAuth } from './../assets/illustrations/bg_auth.svg';
 import { ErrorMessage, Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import { AccountCircleOutlined } from '@mui/icons-material';
-import { useIsMobile } from '../shared/hooks/useIsMobile';
 import * as yup from 'yup';
 
 interface InitialState {
@@ -34,9 +33,6 @@ const usernameIcon = {
 
 export function ForgotPassword() {
   const theme = useTheme();
-  const { isMobile } = useIsMobile();
-  const width = isMobile ? 250 : 500;
-  const height = isMobile ? 300 : 450;
 
   const initialState: InitialState = {
     username: '',
@@ -50,14 +46,12 @@ export function ForgotPassword() {
   return (
     <Container className="flex h-screen justify-center self-center">
       <div className="flex flex-col md:flex-row md:justify-around self-center grow">
-        <BibliophileSvg className="self-center" width={width} height={height} />
-        <Box component={Paper} className="flex flex-col self-center p-5 md:p-5 w-96">
+        <BgAuth className="self-center md:absolute sm:z-10 size-56 md:size-auto" />
 
+        <Box component={Paper} className="relative z-20 flex flex-col self-center p-5 md:p-5 w-80 sm:w-96">
           <div>
-            <Typography className="text-3xl md:text-4xl lg:text-5xl">
-              Dream Journal
-            </Typography>
-            <div className="text-[12px]">
+            <Typography className="text-3xl md:text-4xl lg:text-5xl">Dream Journal</Typography>
+            <div className="text-[12px] mb-5">
               Click here to get back to&nbsp;
               <Link to="/sign-in" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
                 Sign in

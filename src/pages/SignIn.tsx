@@ -18,10 +18,9 @@ import { AppContext } from '../core/context/AppContext';
 import { ErrorMessage, Formik } from 'formik';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { UserModel } from '../shared/models/user';
-import { ReactComponent as BibliophileSvg } from './../assets/illustrations/bibliophile.svg';
-import { useIsMobile } from '../shared/hooks/useIsMobile';
-import * as yup from 'yup';
+import { ReactComponent as BgAuth } from './../assets/illustrations/bg_auth.svg';
 import { usePasswordWithIcon } from '../shared/hooks/usePasswordWithIcon';
+import * as yup from 'yup';
 
 interface Credentials {
   username: string;
@@ -44,11 +43,8 @@ const usernameIcon = {
 export function SignIn() {
   const { isAuthenticated, setAppState } = useContext(AppContext);
   const { isError, error, httpPost } = useApi();
-  const { isMobile } = useIsMobile();
   const password = usePasswordWithIcon();
   const theme = useTheme();
-  const width = isMobile ? 250 : 500;
-  const height = isMobile ? 300 : 450;
 
   const initialValues: Credentials = {
     username: '',
@@ -73,14 +69,12 @@ export function SignIn() {
   return (
     <Container className="flex h-screen justify-center self-center">
       <div className="flex flex-col md:flex-row md:justify-around self-center grow">
-        <BibliophileSvg className="self-center" width={width} height={height} />
-        <Box component={Paper} className="flex flex-col self-center p-5 md:p-5 w-96">
+        <BgAuth className="self-center md:absolute sm:z-10 size-56 md:size-auto" />
 
+        <Box component={Paper} className="relative z-20 bg-white flex flex-col self-center p-5 md:p-5 w-80 sm:w-96">
           <div>
-            <Typography className="text-3xl md:text-4xl lg:text-5xl">
-              Dream Journal
-            </Typography>
-            <div className="text-[12px]">
+            <Typography className="text-3xl md:text-4xl lg:text-5xl">Dream Journal</Typography>
+            <div className="text-[12px] mb-5">
               Don't have an account? Click here to&nbsp;
               <Link to="/sign-up" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
                 Sign Up
@@ -114,9 +108,7 @@ export function SignIn() {
                   onChange={handleChange}
                   onBlur={handleBlur}
                 />
-                <ErrorMessage name="username">
-                  {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
-                </ErrorMessage>
+                <ErrorMessage name="username">{(msg) => <div className="text-red-500 mb-3">{msg}</div>}</ErrorMessage>
 
                 <TextField
                   type={password.show ? 'text' : 'password'}
@@ -129,9 +121,7 @@ export function SignIn() {
                   onChange={handleChange}
                   onBlur={handleBlur}
                 />
-                <ErrorMessage name="password">
-                  {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
-                </ErrorMessage>
+                <ErrorMessage name="password">{(msg) => <div className="text-red-500 mb-3">{msg}</div>}</ErrorMessage>
                 <Button type="submit" variant="contained" disabled={isSubmitting}>
                   {isSubmitting ? <CircularProgress size={25} /> : 'Sign in'}
                 </Button>

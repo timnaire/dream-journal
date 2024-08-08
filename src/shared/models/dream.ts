@@ -4,7 +4,8 @@ export interface DreamModel {
   id: string;
   title: string;
   dream: string;
-  created: string;
+  createdAt: string;
+  updatedAt: string;
   // categories: string[];
   user: UserModel;
   recurrent: boolean;

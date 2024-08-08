@@ -1,12 +1,12 @@
-import { Alert, Box, Button, CircularProgress, Container, Paper, TextField, Typography, useTheme } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Container, InputAdornment, Paper, TextField, Typography, useTheme } from '@mui/material';
 import { ErrorMessage, Formik } from 'formik';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { useState } from 'react';
-import { ReactComponent as BibliophileSvg } from './../assets/illustrations/bibliophile.svg';
+import { ReactComponent as BgAuth } from './../assets/illustrations/bg_auth.svg';
 import { Link } from 'react-router-dom';
-import { useIsMobile } from '../shared/hooks/useIsMobile';
 import { usePasswordWithIcon } from '../shared/hooks/usePasswordWithIcon';
 import * as yup from 'yup';
+import { AccountCircleOutlined } from '@mui/icons-material';
 
 interface User {
   firstname: string;
@@ -27,14 +27,18 @@ const signUpSchema = yup.object().shape({
     .required('Confirm Password is required'),
 });
 
+const usernameIcon = {
+  startAdornment: (
+    <InputAdornment position="start">
+      <AccountCircleOutlined />
+    </InputAdornment>
+  ),
+};
+
 export function SignUp() {
   const [data, setData] = useState();
   const { isError, error, httpPost } = useApi();
-  const { isMobile } = useIsMobile();
   const theme = useTheme();
-  const width = isMobile ? 250 : 500;
-  const height = isMobile ? 300 : 450;
-
   const password = usePasswordWithIcon();
   const confirmPassword = usePasswordWithIcon();
 
@@ -59,13 +63,11 @@ export function SignUp() {
   return (
     <Container className="flex h-screen justify-center self-center">
       <div className="flex flex-col md:flex-row md:justify-around self-center grow">
-        <BibliophileSvg className="self-center" width={width} height={height} />
-        <Box component={Paper} className="flex flex-col self-center p-5 md:p-5 w-96">
-          
-          <Typography className="text-3xl md:text-4xl lg:text-5xl">
-            Dream Journal
-          </Typography>
-          <div className="text-[12px]">
+        <BgAuth className="self-center md:absolute sm:z-10 size-56 md:size-auto" />
+
+        <Box component={Paper} className="relative z-20 flex flex-col self-center p-5 md:p-5 w-80 sm:w-96">
+          <Typography className="text-3xl md:text-4xl lg:text-5xl">Dream Journal</Typography>
+          <div className="text-[12px] mb-5">
             Already have an account? Click here to&nbsp;
             <Link to="/sign-in" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
               Sign in
@@ -124,13 +126,12 @@ export function SignUp() {
                   label="Username"
                   variant="standard"
                   sx={{ mb: errors.username && touched.username ? '0' : '25px' }}
+                  InputProps={usernameIcon}
                   value={values.username}
                   onChange={handleChange}
                   onBlur={handleBlur}
                 />
-                <ErrorMessage name="username">
-                  {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
-                </ErrorMessage>
+                <ErrorMessage name="username">{(msg) => <div className="text-red-500 mb-3">{msg}</div>}</ErrorMessage>
 
                 <TextField
                   type={password.show ? 'text' : 'password'}
@@ -143,9 +144,7 @@ export function SignUp() {
                   onChange={handleChange}
                   onBlur={handleBlur}
                 />
-                <ErrorMessage name="password">
-                  {(msg) => <div className="text-red-500 mb-3">{msg}</div>}
-                </ErrorMessage>
+                <ErrorMessage name="password">{(msg) => <div className="text-red-500 mb-3">{msg}</div>}</ErrorMessage>
 
                 <TextField
                   type={confirmPassword.show ? 'text' : 'password'}
@@ -175,6 +174,6 @@ export function SignUp() {
           </Formik>
         </Box>
       </div>
-    </Container >
+    </Container>
   );
 }

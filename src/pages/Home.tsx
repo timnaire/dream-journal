@@ -49,6 +49,14 @@ export function Home() {
     getDreams();
   };
 
+  const dreamsContent =
+    dreams &&
+    dreams.map((dream) => (
+      <Dream key={dream.id} dream={dream} editDream={handleEditDream} deleteDream={handleDeleteDream} />
+    ));
+
+  console.log('dreams', dreams);
+
   return (
     <Container className="h-fit">
       <Box
@@ -73,11 +81,7 @@ export function Home() {
         </Box>
 
         {/* Dream entries */}
-        {dreams &&
-          dreams.map((dream) => (
-            <Dream key={dream.id} dream={dream} editDream={handleEditDream} deleteDream={handleDeleteDream} />
-          ))}
-
+        {dreamsContent}
         {dreams && dreams.length === 0 && <p>No dreams found.</p>}
       </Box>
 
