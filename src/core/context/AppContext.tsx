@@ -1,18 +1,34 @@
 import { createContext, useEffect, useState } from 'react';
 import { useApi } from '../../shared/hooks/useApi';
 import { UserModel } from '../../shared/models/user';
+import { createTheme, Theme, ThemeProvider } from '@mui/material/styles';
 
 export interface AppState {
   loading: boolean;
   user?: UserModel;
   isAuthenticated?: boolean;
+  theme: Theme;
   setAppState: (newState: Partial<AppState>) => void;
 }
 
 const defaultState: AppState = {
   loading: true,
   isAuthenticated: false,
-  setAppState: (newState?: Partial<AppState>): void => { },
+  theme: createTheme({
+    palette: {
+      primary: { main: '#1976d2' },
+      secondary: { main: '#378FE7' },
+    },
+    breakpoints: {
+      values: { xs: 0, sm: 640, md: 768, lg: 1024, xl: 1280 },
+    },
+    spacing: 8,
+    typography: {
+      fontFamily: ['Montserrat', 'OpenSans', 'Arial', 'sans-serif'].join(','),
+      fontSize: 14,
+    },
+  }),
+  setAppState: (newState?: Partial<AppState>): void => {},
 };
 
 export const AppContext = createContext<AppState>(defaultState);
@@ -48,5 +64,9 @@ export function AppContextProvider({ children }: any) {
     }
   }, []);
 
-  return <AppContext.Provider value={{ ...state, setAppState }}>{children}</AppContext.Provider>;
+  return (
+    <ThemeProvider theme={state.theme}>
+      <AppContext.Provider value={{ ...state, setAppState }}>{children}</AppContext.Provider>
+    </ThemeProvider>
+  );
 }

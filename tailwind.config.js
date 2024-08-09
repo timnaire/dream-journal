@@ -4,6 +4,9 @@ module.exports = {
   important: '#root',
   theme: {
     extend: {},
+    fontFamily: {
+      'body': ['"Montserrat"','"Open Sans"','"Arial"', '"sans-serif"'],
+    }
   },
   corePlugins: {
     // Remove the Tailwind CSS preflight styles so it can use Material UI's preflight instead (CssBaseline).

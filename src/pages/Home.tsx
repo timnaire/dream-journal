@@ -7,13 +7,16 @@ import { Loading } from '../shared/components/Loading';
 import { DreamModal } from '../shared/components/DreamModal';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { DreamModel } from '../shared/models/dream';
+import { useAppDispatch, useAppSelector } from '../core/store/hooks';
+import { addDream } from '../core/store/dreams/dreamSlice';
 
 export function Home() {
   const [isOpen, setIsOpen] = useState(false);
-  const [dreams, setDreams] = useState<DreamModel[]>([]);
   const [editDream, setEditDream] = useState<DreamModel | null>(null);
   const { user } = useContext(AppContext);
   const { httpGet, httpDelete } = useApi();
+  const dreams = useAppSelector((state) => state.dream.dreams);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     getDreams();
@@ -26,9 +29,11 @@ export function Home() {
   const handleWriteDreamClose = (): void => setIsOpen(false);
 
   const getDreams = (): void => {
-    httpGet<ApiResponse<DreamModel[]>>('/dreams').then((res) => {
-      setDreams(res.data);
-    });
+    if (dreams.length === 0) {
+      httpGet<ApiResponse<DreamModel[]>>('/dreams').then((res) => {
+        dispatch(addDream(res.data));
+      });
+    }
   };
 
   const handleEditDream = (id: string) => {

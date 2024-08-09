@@ -73,7 +73,7 @@ export function SignIn() {
 
         <Box component={Paper} className="relative z-20 bg-white flex flex-col self-center p-5 md:p-5 w-80 sm:w-96">
           <div>
-            <Typography className="text-3xl md:text-4xl lg:text-5xl">Dream Journal</Typography>
+            <Typography className="text-2xl md:text-3xl lg:text-4xl mb-3">Dream Journal</Typography>
             <div className="text-[12px] mb-5">
               Don't have an account? Click here to&nbsp;
               <Link to="/sign-up" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
