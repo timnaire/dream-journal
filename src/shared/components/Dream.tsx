@@ -16,37 +16,34 @@ export function Dream({ dream, editDream, deleteDream }: DreamProps) {
   const createdAt = useToFriendlyDate(dream.createdAt, true);
 
   return (
-    <Card elevation={1} sx={{ width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
-      {/* Actions here */}
-      <div className="flex justify-end">
-        <Button onClick={() => editDream(dream.id)}>
-          <EditOutlined className="cursor-pointer w-5" />
-        </Button>
-        <Button onClick={() => deleteDream(dream.id)}>
-          <DeleteOutline className="cursor-pointer w-5" />
-        </Button>
-      </div>
-
-      {/* Content here */}
-      <Stack spacing={2} direction="column" sx={{ p: '10px' }}>
-        {/* User information */}
-        {/* <Stack direction="row" alignItems="start" sx={{ width: '100%' }}>
-                    <AvatarCard name={dream.user.fullname} nameVariant="h6" caption='' />
-                </Stack> */}
-
-        {/* Body */}
-        <Stack sx={{ minWidth: 0 }}>
-          <Typography variant="h5" sx={{ mb: '6px' }}>
-            {dream.title}
-          </Typography>
-          <Typography className="text-xs">{createdAt}</Typography>
-          <Typography className="mt-5 text-md">{dream.dream}</Typography>
-          <div className="mt-3">
-            {/* {dream.categories.map(category => <Chip key={category} label={category} sx={{ mr: '4px' }} />)} */}
-            {dream.recurrent && <Chip label="Recurrent" className="me-2" />}
-            {dream.nightmare && <Chip label="Nightmare" className="me-2" />}
-            {dream.paralysis && <Chip label="Paralysis" className="me-2" />}
-            {dream.favorite && <Chip label="Favorite" className="me-2" />}
+    <Card elevation={1} className="mb-5">
+      <Stack direction="column">
+        <Stack>
+          <div className="flex justify-between">
+            {/* Title */}
+            <Typography className="text-2xl md:text-3xl ms-3 mt-3">
+              {dream.title}
+            </Typography>
+            {/* Actions here */}
+            <div className="flex justify-end">
+              <Button onClick={() => editDream(dream.id)}>
+                <EditOutlined className="cursor-pointer w-5" />
+              </Button>
+              <Button onClick={() => deleteDream(dream.id)}>
+                <DeleteOutline className="cursor-pointer w-5" />
+              </Button>
+            </div>
+          </div>
+          <div className="p-3">
+            <Typography className="text-xs">{createdAt}</Typography>
+            <Typography className="mt-5 text-md">{dream.dream}</Typography>
+            <div className="mt-3">
+              {/* {dream.categories.map(category => <Chip key={category} label={category} sx={{ mr: '4px' }} />)} */}
+              {dream.recurrent && <Chip label="Recurrent" className="me-2 mb-2" />}
+              {dream.nightmare && <Chip label="Nightmare" className="me-2 mb-2" />}
+              {dream.paralysis && <Chip label="Paralysis" className="me-2 mb-2" />}
+              {dream.favorite && <Chip label="Favorite" className="me-2 mb-2" />}
+            </div>
           </div>
         </Stack>
       </Stack>

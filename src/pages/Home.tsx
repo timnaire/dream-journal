@@ -1,14 +1,15 @@
 import { useContext, useEffect, useState } from 'react';
-import { EditOutlined } from '@mui/icons-material';
-import { Box, Button, Container, Typography } from '@mui/material';
+import { AutoStoriesOutlined, EditOutlined, TuneOutlined } from '@mui/icons-material';
+import { Box, Button, Card, Container, Stack, Typography } from '@mui/material';
 import { Dream } from '../shared/components/Dream';
 import { AppContext } from '../core/context/AppContext';
-import { Loading } from '../shared/components/Loading';
 import { DreamModal } from '../shared/components/DreamModal';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { DreamModel } from '../shared/models/dream';
 import { useAppDispatch, useAppSelector } from '../core/store/hooks';
 import { addDream } from '../core/store/dreams/dreamSlice';
+import Fab from '@mui/material/Fab';
+import { CalendarIcon } from '@mui/x-date-pickers';
 
 export function Home() {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,36 +60,47 @@ export function Home() {
     dreams.map((dream) => (
       <Dream key={dream.id} dream={dream} editDream={handleEditDream} deleteDream={handleDeleteDream} />
     ));
-
   console.log('dreams', dreams);
 
   return (
-    <Container className="h-fit">
-      <Box
-        sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, alignItems: 'center', overflow: 'hidden', p: 3 }}
-      >
-        <Box sx={{ display: 'flex', py: '10px', width: { xs: '100%', sm: '80%', md: '60%' }, mb: '25px' }}>
-          <Typography variant="h4">Hi welcome, {user?.firstname}</Typography>
-        </Box>
-
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'end',
-            py: '10px',
-            width: { xs: '100%', sm: '80%', md: '60%' },
-            mb: '25px',
-          }}
-        >
-          <Button variant="contained" onClick={handleWriteDreamOpen}>
-            <EditOutlined sx={{ mr: '6px' }} /> Write a dream
+    <Container className="h-fit p-0 md:p-5">
+      <div>
+        {/* Filter */}
+        <div className="flex justify-end mt-20 mb-2 md:hidden">
+          <Button>
+            <AutoStoriesOutlined color="primary" />
           </Button>
-        </Box>
+          <Button>
+            <CalendarIcon color="primary" />
+          </Button>
+          <Button>
+            <TuneOutlined color="primary" />
+          </Button>
+        </div>
+        <Box className="rounded-t-lg border-gray-200 p-5" sx={{ borderTop: { xs: 2, md: 0 } }}>
+          <div>
+            <Typography variant="h4">Hi welcome, {user?.firstname}</Typography>
+          </div>
 
-        {/* Dream entries */}
-        {dreamsContent}
-        {dreams && dreams.length === 0 && <p>No dreams found.</p>}
-      </Box>
+          <div className="flex justify-end mb-3">
+            <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
+              <EditOutlined className="me-2" /> Write a dream
+            </Button>
+          </div>
+
+          {/* Dream entries */}
+          {dreamsContent}
+          {dreams && dreams.length === 0 && <p className="text-center">No dreams found.</p>}
+        </Box>
+      </div>
+
+      <Fab
+        className="md:hidden fixed bottom-0 end-0 me-5 mb-5"
+        color="primary"
+        aria-label="add-dream"
+        onClick={handleWriteDreamOpen}>
+        <EditOutlined />
+      </Fab>
 
       <DreamModal
         isOpen={isOpen}
