@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from '../core/store/hooks';
 import { addDream } from '../core/store/dreams/dreamSlice';
 import Fab from '@mui/material/Fab';
 import { CalendarIcon } from '@mui/x-date-pickers';
+import { Modal } from '../shared/components/Modal';
 
 export function Home() {
   const [isOpen, setIsOpen] = useState(false);
@@ -93,6 +94,10 @@ export function Home() {
           {dreams && dreams.length === 0 && <p className="text-center">No dreams found.</p>}
         </Box>
       </div>
+
+      <Modal isOpen={true}>
+        Testing here
+      </Modal>
 
       <Fab
         className="md:hidden fixed bottom-0 end-0 me-5 mb-5"

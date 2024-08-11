@@ -28,12 +28,16 @@ const defaultState: AppState = {
       fontSize: 14,
     },
   }),
-  setAppState: (newState?: Partial<AppState>): void => {},
+  setAppState: (newState?: Partial<AppState>): void => { },
 };
 
 export const AppContext = createContext<AppState>(defaultState);
 
-export function AppContextProvider({ children }: any) {
+interface AppContextProviderProps {
+  children: React.ReactNode;
+}
+
+export function AppContextProvider({ children }: AppContextProviderProps) {
   const [state, setState] = useState<AppState>(defaultState);
   const { httpPost } = useApi();
 
