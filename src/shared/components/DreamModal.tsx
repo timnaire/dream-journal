@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Formik } from 'formik';
-import { useApi } from '../hooks/useApi';
+import { ApiResponse, useApi } from '../hooks/useApi';
 import { DreamModel } from '../models/dream';
 import moment from 'moment';
 import * as yup from 'yup';
@@ -20,10 +20,10 @@ interface DreamModalProps {
   isOpen: boolean;
   editDream: DreamModel | null;
   writeDreamClose: () => void;
-  dreamSaved: () => void;
+  dreamSaved: (dream: DreamModel) => void;
 }
 
-interface Dreams {
+interface Dream {
   id?: string;
   title: string;
   dream: string;
@@ -47,7 +47,7 @@ export function DreamModal({ isOpen, editDream, writeDreamClose, dreamSaved }: D
   const { httpPost, httpPut } = useApi();
   const date = moment().format('ll');
 
-  const initializeDream: Dreams = {
+  const initializeDream: Dream = {
     id: editDream ? editDream.id : '',
     title: editDream ? editDream.title : 'Title here',
     dream: editDream ? editDream.dream : 'My dream here',
@@ -57,20 +57,20 @@ export function DreamModal({ isOpen, editDream, writeDreamClose, dreamSaved }: D
     favorite: editDream ? editDream.favorite : false,
   };
 
-  const handleSubmit = (values: Dreams, setSubmitting: (isSubmitting: boolean) => void) => {
+  const handleSubmit = (values: Dream, setSubmitting: (isSubmitting: boolean) => void) => {
     if (values.id) {
-      httpPut('/dreams', values)
+      httpPut<ApiResponse>('/dreams', values)
         .then((res) => {
-          dreamSaved();
+          dreamSaved(res.data);
           writeDreamClose();
         })
         .finally(() => {
           setSubmitting(false);
         });
     } else {
-      httpPost('/dreams', values)
+      httpPost<ApiResponse>('/dreams', values)
         .then((res) => {
-          dreamSaved();
+          dreamSaved(res.data);
           writeDreamClose();
         })
         .finally(() => {

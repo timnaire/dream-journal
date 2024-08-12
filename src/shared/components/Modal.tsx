@@ -1,5 +1,5 @@
-import { Box, styled, Modal as MUIModal, Button } from "@mui/material";
-import React from "react";
+import { Box, styled, Modal as MuiModal, Button } from '@mui/material';
+import React from 'react';
 
 export const ModalBox = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -17,22 +17,27 @@ export const ModalBox = styled(Box)(({ theme }) => ({
 
 interface ModalProps {
   isOpen: boolean;
-  children: React.ReactNode
+  handleClose: () => void;
+  handleOk: () => void;
+  children: React.ReactNode;
 }
 
-export function Modal({ isOpen, children }: ModalProps) {
+export function Modal({ isOpen, handleClose, handleOk, children }: ModalProps) {
   return (
-    <MUIModal open={isOpen} aria-describedby="modal">
+    <MuiModal open={isOpen} aria-describedby="modal">
       <ModalBox>
         {children}
 
         {/* Actions */}
-        <Box sx={{ display: 'flex', justifyContent: 'end', mt: '12px' }}>
-          <Button variant="outlined" onClick={() => !isOpen} sx={{ mr: '6px' }}>
+        <Box className="flex justify-end mt-5 pt-5 border-gray-200" sx={{ borderTop: 1 }}>
+          <Button variant="outlined" onClick={handleClose} sx={{ mr: '6px' }}>
             Close
+          </Button>
+          <Button variant="contained" onClick={handleOk} sx={{ mr: '6px' }}>
+            Okay
           </Button>
         </Box>
       </ModalBox>
-    </MUIModal>
+    </MuiModal>
   );
 }

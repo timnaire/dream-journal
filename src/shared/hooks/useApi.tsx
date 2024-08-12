@@ -8,7 +8,7 @@ export interface ApiResponse<T = any> {
   message: string;
 }
 
-export function useApi() {
+export function useAxiosIntance() {
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +44,11 @@ export function useApi() {
       return Promise.reject(error);
     }
   );
+  return { instance, isLoading, isError, error };
+}
+
+export function useApi() {
+  const { instance, isLoading, isError, error } = useAxiosIntance();
 
   const httpGet = async <T,>(url: string, query = ''): Promise<T> => {
     try {
@@ -77,5 +82,5 @@ export function useApi() {
     }
   };
 
-  return { isLoading, isError, error, httpGet, httpPost, httpPut, httpDelete };
+  return { instance, isLoading, isError, error, httpGet, httpPost, httpPut, httpDelete };
 }

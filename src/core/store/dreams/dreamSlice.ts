@@ -21,11 +21,21 @@ export const dreamSlice = createSlice({
   name: 'dream',
   initialState,
   reducers: {
-    addDream: (state, action) => {
-      state.dreams = [...action.payload];
+    initializeDream: (state, action: { type: string; payload: DreamModel[] }) => {
+      state.dreams = action.payload;
+    },
+    addDream: (state, action: { type: string; payload: DreamModel[] }) => {
+      state.dreams = [...state.dreams, ...action.payload];
+    },
+    updateDream: (state, action: { type: string; payload: DreamModel }) => {
+      const id = action.payload.id;
+      state.dreams = state.dreams.map((dream) => (dream.id === id ? action.payload : dream));
+    },
+    removeDream: (state, action: { type: string; payload: string }) => {
+      state.dreams = state.dreams.filter((dream) => dream.id !== action.payload);
     },
   },
 });
 
-export const { addDream } = dreamSlice.actions;
+export const { initializeDream, addDream, updateDream, removeDream } = dreamSlice.actions;
 export default dreamSlice.reducer;

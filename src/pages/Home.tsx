@@ -1,19 +1,21 @@
 import { useContext, useEffect, useState } from 'react';
 import { AutoStoriesOutlined, EditOutlined, TuneOutlined } from '@mui/icons-material';
-import { Box, Button, Card, Container, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Typography } from '@mui/material';
 import { Dream } from '../shared/components/Dream';
 import { AppContext } from '../core/context/AppContext';
 import { DreamModal } from '../shared/components/DreamModal';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { DreamModel } from '../shared/models/dream';
 import { useAppDispatch, useAppSelector } from '../core/store/hooks';
-import { addDream } from '../core/store/dreams/dreamSlice';
-import Fab from '@mui/material/Fab';
 import { CalendarIcon } from '@mui/x-date-pickers';
 import { Modal } from '../shared/components/Modal';
+import { initializeDream, addDream, updateDream, removeDream } from '../core/store/dreams/dreamSlice';
+import Fab from '@mui/material/Fab';
 
 export function Home() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenDreamModal, setIsOpenDreamModal] = useState(false);
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [dreamId, setDreamId] = useState<string>('');
   const [editDream, setEditDream] = useState<DreamModel | null>(null);
   const { user } = useContext(AppContext);
   const { httpGet, httpDelete } = useApi();
@@ -21,43 +23,64 @@ export function Home() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    getDreams();
-  }, []);
+    let mounted = true;
+
+    if (dreams.length === 0) {
+      try {
+        httpGet<ApiResponse<DreamModel[]>>('/dreams').then((res) => {
+          if (mounted) {
+            dispatch(initializeDream(res.data));
+          }
+        });
+      } catch (error) {
+        console.error('error:', error);
+      }
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [dreams]);
+
+  const dream = dreams.find((d) => d.id === dreamId);
 
   const handleWriteDreamOpen = (): void => {
-    setEditDream(null);
-    setIsOpen(true);
+    setIsOpenDreamModal(true);
   };
-  const handleWriteDreamClose = (): void => setIsOpen(false);
 
-  const getDreams = (): void => {
-    if (dreams.length === 0) {
-      httpGet<ApiResponse<DreamModel[]>>('/dreams').then((res) => {
-        dispatch(addDream(res.data));
-      });
-    }
-  };
+  const handleWriteDreamClose = (): void => setIsOpenDreamModal(false);
 
   const handleEditDream = (id: string) => {
     const dream = dreams.find((dream) => dream.id === id) || null;
     setEditDream(dream);
-    setIsOpen(true);
+    setIsOpenDreamModal(true);
   };
 
   const handleDeleteDream = (id: string) => {
-    httpDelete<ApiResponse>('/dreams/' + id).then((res) => {
+    setIsOpenModal(true);
+    setDreamId(id);
+  };
+
+  const handleDreamSaved = (dream: DreamModel): void => {
+    if (editDream) {
+      dispatch(updateDream(dream));
+    } else {
+      dispatch(addDream([dream]));
+    }
+    setEditDream(null);
+  };
+
+  const handleOk = (): void => {
+    setIsOpenModal(false);
+    httpDelete<ApiResponse>('/dreams/' + dreamId).then((res) => {
       if (res.success) {
-        getDreams();
+        dispatch(removeDream(dreamId));
       }
     });
   };
 
-  const handleDreamAdded = (): void => {
-    getDreams();
-  };
-
   const dreamsContent =
-    dreams &&
+    dreams.length > 0 &&
     dreams.map((dream) => (
       <Dream key={dream.id} dream={dream} editDream={handleEditDream} deleteDream={handleDeleteDream} />
     ));
@@ -95,23 +118,28 @@ export function Home() {
         </Box>
       </div>
 
-      <Modal isOpen={true}>
-        Testing here
+      <Modal isOpen={isOpenModal} handleClose={() => setIsOpenModal(false)} handleOk={handleOk}>
+        <div className="font-bold text-2xl mb-3">Warning !</div>
+        <div>
+          Are you sure you want to continue? This dream <span className="font-bold">{dream && dream.title}</span> will
+          be deleted.
+        </div>
       </Modal>
 
       <Fab
         className="md:hidden fixed bottom-0 end-0 me-5 mb-5"
         color="primary"
         aria-label="add-dream"
-        onClick={handleWriteDreamOpen}>
+        onClick={handleWriteDreamOpen}
+      >
         <EditOutlined />
       </Fab>
 
       <DreamModal
-        isOpen={isOpen}
+        isOpen={isOpenDreamModal}
         editDream={editDream}
         writeDreamClose={handleWriteDreamClose}
-        dreamSaved={handleDreamAdded}
+        dreamSaved={handleDreamSaved}
       />
     </Container>
   );

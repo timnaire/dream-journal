@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useState } from 'react';
 import { useApi } from '../../shared/hooks/useApi';
 import { UserModel } from '../../shared/models/user';
 import { createTheme, Theme, ThemeProvider } from '@mui/material/styles';
@@ -11,10 +11,19 @@ export interface AppState {
   setAppState: (newState: Partial<AppState>) => void;
 }
 
+const rootElement = document.getElementById('root');
+
 const defaultState: AppState = {
   loading: true,
   isAuthenticated: false,
   theme: createTheme({
+    components: {
+      MuiModal: {
+        defaultProps: {
+          container: rootElement,
+        },
+      },
+    },
     palette: {
       primary: { main: '#1976d2' },
       secondary: { main: '#378FE7' },
@@ -28,7 +37,7 @@ const defaultState: AppState = {
       fontSize: 14,
     },
   }),
-  setAppState: (newState?: Partial<AppState>): void => { },
+  setAppState: (newState?: Partial<AppState>): void => {},
 };
 
 export const AppContext = createContext<AppState>(defaultState);
@@ -50,23 +59,21 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
   const exceptedRouteValidation = ['/sign-in', '/sign-up', '/forgot-password'];
   const willValidate = !exceptedRouteValidation.some((route) => route === window.location.pathname);
 
-  useEffect(() => {
-    if (willValidate && state.loading) {
-      try {
-        httpPost<{ isAuthenticated: boolean; user: UserModel }>('/auth/validate-token', {})
-          .then((res) => {
-            if (res && typeof res === 'object' && 'isAuthenticated' in res) {
-              setAppState({ isAuthenticated: res.isAuthenticated, user: res.user });
-            }
-          })
-          .finally(() => {
-            setAppState({ loading: false });
-          });
-      } catch (error: any) {
-        throw new Error('An error occured while validating user authentication:', error);
-      }
+  if (willValidate && state.loading) {
+    try {
+      httpPost<{ isAuthenticated: boolean; user: UserModel }>('/auth/validate-token', {})
+        .then((res) => {
+          if (res && typeof res === 'object' && 'isAuthenticated' in res) {
+            setAppState({ isAuthenticated: res.isAuthenticated, user: res.user });
+          }
+        })
+        .finally(() => {
+          setAppState({ loading: false });
+        });
+    } catch (error: any) {
+      throw new Error('An error occured while validating user authentication:', error);
     }
-  }, []);
+  }
 
   return (
     <ThemeProvider theme={state.theme}>

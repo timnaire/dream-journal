@@ -1,9 +1,6 @@
-import { Box, Button, Card, Chip, Stack, Typography } from '@mui/material';
-import { AvatarCard } from './AvatarCard';
+import { Button, Card, Chip, Stack, Typography } from '@mui/material';
 import { DeleteOutline, EditOutlined } from '@mui/icons-material';
-import { UserModel } from '../models/user';
 import { DreamModel } from '../models/dream';
-import moment from 'moment';
 import { useToFriendlyDate } from '../hooks/useToFriendlyDate';
 
 export interface DreamProps {
@@ -25,12 +22,12 @@ export function Dream({ dream, editDream, deleteDream }: DreamProps) {
               {dream.title}
             </Typography>
             {/* Actions here */}
-            <div className="flex justify-end">
+            <div className="flex">
               <Button onClick={() => editDream(dream.id)}>
-                <EditOutlined className="cursor-pointer w-5" />
+                <EditOutlined className="cursor-pointer" />
               </Button>
-              <Button onClick={() => deleteDream(dream.id)}>
-                <DeleteOutline className="cursor-pointer w-5" />
+              <Button color="error" onClick={() => deleteDream(dream.id)}>
+                <DeleteOutline className="cursor-pointer" />
               </Button>
             </div>
           </div>
