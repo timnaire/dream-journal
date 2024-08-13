@@ -7,6 +7,8 @@ interface InitialState {
   recentNightmare: DreamModel[];
   recentParalysis: DreamModel[];
   recentRecurrent: DreamModel[];
+  search?: string;
+  searchDreams: DreamModel[];
 }
 
 const initialState: InitialState = {
@@ -15,6 +17,8 @@ const initialState: InitialState = {
   recentNightmare: [],
   recentParalysis: [],
   recentRecurrent: [],
+  search: '',
+  searchDreams: [],
 };
 
 export const dreamSlice = createSlice({
@@ -34,8 +38,20 @@ export const dreamSlice = createSlice({
     removeDream: (state, action: { type: string; payload: string }) => {
       state.dreams = state.dreams.filter((dream) => dream.id !== action.payload);
     },
+    searchDream: (state, action: { type: string; payload: string }) => {
+      const keyword = action.payload.toLowerCase();
+      state.searchDreams =
+        keyword !== ''
+          ? state.dreams.filter(
+              (dream) => dream.title.toLowerCase().includes(keyword) || dream.dream.toLowerCase().includes(keyword)
+            )
+          : [];
+    },
+    clearSearch: (state) => {
+      state.searchDreams = [];
+    },
   },
 });
 
-export const { initializeDream, addDream, updateDream, removeDream } = dreamSlice.actions;
+export const { initializeDream, addDream, updateDream, removeDream, searchDream, clearSearch } = dreamSlice.actions;
 export default dreamSlice.reducer;
