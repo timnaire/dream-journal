@@ -1,12 +1,6 @@
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import {
-  AutoStoriesOutlined,
-  EditOutlined,
-  SearchOutlined,
-  TuneOutlined,
-  ArrowBackIosNewOutlined,
-} from '@mui/icons-material';
-import { BottomNavigation, BottomNavigationAction, Box, Button, Container, List, Paper } from '@mui/material';
+import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined } from '@mui/icons-material';
+import { Box, Button, Container } from '@mui/material';
 import { Dream } from '../shared/components/Dream';
 import { DreamModal } from '../shared/components/DreamModal';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
@@ -32,18 +26,19 @@ export function Home() {
   const [dreamId, setDreamId] = useState<string>('');
   const [editDream, setEditDream] = useState<DreamModel | null>(null);
   const { httpGet, httpDelete } = useApi();
+  const httpGetRef = useRef(httpGet);
   const dreams = useAppSelector((state) => state.dream.dreams);
   const searched = useAppSelector((state) => state.dream.searchDreams);
   const searchRef = useRef<HTMLInputElement | null>(null);
   const dispatch = useAppDispatch();
-  const value = '';
+  const dream = dreams.find((d) => d.id === dreamId);
 
   useEffect(() => {
     let mounted = true;
 
     if (dreams.length === 0) {
       try {
-        httpGet<ApiResponse<DreamModel[]>>('/dreams').then((res) => {
+        httpGetRef.current<ApiResponse<DreamModel[]>>('/dreams').then((res) => {
           if (mounted) {
             dispatch(initializeDream(res.data));
           }
@@ -56,7 +51,7 @@ export function Home() {
     return () => {
       mounted = false;
     };
-  }, [dreams, dispatch, httpGet]);
+  }, [dreams, dispatch]);
 
   useEffect(() => {
     if (isSearching && searchRef.current) {
@@ -66,11 +61,12 @@ export function Home() {
     }
   }, [isSearching, dispatch]);
 
-  const dream = dreams.find((d) => d.id === dreamId);
-
-  const handleWriteDreamOpen = (): void => setIsOpenDreamModal(true);
-  const handleWriteDreamClose = (): void => setIsOpenDreamModal(false);
   const handleToggleSearch = (): void => setIsSearching(!isSearching);
+  const handleWriteDreamOpen = (): void => setIsOpenDreamModal(true);
+  const handleWriteDreamClose = (): void => {
+    setIsOpenDreamModal(false);
+    setEditDream(null);
+  };
 
   const handleDreamSaved = (dream: DreamModel): void => {
     if (editDream) {
@@ -110,7 +106,7 @@ export function Home() {
     !isSearching &&
     dreams.length > 0 &&
     dreams.map((dream) => (
-      <Dream key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} onShowActions={() => console.log('show controls')} />
+      <Dream key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
     ));
 
   const searchedContent =
@@ -118,6 +114,7 @@ export function Home() {
     searched.map((dream) => (
       <Dream key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
     ));
+
   console.log('dreams', dreams);
 
   return (
@@ -154,7 +151,7 @@ export function Home() {
           </div>
         )}
 
-        <Box className="rounded-t-lg border-gray-200 p-5" sx={{ borderTop: { xs: 2, md: 0 } }}>
+        <Box className="overflow-hidden rounded-t-lg border-gray-200 p-5" sx={{ borderTop: { xs: 2, md: 0 } }}>
           <div className="flex justify-end mb-3">
             <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
               <EditOutlined className="me-2" /> Write a dream
@@ -162,12 +159,10 @@ export function Home() {
           </div>
 
           {/* Dream entries */}
-          <List>
-            {isSearching && searched.length > 0 ? searchedContent : dreamsContent}
-            {((dreams && dreams.length === 0) || (isSearching && searched.length === 0)) && (
-              <p className="text-center">No dreams found.</p>
-            )}
-          </List>
+          {isSearching && searched.length > 0 ? searchedContent : dreamsContent}
+          {((dreams && dreams.length === 0) || (isSearching && searched.length === 0)) && (
+            <p className="text-center">No dreams found.</p>
+          )}
         </Box>
 
         {/* Mobile */}
@@ -180,19 +175,10 @@ export function Home() {
           >
             <EditOutlined />
           </Fab>
-
-          <div className="size-14"></div>
-          <Paper className="fixed bottom-0 end-0 w-full" elevation={3}>
-            <BottomNavigation value={value} onChange={(event, newValue) => console.log(newValue)}>
-              <BottomNavigationAction label="Recents" icon={<TuneOutlined />} />
-              <BottomNavigationAction label="Analyze" icon={<AutoStoriesOutlined />} />
-              <BottomNavigationAction label="Archive" icon={<EditOutlined />} />
-            </BottomNavigation>
-          </Paper>
         </div>
       </div>
 
-      <Modal isOpen={isOpenModal} handleClose={() => setIsOpenModal(false)} handleOk={handleOk}>
+      <Modal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} onOk={handleOk}>
         <div className="font-bold text-2xl mb-3">Warning !</div>
         <div>
           Are you sure you want to continue? This dream <span className="font-bold">{dream && dream.title}</span> will
@@ -203,8 +189,8 @@ export function Home() {
       <DreamModal
         isOpen={isOpenDreamModal}
         editDream={editDream}
-        writeDreamClose={handleWriteDreamClose}
-        dreamSaved={handleDreamSaved}
+        onWriteDreamClose={handleWriteDreamClose}
+        onDreamSaved={handleDreamSaved}
       />
     </Container>
   );

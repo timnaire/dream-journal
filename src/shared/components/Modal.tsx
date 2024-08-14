@@ -17,12 +17,12 @@ export const ModalBox = styled(Box)(({ theme }) => ({
 
 interface ModalProps {
   isOpen: boolean;
-  handleClose: () => void;
-  handleOk: () => void;
+  onClose: () => void;
+  onOk: () => void;
   children: React.ReactNode;
 }
 
-export function Modal({ isOpen, handleClose, handleOk, children }: ModalProps) {
+export function Modal({ isOpen, onClose, onOk, children }: ModalProps) {
   return (
     <MuiModal open={isOpen} aria-describedby="modal">
       <ModalBox>
@@ -30,10 +30,10 @@ export function Modal({ isOpen, handleClose, handleOk, children }: ModalProps) {
 
         {/* Actions */}
         <Box className="flex justify-end mt-5 pt-5 border-gray-200" sx={{ borderTop: 1 }}>
-          <Button variant="outlined" onClick={handleClose} sx={{ mr: '6px' }}>
+          <Button variant="outlined" onClick={onClose} sx={{ mr: '6px' }}>
             Close
           </Button>
-          <Button variant="contained" onClick={handleOk} sx={{ mr: '6px' }}>
+          <Button variant="contained" onClick={onOk} sx={{ mr: '6px' }}>
             Okay
           </Button>
         </Box>

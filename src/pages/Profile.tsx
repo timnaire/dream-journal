@@ -1,7 +1,8 @@
 import { useContext } from 'react';
-import { Avatar, Box, Card, Container, Typography } from '@mui/material';
+import { Avatar, Box, Button, Card, Container, Typography } from '@mui/material';
 import { AppContext } from '../core/context/AppContext';
 import Grid from '@mui/material/Unstable_Grid2';
+import { useApi } from '../shared/hooks/useApi';
 
 // const avatarStyle = {
 //   width: '150px',
@@ -16,7 +17,14 @@ import Grid from '@mui/material/Unstable_Grid2';
 // };
 
 export function Profile() {
-  const { user } = useContext(AppContext);
+  const { user, setAppState } = useContext(AppContext);
+  const { httpPost } = useApi();
+
+  const handleSignOut = (): void => {
+    httpPost('/auth/sign-out', {}).then((res) => {
+      setAppState({ isAuthenticated: false });
+    });
+  };
 
   return (
     <Container sx={{ width: { xs: '100%', md: '60%' } }}>
@@ -69,6 +77,12 @@ export function Profile() {
           </Grid>
         ))}
       </Grid>
+
+      <div className="md:hidden mb-5">
+        <Button className="w-full" variant="outlined" color="error" onClick={handleSignOut}>
+          Sign Out
+        </Button>
+      </div>
     </Container>
   );
 }

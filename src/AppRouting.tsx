@@ -5,6 +5,8 @@ import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Home } from './pages/Home';
+import { Analyze } from './pages/Analyze';
+import { Learn } from './pages/Learn';
 import { Profile } from './pages/Profile';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback } from './shared/components/ErrorFallback';
@@ -26,6 +28,14 @@ export const appRoutes = createBrowserRouter([
           {
             path: '/',
             element: <Home />,
+          },
+          {
+            path: '/analyze',
+            element: <Analyze />,
+          },
+          {
+            path: '/learn',
+            element: <Learn />,
           },
           {
             path: '/profile',

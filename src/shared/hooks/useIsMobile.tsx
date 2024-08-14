@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Breakpoints } from '../../core/models/constants';
 
-export function useIsMobile() {
+export function useIsMobile(breakpoint?: Breakpoints) {
   const [isMobile, setIsMobile] = useState(false);
+  const defaultBreakpoint = breakpoint !== undefined ? breakpoint : Breakpoints.SM;
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth <= Breakpoints.SM) {
+      if (window.innerWidth <= defaultBreakpoint) {
         setIsMobile(true);
       } else {
         setIsMobile(false);
@@ -21,7 +22,7 @@ export function useIsMobile() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [defaultBreakpoint]);
 
   return { isMobile };
 }

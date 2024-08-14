@@ -46,7 +46,7 @@ export function Header() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" className="hidden md:flex">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <AutoStoriesOutlined className="me-3" />

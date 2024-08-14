@@ -19,8 +19,8 @@ import { ModalBox } from './Modal';
 interface DreamModalProps {
   isOpen: boolean;
   editDream: DreamModel | null;
-  writeDreamClose: () => void;
-  dreamSaved: (dream: DreamModel) => void;
+  onWriteDreamClose: () => void;
+  onDreamSaved: (dream: DreamModel) => void;
 }
 
 interface Dream {
@@ -43,7 +43,7 @@ const dreamSchema = yup.object().shape({
   favorite: yup.boolean(),
 });
 
-export function DreamModal({ isOpen, editDream, writeDreamClose, dreamSaved }: DreamModalProps) {
+export function DreamModal({ isOpen, editDream, onWriteDreamClose, onDreamSaved }: DreamModalProps) {
   const { httpPost, httpPut } = useApi();
   const date = moment().format('ll');
 
@@ -61,8 +61,8 @@ export function DreamModal({ isOpen, editDream, writeDreamClose, dreamSaved }: D
     if (values.id) {
       httpPut<ApiResponse>('/dreams', values)
         .then((res) => {
-          dreamSaved(res.data);
-          writeDreamClose();
+          onDreamSaved(res.data);
+          onWriteDreamClose();
         })
         .finally(() => {
           setSubmitting(false);
@@ -70,8 +70,8 @@ export function DreamModal({ isOpen, editDream, writeDreamClose, dreamSaved }: D
     } else {
       httpPost<ApiResponse>('/dreams', values)
         .then((res) => {
-          dreamSaved(res.data);
-          writeDreamClose();
+          onDreamSaved(res.data);
+          onWriteDreamClose();
         })
         .finally(() => {
           setSubmitting(false);
@@ -152,7 +152,7 @@ export function DreamModal({ isOpen, editDream, writeDreamClose, dreamSaved }: D
 
                 {/* Actions */}
                 <Box sx={{ display: 'flex', justifyContent: 'end', mt: '12px' }}>
-                  <Button variant="outlined" onClick={writeDreamClose} sx={{ mr: '6px' }}>
+                  <Button variant="outlined" onClick={onWriteDreamClose} sx={{ mr: '6px' }}>
                     Close
                   </Button>
                   <Button variant="contained" type="submit" disabled={isSubmitting}>
