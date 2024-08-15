@@ -1,14 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { DreamModel } from '../../../shared/models/dream';
+import { Dream } from '../../../shared/models/dream';
 
 interface InitialState {
-  dreams: DreamModel[];
-  recentFavorite: DreamModel[];
-  recentNightmare: DreamModel[];
-  recentParalysis: DreamModel[];
-  recentRecurrent: DreamModel[];
+  dreams: Dream[];
+  recentFavorite: Dream[];
+  recentNightmare: Dream[];
+  recentParalysis: Dream[];
+  recentRecurrent: Dream[];
   search?: string;
-  searchDreams: DreamModel[];
+  searchDreams: Dream[];
 }
 
 const initialState: InitialState = {
@@ -25,13 +25,13 @@ export const dreamSlice = createSlice({
   name: 'dream',
   initialState,
   reducers: {
-    initializeDream: (state, action: { type: string; payload: DreamModel[] }) => {
+    initializeDream: (state, action: { type: string; payload: Dream[] }) => {
       state.dreams = action.payload;
     },
-    addDream: (state, action: { type: string; payload: DreamModel[] }) => {
+    addDream: (state, action: { type: string; payload: Dream[] }) => {
       state.dreams = [...state.dreams, ...action.payload];
     },
-    updateDream: (state, action: { type: string; payload: DreamModel }) => {
+    updateDream: (state, action: { type: string; payload: Dream }) => {
       const id = action.payload.id;
       state.dreams = state.dreams.map((dream) => (dream.id === id ? action.payload : dream));
     },

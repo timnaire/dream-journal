@@ -1,23 +1,23 @@
 import { Button, Card, Chip, debounce, Stack, Typography } from '@mui/material';
 import { DeleteOutline, EditOutlined } from '@mui/icons-material';
-import { DreamModel } from '../models/dream';
+import { Dream } from '../models/dream';
 import { useToFriendlyDate } from '../hooks/useToFriendlyDate';
 import { motion, PanInfo } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useEffect, useState } from 'react';
 import { Breakpoints } from '../../core/models/constants';
 
-export interface DreamProps {
-  dream: DreamModel;
+export interface DreamCardProps {
+  dream: Dream;
   onEditDream: (id: string) => void;
   onDeleteDream: (id: string) => void;
 }
 
-export function Dream({ dream, onEditDream, onDeleteDream }: DreamProps) {
+export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps) {
   const [showDelete, setShowDelete] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const { isMobile } = useIsMobile(Breakpoints.MD);
-  const createdAt = useToFriendlyDate(dream.createdAt, true);
+  const createdAt = useToFriendlyDate(dream.createdAt ? dream.createdAt : new Date(), true);
   const debounceDelete = debounce(setShowDelete, 200);
   const debounceEdit = debounce(setShowEdit, 200);
 
@@ -49,7 +49,7 @@ export function Dream({ dream, onEditDream, onDeleteDream }: DreamProps) {
   };
 
   const handleEdit = (): void => {
-    onEditDream(dream.id);
+    onEditDream(dream.id!);
     setShowEdit(false);
   };
 
@@ -77,10 +77,10 @@ export function Dream({ dream, onEditDream, onDeleteDream }: DreamProps) {
                 </Typography>
                 {/* Actions here */}
                 <div className="hidden md:flex">
-                  <Button onClick={() => onEditDream(dream.id)}>
+                  <Button onClick={() => onEditDream(dream.id!)}>
                     <EditOutlined className="cursor-pointer" />
                   </Button>
-                  <Button color="error" onClick={() => onDeleteDream(dream.id)}>
+                  <Button color="error" onClick={() => onDeleteDream(dream.id!)}>
                     <DeleteOutline className="cursor-pointer" />
                   </Button>
                 </div>
@@ -106,7 +106,7 @@ export function Dream({ dream, onEditDream, onDeleteDream }: DreamProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <Button color="error" onClick={() => onDeleteDream(dream.id)}>
+          <Button color="error" onClick={() => onDeleteDream(dream.id!)}>
             <DeleteOutline className="cursor-pointer" />
           </Button>
         </motion.div>
