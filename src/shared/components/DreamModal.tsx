@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useRef } from 'react';
+import { forwardRef, Ref, useEffect, useRef, useState } from 'react';
 import { CheckOutlined, CloseOutlined } from '@mui/icons-material';
 import { Formik, FormikProps } from 'formik';
 import { ApiResponse, useApi } from '../hooks/useApi';
@@ -7,10 +7,13 @@ import { dreamSchema } from '../schema/create-dream';
 import { Transition } from './Transition';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { Breakpoints } from '../../core/models/constants';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import {
   AppBar,
   Box,
   Button,
+  ButtonBase,
   Checkbox,
   Dialog,
   DialogContent,
@@ -44,18 +47,18 @@ export interface DreamModalProps extends DreamFormProps {
 }
 
 export interface DreamFormProps {
+  date?: moment.Moment;
   editDream: Dream | null;
   onWriteDreamClose: () => void;
   onDreamSaved: (dream: Dream) => void;
 }
 
 export const DreamForm = forwardRef(function (
-  { editDream, onWriteDreamClose, onDreamSaved }: DreamFormProps,
+  { date, editDream, onWriteDreamClose, onDreamSaved }: DreamFormProps,
   ref: Ref<FormikProps<Dream>> | undefined
 ) {
   const { isMobile } = useIsMobile(Breakpoints.MD);
   const { httpPost, httpPut } = useApi();
-  // const { submitForm } = useFormikContext();
 
   const initializeDream: Dream = {
     id: editDream ? editDream.id : '',
@@ -68,8 +71,9 @@ export const DreamForm = forwardRef(function (
   };
 
   const handleSubmit = (values: Dream, setSubmitting: (isSubmitting: boolean) => void) => {
-    if (values.id) {
-      httpPut<ApiResponse>('/dreams', values)
+    const data = { ...values, createdAt: date };
+    if (data.id) {
+      httpPut<ApiResponse>('/dreams', data)
         .then((res) => {
           onDreamSaved(res.data);
           onWriteDreamClose();
@@ -78,7 +82,7 @@ export const DreamForm = forwardRef(function (
           setSubmitting(false);
         });
     } else {
-      httpPost<ApiResponse>('/dreams', values)
+      httpPost<ApiResponse>('/dreams', data)
         .then((res) => {
           onDreamSaved(res.data);
           onWriteDreamClose();
@@ -94,7 +98,7 @@ export const DreamForm = forwardRef(function (
       innerRef={ref}
       initialValues={initializeDream}
       validationSchema={dreamSchema}
-      onSubmit={(values, { setSubmitting }) => handleSubmit(values, setSubmitting)}
+      onSubmit={(values, { setSubmitting, setFieldValue }) => handleSubmit(values, setSubmitting)}
     >
       {({ values, handleChange, handleSubmit, isSubmitting }) => (
         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -171,13 +175,32 @@ export const DreamForm = forwardRef(function (
 
 // Dialog = Mobile; Modal = Desktop
 export function DreamModal({ isOpen, editDream, onWriteDreamClose, onDreamSaved }: DreamModalProps) {
+  const [date, setDate] = useState(moment());
   const { isMobile } = useIsMobile(Breakpoints.MD);
-  const date = moment().format('ll');
+  const calendarRef = useRef<HTMLInputElement | null>(null);
   const formikRef = useRef<FormikProps<Dream>>(null);
+  const dateDisplay = date.format('ll');
+
+  useEffect(() => {
+    if (editDream) {
+      setDate(moment(editDream.createdAt));
+    }
+  }, [editDream]);
+
+  const handleDreamClose = (): void => {
+    onWriteDreamClose();
+    setDate(moment());
+  };
 
   const handleDreamMobile = (): void => {
     if (formikRef.current) {
       formikRef.current.submitForm();
+    }
+  };
+
+  const handleDateCalendar = (): void => {
+    if (calendarRef.current) {
+      calendarRef.current.click();
     }
   };
 
@@ -188,27 +211,39 @@ export function DreamModal({ isOpen, editDream, onWriteDreamClose, onDreamSaved 
           <ModalBox>
             {/* Title */}
             <Typography variant="h6" component="h2">
-              Dream - {date}
+              Dream -{' '}
+              <ButtonBase component="div" onClick={handleDateCalendar}>
+                {dateDisplay}
+              </ButtonBase>
             </Typography>
 
             {/* Body */}
             <Box sx={{ mt: 2 }}>
-              <DreamForm editDream={editDream} onWriteDreamClose={onWriteDreamClose} onDreamSaved={onDreamSaved} />
+              <DreamForm
+                date={date}
+                editDream={editDream}
+                onWriteDreamClose={handleDreamClose}
+                onDreamSaved={onDreamSaved}
+              />
             </Box>
           </ModalBox>
         </Modal>
       )}
 
       {isMobile && (
-        <Dialog fullScreen open={isOpen} onClose={onWriteDreamClose} TransitionComponent={Transition}>
+        <Dialog fullScreen open={isOpen} onClose={handleDreamClose} TransitionComponent={Transition}>
           <AppBar sx={{ position: 'relative' }}>
             <Toolbar>
-              <IconButton edge="start" color="inherit" onClick={onWriteDreamClose} aria-label="close">
+              <IconButton edge="start" color="inherit" onClick={handleDreamClose} aria-label="close">
                 <CloseOutlined />
               </IconButton>
-              <Typography component="div" className="flex justify-center w-full">
-                {date}
-              </Typography>
+
+              <div className="flex justify-center w-full">
+                <ButtonBase component="div" className="px-5 py-2" onClick={handleDateCalendar}>
+                  {dateDisplay}
+                </ButtonBase>
+              </div>
+
               <IconButton edge="end" color="inherit" onClick={handleDreamMobile} aria-label="save">
                 <CheckOutlined />
               </IconButton>
@@ -217,13 +252,20 @@ export function DreamModal({ isOpen, editDream, onWriteDreamClose, onDreamSaved 
           <DialogContent>
             <DreamForm
               ref={formikRef}
+              date={date}
               editDream={editDream}
-              onWriteDreamClose={onWriteDreamClose}
+              onWriteDreamClose={handleDreamClose}
               onDreamSaved={onDreamSaved}
             />
           </DialogContent>
         </Dialog>
       )}
+
+      <div className="hidden">
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <MobileDatePicker inputRef={calendarRef} onAccept={(e) => setDate(e!)} value={date} disableFuture={true} />
+        </LocalizationProvider>
+      </div>
     </>
   );
 }

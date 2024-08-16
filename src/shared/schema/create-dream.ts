@@ -8,4 +8,5 @@ export const dreamSchema = yup.object().shape({
   nightmare: yup.boolean(),
   paralysis: yup.boolean(),
   favorite: yup.boolean(),
+  createdAt: yup.string().trim(),
 });

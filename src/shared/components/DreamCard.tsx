@@ -50,18 +50,18 @@ export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps)
 
   const handleEdit = (): void => {
     onEditDream(dream.id!);
-    setShowEdit(false);
+    if (isMobile) {
+      setShowEdit(false);
+    }
   };
+
+  const handleDelete = (): void => onDeleteDream(dream.id!);
 
   return (
     <div className="flex">
       {showEdit && isMobile && (
-        <motion.div
-          className="h-full flex justify-center self-center pb-5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <Button size="small" onClick={handleEdit}>
+        <motion.div className="pb-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <Button className="h-full" size="small" onClick={handleEdit}>
             <EditOutlined className="cursor-pointer" />
           </Button>
         </motion.div>
@@ -72,22 +72,27 @@ export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps)
             <Stack>
               <div className="flex justify-between">
                 {/* Title */}
-                <Typography className="text-xl sm:text-2xl md:text-3xl m-3 md:mb-0 line-clamp-1">
+                <Typography
+                  className="text-xl sm:text-2xl md:text-3xl m-3 md:mb-0 line-clamp-1"
+                  sx={{ overflowWrap: 'anywhere' }}
+                >
                   {dream.title}
                 </Typography>
                 {/* Actions here */}
                 <div className="hidden md:flex">
-                  <Button onClick={() => onEditDream(dream.id!)}>
+                  <Button onClick={handleEdit}>
                     <EditOutlined className="cursor-pointer" />
                   </Button>
-                  <Button color="error" onClick={() => onDeleteDream(dream.id!)}>
+                  <Button color="error" onClick={handleDelete}>
                     <DeleteOutline className="cursor-pointer" />
                   </Button>
                 </div>
               </div>
               <div className="p-3">
                 <Typography className="text-xs">{createdAt}</Typography>
-                <Typography className="mt-5 text-md line-clamp-3">{dream.dream}</Typography>
+                <Typography className="mt-5 text-md line-clamp-3" sx={{ overflowWrap: 'anywhere' }}>
+                  {dream.dream}
+                </Typography>
                 <div className="mt-3 line-clamp-2">
                   {/* {dream.categories.map(category => <Chip key={category} label={category} sx={{ mr: '4px' }} />)} */}
                   {dream.recurrent && <Chip label="Recurrent" className="me-2 mb-2" />}
@@ -101,12 +106,8 @@ export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps)
         </Card>
       </motion.div>
       {showDelete && isMobile && (
-        <motion.div
-          className="h-full flex justify-center self-center pb-5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <Button color="error" onClick={() => onDeleteDream(dream.id!)}>
+        <motion.div className="pb-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <Button className="h-full" color="error" onClick={handleDelete}>
             <DeleteOutline className="cursor-pointer" />
           </Button>
         </motion.div>

@@ -41,7 +41,6 @@ export function Home() {
   const [dreamId, setDreamId] = useState<string | undefined>(undefined);
   const [editDream, setEditDream] = useState<Dream | null>(null);
   const { httpGet, httpDelete } = useApi();
-  const httpGetRef = useRef(httpGet);
   const dreams = useAppSelector((state) => state.dream.dreams);
   const searched = useAppSelector((state) => state.dream.searchDreams);
   const searchRef = useRef<HTMLInputElement | null>(null);
@@ -61,7 +60,7 @@ export function Home() {
 
     if (dreams.length === 0) {
       try {
-        httpGetRef.current<ApiResponse<Dream[]>>('/dreams').then((res) => {
+        httpGet<ApiResponse<Dream[]>>('/dreams').then((res) => {
           if (mounted) {
             dispatch(initializeDream(res.data));
           }
@@ -74,7 +73,7 @@ export function Home() {
     return () => {
       mounted = false;
     };
-  }, [dreams, dispatch]);
+  }, []);
 
   const handleToggleSearch = (): void => setIsSearching(!isSearching);
   const handleWriteDreamOpen = (): void => setIsOpenDreamModal(true);
@@ -92,19 +91,19 @@ export function Home() {
     setEditDream(null);
   };
 
-  const handleEditDream = (id: string) => {
+  const handleEditDream = (id: string): void => {
     const dream = dreams.find((dream) => dream.id === id) || null;
     setEditDream(dream);
     setIsOpenDreamModal(true);
   };
 
   const handleDeleteDream = (id: string): void => {
-    setIsOpenDreamCalendar(true);
+    setIsOpenDeleteDialog(true);
     setDreamId(id);
   };
 
   const handleOk = (): void => {
-    setIsOpenDreamCalendar(false);
+    setIsOpenDeleteDialog(false);
     httpDelete<ApiResponse>('/dreams/' + dreamId).then((res) => {
       if (res.success) {
         dispatch(removeDream(dreamId!));
@@ -137,7 +136,7 @@ export function Home() {
       <div>
         {/* Search & Filters */}
         {!isSearching && (
-          <div className="flex justify-end mt-20 mb-2 md:hidden">
+          <div className="flex justify-end mt-20 mb-2 md:hidden sticky">
             <Button onClick={() => setIsOpenDreamCalendar(true)}>
               <CalendarIcon color="primary" />
             </Button>
@@ -182,12 +181,7 @@ export function Home() {
 
         {/* Mobile create dream */}
         <div className="md:hidden">
-          <Fab
-            className="fixed bottom-0 end-0 me-5 mb-20"
-            color="primary"
-            aria-label="add-dream"
-            onClick={handleWriteDreamOpen}
-          >
+          <Fab className="fixed bottom-0 end-0 end-3 bottom-16" color="primary" onClick={handleWriteDreamOpen}>
             <EditOutlined />
           </Fab>
         </div>
@@ -208,7 +202,7 @@ export function Home() {
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               Calendar
             </Typography>
-            {/* <Button autoFocus color="inherit" onClick={() => setIsOpenDreamCalendar(false)}>
+            {/* <Button color="inherit" onClick={() => setIsOpenDreamCalendar(false)}>
               save
             </Button> */}
           </Toolbar>
@@ -226,22 +220,17 @@ export function Home() {
       </Dialog>
 
       {/* Delete dreams confirmation */}
-      <Dialog
-        open={isOpenDeleteDialog}
-        onClose={() => setIsOpenDeleteDialog(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Warning !</DialogTitle>
+      <Dialog open={isOpenDeleteDialog} onClose={() => setIsOpenDeleteDialog(false)}>
+        <DialogTitle>Warning !</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText>
             Are you sure you want to continue? This dream <span className="font-bold">{dream && dream.title}</span> will
             be deleted.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsOpenDeleteDialog(false)}>Close</Button>
-          <Button variant="contained" onClick={handleOk} autoFocus>
+          <Button variant="contained" onClick={handleOk}>
             Okay
           </Button>
         </DialogActions>

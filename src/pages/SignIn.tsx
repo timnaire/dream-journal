@@ -56,7 +56,7 @@ export function SignIn() {
     return <Navigate to="/" replace />;
   }
 
-  const handleSignin = async (values: Credentials, setSubmitting: (isSubmitting: boolean) => void) => {
+  const handleSignin = (values: Credentials, setSubmitting: (isSubmitting: boolean) => void): void => {
     httpPost<ApiResponse<UserModel>>('/auth/sign-in', values)
       .then((res) => {
         if (res && res.success) {
