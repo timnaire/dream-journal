@@ -14,11 +14,11 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <React.StrictMode>
     <CssBaseline />
-    <Provider store={Store}>
-      <AppContextProvider>
+    <AppContextProvider>
+      <Provider store={Store}>
         <RouterProvider router={appRoutes} />
-      </AppContextProvider>
-    </Provider>
+      </Provider>
+    </AppContextProvider>
   </React.StrictMode>
 );
 

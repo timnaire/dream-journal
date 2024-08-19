@@ -6,7 +6,6 @@ import { Dream } from '../models/dream';
 import { dreamSchema } from '../schema/create-dream';
 import { Transition } from './Transition';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { Breakpoints } from '../../core/models/constants';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import {
@@ -44,6 +43,7 @@ const ModalBox = styled(Box)(({ theme }) => ({
 
 export interface DreamModalProps extends DreamFormProps {
   isOpen: boolean;
+  initialDate?: moment.Moment;
 }
 
 export interface DreamFormProps {
@@ -57,7 +57,7 @@ export const DreamForm = forwardRef(function (
   { date, editDream, onWriteDreamClose, onDreamSaved }: DreamFormProps,
   ref: Ref<FormikProps<Dream>> | undefined
 ) {
-  const { isMobile } = useIsMobile(Breakpoints.MD);
+  const { isMobile } = useIsMobile();
   const { httpPost, httpPut } = useApi();
 
   const initializeDream: Dream = {
@@ -174,18 +174,12 @@ export const DreamForm = forwardRef(function (
 });
 
 // Dialog = Mobile; Modal = Desktop
-export function DreamModal({ isOpen, editDream, onWriteDreamClose, onDreamSaved }: DreamModalProps) {
-  const [date, setDate] = useState(moment());
-  const { isMobile } = useIsMobile(Breakpoints.MD);
+export function DreamModal({ initialDate, isOpen, editDream, onWriteDreamClose, onDreamSaved }: DreamModalProps) {
+  const [date, setDate] = useState(editDream ? moment(editDream.createdAt) : moment(initialDate));
+  const { isMobile } = useIsMobile();
   const calendarRef = useRef<HTMLInputElement | null>(null);
   const formikRef = useRef<FormikProps<Dream>>(null);
   const dateDisplay = date.format('ll');
-
-  useEffect(() => {
-    if (editDream) {
-      setDate(moment(editDream.createdAt));
-    }
-  }, [editDream]);
 
   const handleDreamClose = (): void => {
     onWriteDreamClose();
@@ -240,7 +234,7 @@ export function DreamModal({ isOpen, editDream, onWriteDreamClose, onDreamSaved 
 
               <div className="flex justify-center w-full">
                 <ButtonBase component="div" className="px-5 py-2" onClick={handleDateCalendar}>
-                  {dateDisplay}
+                  <Typography>{dateDisplay}</Typography>
                 </ButtonBase>
               </div>
 

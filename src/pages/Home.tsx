@@ -2,14 +2,16 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined, Close } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
 import { Transition } from '../shared/components/Transition';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { DreamCard } from '../shared/components/DreamCard';
 import { DreamModal } from '../shared/components/DreamModal';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { Dream } from '../shared/models/dream';
 import { useAppDispatch, useAppSelector } from '../core/store/hooks';
 import { CalendarIcon, DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
+import { useIsMobile } from '../shared/hooks/useIsMobile';
 import {
+  Alert,
   AppBar,
   Box,
   Button,
@@ -20,6 +22,7 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Snackbar,
   Toolbar,
   Typography,
 } from '@mui/material';
@@ -32,28 +35,29 @@ import {
   clearSearch,
 } from '../core/store/dreams/dreamSlice';
 import Fab from '@mui/material/Fab';
+import moment from 'moment';
 
 export function Home() {
   const [isOpenDreamModal, setIsOpenDreamModal] = useState(false);
   const [isOpenDreamCalendar, setIsOpenDreamCalendar] = useState(false);
   const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState(false);
+
+  const [date, setDate] = useState(moment());
   const [isSearching, setIsSearching] = useState(false);
-  const [dreamId, setDreamId] = useState<string | undefined>(undefined);
+  const [dreamId, setDreamId] = useState<string | null>(null);
   const [editDream, setEditDream] = useState<Dream | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [status, setStatus] = useState<'adding' | 'editing' | 'deleting'>('adding');
+
   const { httpGet, httpDelete } = useApi();
+  const { isMobile } = useIsMobile();
+
   const dreams = useAppSelector((state) => state.dream.dreams);
-  const searched = useAppSelector((state) => state.dream.searchDreams);
+  const searchedItems = useAppSelector((state) => state.dream.searchDreams);
   const searchRef = useRef<HTMLInputElement | null>(null);
   const dispatch = useAppDispatch();
-  const dream = dreams.find((d) => d.id === dreamId);
 
-  useEffect(() => {
-    if (isSearching && searchRef.current) {
-      searchRef.current.focus();
-    } else {
-      dispatch(clearSearch());
-    }
-  }, [isSearching, dispatch]);
+  const dream = dreams.find((d) => d.id === dreamId);
 
   useEffect(() => {
     let mounted = true;
@@ -75,11 +79,26 @@ export function Home() {
     };
   }, []);
 
-  const handleToggleSearch = (): void => setIsSearching(!isSearching);
-  const handleWriteDreamOpen = (): void => setIsOpenDreamModal(true);
-  const handleWriteDreamClose = (): void => {
-    setIsOpenDreamModal(false);
+  useEffect(() => {
+    if (!isMobile) {
+      setIsOpenDreamCalendar(false);
+    }
+  }, [isMobile]);
+
+  const handleWriteDreamOpen = (): void => {
+    setIsOpenDreamModal(true);
     setEditDream(null);
+    setStatus('adding');
+  };
+  const handleWriteDreamClose = (): void => setIsOpenDreamModal(false);
+
+  const handleToggleSearch = (): void => {
+    setIsSearching(!isSearching);
+    if (isSearching && searchRef.current) {
+      searchRef.current.focus();
+    } else {
+      dispatch(clearSearch());
+    }
   };
 
   const handleDreamSaved = (dream: Dream): void => {
@@ -87,19 +106,23 @@ export function Home() {
       dispatch(updateDream(dream));
     } else {
       dispatch(addDream([dream]));
+      setIsOpenDreamCalendar(false);
+      setDate(moment());
     }
-    setEditDream(null);
+    setShowAlert(true);
   };
 
   const handleEditDream = (id: string): void => {
     const dream = dreams.find((dream) => dream.id === id) || null;
     setEditDream(dream);
     setIsOpenDreamModal(true);
+    setStatus('editing');
   };
 
   const handleDeleteDream = (id: string): void => {
     setIsOpenDeleteDialog(true);
     setDreamId(id);
+    setStatus('deleting');
   };
 
   const handleOk = (): void => {
@@ -107,6 +130,7 @@ export function Home() {
     httpDelete<ApiResponse>('/dreams/' + dreamId).then((res) => {
       if (res.success) {
         dispatch(removeDream(dreamId!));
+        setShowAlert(true);
       }
     });
   };
@@ -114,6 +138,11 @@ export function Home() {
   const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
     const keyword = e.target.value.trim();
     dispatch(searchDream(keyword));
+  };
+
+  const handleOpenCalendar = (): void => {
+    setDate(moment());
+    setIsOpenDreamCalendar(true);
   };
 
   const dreamsContent =
@@ -124,20 +153,20 @@ export function Home() {
     ));
 
   const searchedContent =
-    searched.length > 0 &&
-    searched.map((dream) => (
+    searchedItems.length > 0 &&
+    searchedItems.map((dream) => (
       <DreamCard key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
     ));
 
-  // console.log('dreams', dreams);
+  console.log('dreams', dreams);
 
   return (
     <Container className="h-fit p-0 md:p-5">
       <div>
         {/* Search & Filters */}
         {!isSearching && (
-          <div className="flex justify-end mt-20 mb-2 md:hidden sticky">
-            <Button onClick={() => setIsOpenDreamCalendar(true)}>
+          <div className="flex justify-end pt-20 pb-2 md:hidden sticky">
+            <Button onClick={handleOpenCalendar}>
               <CalendarIcon color="primary" />
             </Button>
             <Button onClick={handleToggleSearch}>
@@ -173,8 +202,8 @@ export function Home() {
           </div>
 
           {/* List of Dreams */}
-          {isSearching && searched.length > 0 ? searchedContent : dreamsContent}
-          {((dreams && dreams.length === 0) || (isSearching && searched.length === 0)) && (
+          {isSearching && searchedItems.length > 0 ? searchedContent : dreamsContent}
+          {((dreams && dreams.length === 0) || (isSearching && searchedItems.length === 0)) && (
             <p className="text-center">No dreams found.</p>
           )}
         </Box>
@@ -202,14 +231,11 @@ export function Home() {
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               Calendar
             </Typography>
-            {/* <Button color="inherit" onClick={() => setIsOpenDreamCalendar(false)}>
-              save
-            </Button> */}
           </Toolbar>
         </AppBar>
-        <DialogContent>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateCalendar />
+        <DialogContent className="p-0">
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+            <DateCalendar value={date} onChange={(e) => setDate(e!)} disableFuture={true} />
           </LocalizationProvider>
           <div className="flex justify-center">
             <Button variant="contained" onClick={handleWriteDreamOpen}>
@@ -238,11 +264,25 @@ export function Home() {
 
       {/* Create/Edit Dreams */}
       <DreamModal
+        key={editDream ? editDream?.id : date.toISOString()}
         isOpen={isOpenDreamModal}
+        initialDate={date}
         editDream={editDream}
         onWriteDreamClose={handleWriteDreamClose}
         onDreamSaved={handleDreamSaved}
       />
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={showAlert}
+        autoHideDuration={3000}
+        onClose={() => setShowAlert(false)}
+      >
+        <Alert severity="success" variant="filled">
+          Dream {status === 'adding' && 'logged'} {status === 'editing' && 'updated'}
+          {status === 'deleting' && 'deleted'} successfully!
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

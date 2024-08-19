@@ -5,7 +5,6 @@ import { useToFriendlyDate } from '../hooks/useToFriendlyDate';
 import { motion, PanInfo } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useEffect, useState } from 'react';
-import { Breakpoints } from '../../core/models/constants';
 
 export interface DreamCardProps {
   dream: Dream;
@@ -16,7 +15,7 @@ export interface DreamCardProps {
 export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps) {
   const [showDelete, setShowDelete] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
-  const { isMobile } = useIsMobile(Breakpoints.MD);
+  const { isMobile } = useIsMobile();
   const createdAt = useToFriendlyDate(dream.createdAt ? dream.createdAt : new Date(), true);
   const debounceDelete = debounce(setShowDelete, 200);
   const debounceEdit = debounce(setShowEdit, 200);

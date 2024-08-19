@@ -3,7 +3,7 @@ import { Breakpoints } from '../../core/models/constants';
 
 export function useIsMobile(breakpoint?: Breakpoints) {
   const [isMobile, setIsMobile] = useState(false);
-  const defaultBreakpoint = breakpoint !== undefined ? breakpoint : Breakpoints.SM;
+  const defaultBreakpoint = breakpoint !== undefined ? breakpoint : Breakpoints.MD;
 
   useEffect(() => {
     const handleResize = () => {

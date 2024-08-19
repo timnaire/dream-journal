@@ -26,7 +26,7 @@ export const dreamSlice = createSlice({
   initialState,
   reducers: {
     initializeDream: (state, action: { type: string; payload: Dream[] }) => {
-      state.dreams = action.payload;
+      state.dreams = [...action.payload];
     },
     addDream: (state, action: { type: string; payload: Dream[] }) => {
       state.dreams = [...state.dreams, ...action.payload];
