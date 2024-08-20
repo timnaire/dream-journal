@@ -71,7 +71,7 @@ export function SignIn() {
       <div className="flex flex-col md:flex-row md:justify-around self-center grow">
         <BgAuth className="self-center md:absolute sm:z-10 size-56 md:size-auto" />
 
-        <Box component={Paper} className="relative z-20 bg-white flex flex-col self-center p-5 md:p-5 w-80 sm:w-96">
+        <Box component={Paper} className="relative z-20 flex flex-col self-center p-5 md:p-5 w-80 sm:w-96">
           <div>
             <Typography className="text-2xl md:text-3xl lg:text-4xl mb-3">Dream Journal</Typography>
             <div className="text-[12px] mb-5">

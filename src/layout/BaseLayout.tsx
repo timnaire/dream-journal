@@ -7,7 +7,7 @@ export function BaseLayout() {
   return (
     <>
       <Header />
-      <Box component="main" sx={{ height: '100%' }}>
+      <Box component="main" sx={{ height: '100%', backgroundColor: '#fdfdfd' }}>
         <Outlet />
       </Box>
       <Footer />

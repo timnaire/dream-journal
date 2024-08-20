@@ -155,7 +155,7 @@ export function Home() {
     Object.entries(displayDreams).map(([month, dreams]) => {
       return (
         <div key={month}>
-          <div className="text-xl ms-1 mb-3">{month}</div>
+          <div className="text-lg sm:text-xl md:text-2xl ms-1 mb-3">{month}</div>
           {dreams.map((dream) => (
             <DreamCard key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
           ))}
@@ -168,7 +168,7 @@ export function Home() {
     Object.entries(displayFilteredDreams).map(([month, dreams]) => {
       return (
         <div key={month}>
-          <div className="text-xl ms-1 mb-3">{month}</div>
+          <div className="text-lg sm:text-xl md:text-2xl ms-1 mb-3">{month}</div>
           {dreams.map((dream) => (
             <DreamCard key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
           ))}
@@ -179,7 +179,7 @@ export function Home() {
   console.log('dreams', dreams);
 
   return (
-    <Container className="h-fit p-0 md:p-5">
+    <Container className="p-0 md:p-5">
       <div>
         {/* Search & Filters */}
         {!isSearching && (
@@ -212,7 +212,11 @@ export function Home() {
         )}
 
         <Box className="overflow-hidden rounded-t-lg border-gray-200" sx={{ borderTop: { xs: 2, md: 0 } }}>
-          <div className="overflow-y-auto overflow-x-hidden p-5">
+          {/* 124px(header) + 54px(footer) + 2px(borderTop) = 182px offset */}
+          <Box
+            className="overflow-y-auto overflow-x-hidden p-5"
+            sx={{ height: { xs: 'calc(100vh - 182px)', md: '100%' } }}
+          >
             <div className="flex justify-end mb-3">
               {/* Desktop create dream */}
               <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
@@ -225,7 +229,7 @@ export function Home() {
             {((dreams && dreams.length === 0) || (isSearching && filteredDreams.length === 0)) && (
               <p className="text-center">No dreams found.</p>
             )}
-          </div>
+          </Box>
         </Box>
 
         {/* Mobile create dream */}
