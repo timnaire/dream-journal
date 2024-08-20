@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined, Close } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
 import { Transition } from '../shared/components/Transition';
@@ -53,11 +53,15 @@ export function Home() {
   const { isMobile } = useIsMobile();
 
   const dreams = useAppSelector((state) => state.dream.dreams);
-  const searchedItems = useAppSelector((state) => state.dream.searchDreams);
+  const displayDreams = useAppSelector((state) => state.dream.displayDreams);
+  const filteredDreams = useAppSelector((state) => state.dream.filteredDreams);
+  const displayFilteredDreams = useAppSelector((state) => state.dream.displayFilteredDreams);
+
   const searchRef = useRef<HTMLInputElement | null>(null);
   const dispatch = useAppDispatch();
 
-  const dream = dreams.find((d) => d.id === dreamId);
+  // Used to get the Dream when deleting
+  const dream = useMemo(() => dreams.find((d) => d.id === dreamId), [dreams, dreamId]);
 
   useEffect(() => {
     let mounted = true;
@@ -148,15 +152,29 @@ export function Home() {
   const dreamsContent =
     !isSearching &&
     dreams.length > 0 &&
-    dreams.map((dream) => (
-      <DreamCard key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
-    ));
+    Object.entries(displayDreams).map(([month, dreams]) => {
+      return (
+        <div key={month}>
+          <div className="text-xl ms-1 mb-3">{month}</div>
+          {dreams.map((dream) => (
+            <DreamCard key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
+          ))}
+        </div>
+      );
+    });
 
-  const searchedContent =
-    searchedItems.length > 0 &&
-    searchedItems.map((dream) => (
-      <DreamCard key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
-    ));
+  const filteredContent =
+    filteredDreams.length > 0 &&
+    Object.entries(displayFilteredDreams).map(([month, dreams]) => {
+      return (
+        <div key={month}>
+          <div className="text-xl ms-1 mb-3">{month}</div>
+          {dreams.map((dream) => (
+            <DreamCard key={dream.id} dream={dream} onEditDream={handleEditDream} onDeleteDream={handleDeleteDream} />
+          ))}
+        </div>
+      );
+    });
 
   console.log('dreams', dreams);
 
@@ -165,7 +183,7 @@ export function Home() {
       <div>
         {/* Search & Filters */}
         {!isSearching && (
-          <div className="flex justify-end pt-20 pb-2 md:hidden sticky">
+          <div className="flex justify-end pt-20 pb-2 md:hidden">
             <Button onClick={handleOpenCalendar}>
               <CalendarIcon color="primary" />
             </Button>
@@ -176,7 +194,7 @@ export function Home() {
         )}
 
         {isSearching && (
-          <div className="flex justify-end items-center mt-20 mb-2 md:hidden">
+          <div className="flex justify-end items-center pt-20 pb-2">
             <Button onClick={handleToggleSearch}>
               <ArrowBackIosNewOutlined color="primary" />
             </Button>
@@ -193,19 +211,21 @@ export function Home() {
           </div>
         )}
 
-        <Box className="overflow-hidden rounded-t-lg border-gray-200 p-5" sx={{ borderTop: { xs: 2, md: 0 } }}>
-          <div className="flex justify-end mb-3">
-            {/* Desktop create dream */}
-            <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
-              <EditOutlined className="me-2" /> Write a dream
-            </Button>
-          </div>
+        <Box className="overflow-hidden rounded-t-lg border-gray-200" sx={{ borderTop: { xs: 2, md: 0 } }}>
+          <div className="overflow-y-auto overflow-x-hidden p-5">
+            <div className="flex justify-end mb-3">
+              {/* Desktop create dream */}
+              <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
+                <EditOutlined className="me-2" /> Write a dream
+              </Button>
+            </div>
 
-          {/* List of Dreams */}
-          {isSearching && searchedItems.length > 0 ? searchedContent : dreamsContent}
-          {((dreams && dreams.length === 0) || (isSearching && searchedItems.length === 0)) && (
-            <p className="text-center">No dreams found.</p>
-          )}
+            {/* List of Dreams */}
+            {isSearching && filteredDreams.length > 0 ? filteredContent : dreamsContent}
+            {((dreams && dreams.length === 0) || (isSearching && filteredDreams.length === 0)) && (
+              <p className="text-center">No dreams found.</p>
+            )}
+          </div>
         </Box>
 
         {/* Mobile create dream */}
@@ -263,14 +283,15 @@ export function Home() {
       </Dialog>
 
       {/* Create/Edit Dreams */}
-      <DreamModal
-        key={editDream ? editDream?.id : date.toISOString()}
-        isOpen={isOpenDreamModal}
-        initialDate={date}
-        editDream={editDream}
-        onWriteDreamClose={handleWriteDreamClose}
-        onDreamSaved={handleDreamSaved}
-      />
+      {isOpenDreamModal && (
+        <DreamModal
+          isOpen={isOpenDreamModal}
+          initialDate={date}
+          editDream={editDream}
+          onWriteDreamClose={handleWriteDreamClose}
+          onDreamSaved={handleDreamSaved}
+        />
+      )}
 
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}

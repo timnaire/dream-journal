@@ -72,7 +72,7 @@ export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps)
               <div className="flex justify-between">
                 {/* Title */}
                 <Typography
-                  className="text-xl sm:text-2xl md:text-3xl m-3 md:mb-0 line-clamp-1"
+                  className="text-xl sm:text-2xl md:text-3xl m-3 mb-0 line-clamp-1"
                   sx={{ overflowWrap: 'anywhere' }}
                 >
                   {dream.title}

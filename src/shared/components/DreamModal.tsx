@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useEffect, useRef, useState } from 'react';
+import { forwardRef, Ref, useRef, useState } from 'react';
 import { CheckOutlined, CloseOutlined } from '@mui/icons-material';
 import { Formik, FormikProps } from 'formik';
 import { ApiResponse, useApi } from '../hooks/useApi';
@@ -98,7 +98,7 @@ export const DreamForm = forwardRef(function (
       innerRef={ref}
       initialValues={initializeDream}
       validationSchema={dreamSchema}
-      onSubmit={(values, { setSubmitting, setFieldValue }) => handleSubmit(values, setSubmitting)}
+      onSubmit={(values, { setSubmitting }) => handleSubmit(values, setSubmitting)}
     >
       {({ values, handleChange, handleSubmit, isSubmitting }) => (
         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -255,6 +255,7 @@ export function DreamModal({ initialDate, isOpen, editDream, onWriteDreamClose, 
         </Dialog>
       )}
 
+      {/* The date input that will trigger once the Date in the header is clicked */}
       <div className="hidden">
         <LocalizationProvider dateAdapter={AdapterMoment}>
           <MobileDatePicker inputRef={calendarRef} onAccept={(e) => setDate(e!)} value={date} disableFuture={true} />
