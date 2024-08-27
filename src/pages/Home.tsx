@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined, Close } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
 import { Transition } from '../shared/components/Transition';
@@ -10,6 +10,8 @@ import { Dream } from '../shared/models/dream';
 import { useAppDispatch, useAppSelector } from '../core/store/hooks';
 import { CalendarIcon, DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
 import { useIsMobile } from '../shared/hooks/useIsMobile';
+import { MobileFooter, MobileHeader, NavBorderTop } from '../core/models/constants';
+import { AppContext } from '../core/context/AppContext';
 import {
   Alert,
   AppBar,
@@ -49,6 +51,8 @@ export function Home() {
   const [showAlert, setShowAlert] = useState(false);
   const [status, setStatus] = useState<'adding' | 'editing' | 'deleting'>('adding');
 
+  const { isDarkMode } = useContext(AppContext);
+
   const { httpGet, httpDelete } = useApi();
   const { isMobile } = useIsMobile();
 
@@ -86,6 +90,7 @@ export function Home() {
   useEffect(() => {
     if (!isMobile) {
       setIsOpenDreamCalendar(false);
+      setIsSearching(false);
     }
   }, [isMobile]);
 
@@ -211,11 +216,19 @@ export function Home() {
           </div>
         )}
 
-        <Box className="overflow-hidden rounded-t-lg border-gray-200" sx={{ borderTop: { xs: 2, md: 0 } }}>
-          {/* 124px(header) + 54px(footer) + 2px(borderTop) = 182px offset */}
+        <Box
+          className={`overflow-hidden md:overflow-visible rounded-t-lg ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+          sx={{ borderTop: { xs: 2, md: 0 } }}
+        >
+          {/* 124px(header) + 54px(footer) + 2px(borderTop) = 182px offset; 64px(NavHeader) */}
           <Box
-            className="overflow-y-auto overflow-x-hidden p-5"
-            sx={{ height: { xs: 'calc(100vh - 182px)', md: '100%' } }}
+            className={`${isMobile ? 'overflow-y-auto overflow-x-hidden md:overflow-y-hidden' : ''} p-5`}
+            sx={{
+              height: {
+                xs: `calc(100vh - (${MobileHeader}px + ${MobileFooter}px + ${NavBorderTop}px))`,
+                md: `100%`,
+              },
+            }}
           >
             <div className="flex justify-end mb-3">
               {/* Desktop create dream */}

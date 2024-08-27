@@ -33,17 +33,13 @@ export function Header() {
     setAnchorElUser(event.currentTarget);
   };
 
-  const handleCloseUserMenu = (): void => {
-    setAnchorElUser(null);
-  };
+  const handleCloseUserMenu = (): void => setAnchorElUser(null);
 
   const handleOpenThemeMenu = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorElTheme(event.currentTarget);
   };
 
-  const handleCloseThemeMenu = (): void => {
-    setAnchorElTheme(null);
-  };
+  const handleCloseThemeMenu = (): void => setAnchorElTheme(null);
 
   const handleChangeTheme = (isDarkMode: boolean): void => {
     setAppState({ isDarkMode });
@@ -76,7 +72,7 @@ export function Header() {
           {/* Profile */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Theme Mode" className="me-3">
-              <IconButton onClick={handleOpenThemeMenu}>
+              <IconButton className="text-white" onClick={handleOpenThemeMenu}>
                 {isDarkMode ? <DarkModeOutlined /> : <LightModeOutlined />}
               </IconButton>
             </Tooltip>
@@ -87,66 +83,56 @@ export function Header() {
               </IconButton>
             </Tooltip>
 
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElTheme}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElTheme)}
-              onClose={handleCloseThemeMenu}
-            >
-              <MenuList dense>
-                <MenuItem sx={{ width: '125px' }} onClick={() => handleChangeTheme(false)}>
-                  <LightModeOutlined sx={{ marginRight: '8px' }} />
-                  Light
-                </MenuItem>
-                <MenuItem onClick={() => handleChangeTheme(true)}>
-                  <DarkModeOutlined sx={{ marginRight: '8px' }} /> Dark
-                </MenuItem>
-                <MenuItem onClick={() => handleChangeTheme(prefersDarkMode)}>
-                  <DesktopWindowsOutlined sx={{ marginRight: '8px' }} /> System
-                </MenuItem>
-              </MenuList>
-            </Menu>
+            {anchorElTheme && (
+              <Menu
+                sx={{ mt: '45px' }}
+                id="theme-settings"
+                anchorEl={anchorElTheme}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={Boolean(anchorElTheme)}
+                onClose={handleCloseThemeMenu}
+              >
+                <MenuList dense>
+                  <MenuItem sx={{ width: '125px' }} onClick={() => handleChangeTheme(false)}>
+                    <LightModeOutlined sx={{ marginRight: '8px' }} />
+                    Light
+                  </MenuItem>
+                  <MenuItem onClick={() => handleChangeTheme(true)}>
+                    <DarkModeOutlined sx={{ marginRight: '8px' }} /> Dark
+                  </MenuItem>
+                  <MenuItem onClick={() => handleChangeTheme(prefersDarkMode)}>
+                    <DesktopWindowsOutlined sx={{ marginRight: '8px' }} /> System
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            )}
 
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              <MenuList dense>
-                <Box sx={{ px: '12px' }}>
-                  <Box sx={{ mb: '6px', fontSize: '14px' }}>Account</Box>
-                  <AvatarCard name={user?.fullname} nameVariant="caption" caption={user?.email} />
-                </Box>
-                <MenuItem onClick={() => handleRoute('/profile')}>
-                  <ListItemText>Manage Account</ListItemText>
-                </MenuItem>
-                <Divider />
-                <MenuItem onClick={handleSignOut}>
-                  <ListItemText>Sign out</ListItemText>
-                </MenuItem>
-              </MenuList>
-            </Menu>
+            {anchorElUser && (
+              <Menu
+                sx={{ mt: '45px' }}
+                id="profile-settings"
+                anchorEl={anchorElUser}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                <MenuList dense>
+                  <Box sx={{ px: '12px' }}>
+                    <Box sx={{ mb: '6px', fontSize: '14px' }}>Account</Box>
+                    <AvatarCard name={user?.fullname} nameVariant="caption" caption={user?.email} />
+                  </Box>
+                  <MenuItem onClick={() => handleRoute('/profile')}>
+                    <ListItemText>Manage Account</ListItemText>
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleSignOut}>
+                    <ListItemText>Sign out</ListItemText>
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            )}
           </Box>
         </Toolbar>
       </Container>

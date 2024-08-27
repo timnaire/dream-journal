@@ -1,10 +1,9 @@
-import { Button, Card, Chip, debounce, Stack, Typography } from '@mui/material';
+import { Button, Card, Chip, Stack, Typography } from '@mui/material';
 import { DeleteOutline, EditOutlined } from '@mui/icons-material';
 import { Dream } from '../models/dream';
 import { useToFriendlyDate } from '../hooks/useToFriendlyDate';
-import { motion, PanInfo } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { useEffect, useState } from 'react';
 
 export interface DreamCardProps {
   dream: Dream;
@@ -13,60 +12,26 @@ export interface DreamCardProps {
 }
 
 export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps) {
-  const [showDelete, setShowDelete] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
   const { isMobile } = useIsMobile();
   const createdAt = useToFriendlyDate(dream.createdAt ? dream.createdAt : new Date(), true);
-  const debounceDelete = debounce(setShowDelete, 200);
-  const debounceEdit = debounce(setShowEdit, 200);
-
-  useEffect(() => {
-    if (!isMobile) {
-      setShowEdit(false);
-      setShowDelete(false);
-    }
-  }, [isMobile]);
-
-  const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    // Edit
-    if (info.offset.x < -10) {
-      setShowEdit(false);
-    }
-
-    if (info.offset.x > 200) {
-      debounceEdit(!showEdit);
-    }
-
-    // Delete
-    if (info.offset.x < -200) {
-      debounceDelete(!showDelete);
-    }
-
-    if (info.offset.x > 10) {
-      setShowDelete(false);
-    }
-  };
 
   const handleEdit = (): void => {
     onEditDream(dream.id!);
-    if (isMobile) {
-      setShowEdit(false);
-    }
   };
 
   const handleDelete = (): void => onDeleteDream(dream.id!);
 
   return (
-    <div className="flex">
-      {showEdit && isMobile && (
-        <motion.div className="pb-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <Button className="h-full" size="small" onClick={handleEdit}>
-            <EditOutlined className="cursor-pointer" />
-          </Button>
-        </motion.div>
-      )}
-      <motion.div className="grow" drag={isMobile && 'x'} dragConstraints={{ left: 0, right: 0 }} onDrag={handleDrag}>
-        <Card elevation={1} className="mb-5">
+    <div className="flex relative mb-5">
+      <motion.div
+        className="grow z-10 md:!translate-x-0"
+        drag={isMobile && 'x'}
+        dragConstraints={{ left: -120, right: 0 }}
+        // initial={{ left: x }}
+        dragElastic={false}
+        dragMomentum={false}
+      >
+        <Card elevation={1}>
           <Stack direction="column">
             <Stack>
               <div className="flex justify-between">
@@ -104,13 +69,17 @@ export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps)
           </Stack>
         </Card>
       </motion.div>
-      {showDelete && isMobile && (
-        <motion.div className="pb-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <Button className="h-full" color="error" onClick={handleDelete}>
+
+      <Card elevation={1} className="absolute right-0 h-full" sx={{ border: 0, boxShadow: 0 }}>
+        <Stack className="flex justify-center" direction="row" sx={{ width: '125px', height: 'inherit' }}>
+          <Button className="rounded-none" onClick={handleEdit}>
+            <EditOutlined className="cursor-pointer" />
+          </Button>
+          <Button className="rounded-none" color="error" onClick={handleDelete}>
             <DeleteOutline className="cursor-pointer" />
           </Button>
-        </motion.div>
-      )}
+        </Stack>
+      </Card>
     </div>
   );
 }

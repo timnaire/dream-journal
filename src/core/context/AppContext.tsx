@@ -4,6 +4,7 @@ import { UserModel } from '../../shared/models/user';
 import { createTheme, Theme, ThemeProvider } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import { isTrue } from '../../shared/utils/is-true';
+import { grey } from '@mui/material/colors';
 
 export interface AppState {
   loading: boolean;
@@ -25,12 +26,24 @@ const getThemeColor = (isDark: boolean): Theme => {
       },
     },
     palette: {
-      // primary: { main: '#1976d2' },
-      // secondary: { main: '#378FE7' },
-      // text: {
-      //   primary: isDark ? '#ffffff' : '#000',
-      // },
       mode: isDark ? 'dark' : 'light',
+      ...(isDark
+        ? {
+            primary: grey,
+            divider: grey[700],
+            background: {
+              default: grey[900],
+              paper: grey[900],
+            },
+            text: {
+              primary: '#fff',
+              secondary: grey[500],
+            },
+          }
+        : {
+            primary: { main: '#1976d2' },
+            secondary: { main: '#378FE7' },
+          }),
     },
     breakpoints: {
       values: { xs: 0, sm: 640, md: 768, lg: 1024, xl: 1280 },

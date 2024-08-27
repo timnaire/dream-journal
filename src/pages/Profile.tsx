@@ -27,8 +27,8 @@ export function Profile() {
   };
 
   return (
-    <Container sx={{ width: { xs: '100%', md: '60%' } }}>
-      <Card sx={{ marginY: '25px', p: '12px' }}>
+    <Container sx={{ width: { xs: '100%', md: '60%' }, paddingY: '25px' }}>
+      <Card sx={{ p: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt={user?.fullname} src="/static/images/avatar/1.jpg" sx={{ width: 56, height: 56 }} />
           <Box sx={{ flexGrow: 1 }}>

@@ -89,7 +89,7 @@ export function ForgotPassword() {
                 </ErrorMessage>
 
                 <Button type="submit" variant="contained" disabled={isSubmitting}>
-                  {isSubmitting ? <CircularProgress size={25} /> : 'Submit'}
+                  {isSubmitting ? <CircularProgress size={25} /> : 'Reset Password'}
                 </Button>
               </Box>
             )}
