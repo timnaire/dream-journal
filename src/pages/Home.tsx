@@ -1,20 +1,18 @@
 import { ChangeEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined, Close } from '@mui/icons-material';
+import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
-import { Transition } from '../shared/components/Transition';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { DreamCard } from '../shared/components/DreamCard';
 import { DreamModal } from '../shared/components/DreamModal';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { Dream } from '../shared/models/dream';
 import { useAppDispatch, useAppSelector } from '../core/store/hooks';
-import { CalendarIcon, DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
+import { CalendarIcon } from '@mui/x-date-pickers';
 import { useIsMobile } from '../shared/hooks/useIsMobile';
-import { MobileFooter, MobileHeader, NavBorderTop } from '../core/models/constants';
+import { MobileFooter, MobileHeader } from '../core/models/constants';
 import { AppContext } from '../core/context/AppContext';
+import { DreamCalendar } from '../shared/components/DreamCalendar';
 import {
   Alert,
-  AppBar,
   Box,
   Button,
   Container,
@@ -23,10 +21,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton,
   Snackbar,
-  Toolbar,
-  Typography,
 } from '@mui/material';
 import {
   initializeDream,
@@ -45,6 +40,7 @@ export function Home() {
   const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState(false);
 
   const [date, setDate] = useState(moment());
+
   const [isSearching, setIsSearching] = useState(false);
   const [dreamId, setDreamId] = useState<string | null>(null);
   const [editDream, setEditDream] = useState<Dream | null>(null);
@@ -220,12 +216,11 @@ export function Home() {
           className={`overflow-hidden md:overflow-visible rounded-t-lg ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
           sx={{ borderTop: { xs: 2, md: 0 } }}
         >
-          {/* 124px(header) + 54px(footer) + 2px(borderTop) = 182px offset; 64px(NavHeader) */}
           <Box
             className={`${isMobile ? 'overflow-y-auto overflow-x-hidden md:overflow-y-hidden' : ''} p-5`}
             sx={{
               height: {
-                xs: `calc(100vh - (${MobileHeader}px + ${MobileFooter}px + ${NavBorderTop}px))`,
+                xs: `calc(100vh - (${MobileHeader}px + ${MobileFooter}px))`,
                 md: `100%`,
               },
             }}
@@ -254,33 +249,14 @@ export function Home() {
       </div>
 
       {/* Create dream using Calendar */}
-      <Dialog
-        fullScreen
-        open={isOpenDreamCalendar}
+      <DreamCalendar
+        isOpenDreamCalendar={isOpenDreamCalendar}
         onClose={() => setIsOpenDreamCalendar(false)}
-        TransitionComponent={Transition}
-      >
-        <AppBar sx={{ position: 'relative' }}>
-          <Toolbar>
-            <IconButton edge="start" color="inherit" onClick={() => setIsOpenDreamCalendar(false)} aria-label="close">
-              <Close />
-            </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              Calendar
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <DialogContent className="p-0">
-          <LocalizationProvider dateAdapter={AdapterMoment}>
-            <DateCalendar value={date} onChange={(e) => setDate(e!)} disableFuture={true} />
-          </LocalizationProvider>
-          <div className="flex justify-center">
-            <Button variant="contained" onClick={handleWriteDreamOpen}>
-              Add Dream
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        onWriteDream={handleWriteDreamOpen}
+        onEditDream={handleEditDream}
+        onDeleteDream={handleDeleteDream}
+        onDateChange={(e) => setDate(e)}
+      />
 
       {/* Delete dreams confirmation */}
       <Dialog open={isOpenDeleteDialog} onClose={() => setIsOpenDeleteDialog(false)}>

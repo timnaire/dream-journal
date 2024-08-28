@@ -67,81 +67,83 @@ export function SignIn() {
   };
 
   return (
-    <Container className="flex h-screen justify-center self-center">
-      <div className="flex flex-col md:flex-row md:justify-around self-center grow">
-        <BgAuth className="self-center md:absolute sm:z-10 size-56 md:size-auto" />
+    <Paper elevation={0} className="rounded-none">
+      <Container className="flex h-screen justify-center self-center">
+        <div className="flex flex-col md:flex-row md:justify-around self-center grow">
+          <BgAuth className="self-center md:absolute sm:z-10 size-56 md:size-auto" />
 
-        <Box component={Paper} className="relative z-20 flex flex-col self-center p-5 md:p-5 w-80 sm:w-96">
-          <div>
-            <Typography className="text-2xl md:text-3xl lg:text-4xl mb-3">Dream Journal</Typography>
-            <div className="text-[12px] mb-5">
-              Don't have an account? Click here to&nbsp;
-              <Link to="/sign-up" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
-                Sign Up
-              </Link>
+          <Box component={Paper} className="relative z-20 flex flex-col self-center p-5 md:p-5 w-80 sm:w-96">
+            <div>
+              <Typography className="text-2xl md:text-3xl lg:text-4xl mb-3">Dream Journal</Typography>
+              <div className="text-[12px] mb-5">
+                Don't have an account? Click here to&nbsp;
+                <Link to="/sign-up" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
+                  Sign Up
+                </Link>
+              </div>
             </div>
-          </div>
 
-          <Formik
-            initialValues={initialValues}
-            validationSchema={signInSchema}
-            onSubmit={(values, { setSubmitting }) => {
-              handleSignin(values, setSubmitting);
-            }}
-          >
-            {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
-              <Box
-                component="form"
-                noValidate
-                autoComplete="off"
-                onSubmit={handleSubmit}
-                sx={{ display: 'flex', flexDirection: 'column' }}
-              >
-                <TextField
-                  type="text"
-                  name="username"
-                  label="Username"
-                  variant="standard"
-                  sx={{ mb: errors.username && touched.username ? '0' : '25px' }}
-                  InputProps={usernameIcon}
-                  value={values.username}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                />
-                <ErrorMessage name="username">{(msg) => <div className="text-red-500 mb-3">{msg}</div>}</ErrorMessage>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={signInSchema}
+              onSubmit={(values, { setSubmitting }) => {
+                handleSignin(values, setSubmitting);
+              }}
+            >
+              {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+                <Box
+                  component="form"
+                  noValidate
+                  autoComplete="off"
+                  onSubmit={handleSubmit}
+                  sx={{ display: 'flex', flexDirection: 'column' }}
+                >
+                  <TextField
+                    type="text"
+                    name="username"
+                    label="Username"
+                    variant="standard"
+                    sx={{ mb: errors.username && touched.username ? '0' : '25px' }}
+                    InputProps={usernameIcon}
+                    value={values.username}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
+                  <ErrorMessage name="username">{(msg) => <div className="text-red-500 mb-3">{msg}</div>}</ErrorMessage>
 
-                <TextField
-                  type={password.show ? 'text' : 'password'}
-                  name="password"
-                  label="Password"
-                  variant="standard"
-                  sx={{ mb: errors.password && touched.password ? '0' : '25px' }}
-                  InputProps={password.icon}
-                  value={values.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                />
-                <ErrorMessage name="password">{(msg) => <div className="text-red-500 mb-3">{msg}</div>}</ErrorMessage>
-                <Button type="submit" variant="contained" disabled={isSubmitting}>
-                  {isSubmitting ? <CircularProgress size={25} /> : 'Sign in'}
-                </Button>
-                {isError && (
-                  <Alert variant="outlined" severity="error" sx={{ mt: '10px' }}>
-                    {error}
-                  </Alert>
-                )}
-              </Box>
-            )}
-          </Formik>
+                  <TextField
+                    type={password.show ? 'text' : 'password'}
+                    name="password"
+                    label="Password"
+                    variant="standard"
+                    sx={{ mb: errors.password && touched.password ? '0' : '25px' }}
+                    InputProps={password.icon}
+                    value={values.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
+                  <ErrorMessage name="password">{(msg) => <div className="text-red-500 mb-3">{msg}</div>}</ErrorMessage>
+                  <Button type="submit" variant="contained" disabled={isSubmitting}>
+                    {isSubmitting ? <CircularProgress size={25} /> : 'Sign in'}
+                  </Button>
+                  {isError && (
+                    <Alert variant="outlined" severity="error" sx={{ mt: '10px' }}>
+                      {error}
+                    </Alert>
+                  )}
+                </Box>
+              )}
+            </Formik>
 
-          <Box component="span" sx={{ textAlign: 'center', mt: '10px', fontSize: '12px' }}>
-            Forgot your password?&nbsp;
-            <Link to="/forgot-password" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
-              Click here
-            </Link>
+            <Box component="span" sx={{ textAlign: 'center', mt: '10px', fontSize: '12px' }}>
+              Forgot your password?&nbsp;
+              <Link to="/forgot-password" style={{ textDecoration: 'none', color: theme.palette.primary.main }}>
+                Click here
+              </Link>
+            </Box>
           </Box>
-        </Box>
-      </div>
-    </Container>
+        </div>
+      </Container>
+    </Paper>
   );
 }

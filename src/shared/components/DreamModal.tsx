@@ -25,7 +25,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 
 const ModalBox = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -43,11 +43,11 @@ const ModalBox = styled(Box)(({ theme }) => ({
 
 export interface DreamModalProps extends DreamFormProps {
   isOpen: boolean;
-  initialDate?: moment.Moment;
+  initialDate?: Moment;
 }
 
 export interface DreamFormProps {
-  date?: moment.Moment;
+  date?: Moment;
   editDream: Dream | null;
   onWriteDreamClose: () => void;
   onDreamSaved: (dream: Dream) => void;

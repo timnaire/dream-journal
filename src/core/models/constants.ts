@@ -1,6 +1,5 @@
-export const MobileHeader = 124;
-export const MobileFooter = 54;
-export const NavBorderTop = 2;
+export const MobileHeader = 126;
+export const MobileFooter = 56;
 export const NavHeader = 64;
 
 export enum Breakpoints {

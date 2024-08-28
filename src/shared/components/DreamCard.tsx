@@ -6,20 +6,27 @@ import { motion } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
 
 export interface DreamCardProps {
+  isSimpleView?: boolean;
   dream: Dream;
-  onEditDream: (id: string) => void;
-  onDeleteDream: (id: string) => void;
+  onEditDream?: (id: string) => void;
+  onDeleteDream?: (id: string) => void;
 }
 
-export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps) {
+export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDream }: DreamCardProps) {
   const { isMobile } = useIsMobile();
   const createdAt = useToFriendlyDate(dream.createdAt ? dream.createdAt : new Date(), true);
 
   const handleEdit = (): void => {
-    onEditDream(dream.id!);
+    if (onEditDream) {
+      onEditDream(dream.id!);
+    }
   };
 
-  const handleDelete = (): void => onDeleteDream(dream.id!);
+  const handleDelete = (): void => {
+    if (onDeleteDream) {
+      onDeleteDream(dream.id!);
+    }
+  };
 
   return (
     <div className="flex relative mb-5">
@@ -27,7 +34,6 @@ export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps)
         className="grow z-10 md:!translate-x-0"
         drag={isMobile && 'x'}
         dragConstraints={{ left: -120, right: 0 }}
-        // initial={{ left: x }}
         dragElastic={false}
         dragMomentum={false}
       >
@@ -53,12 +59,14 @@ export function DreamCard({ dream, onEditDream, onDeleteDream }: DreamCardProps)
                 </div>
               </div>
               <div className="p-3">
-                <Typography className="text-xs">{createdAt}</Typography>
-                <Typography className="mt-5 text-md line-clamp-3" sx={{ overflowWrap: 'anywhere' }}>
+                <Typography className={`text-xs ${isSimpleView && 'hidden'}`}>{createdAt}</Typography>
+                <Typography
+                  className={`text-md ${isSimpleView ? 'line-clamp-2' : 'mt-5 line-clamp-3'}`}
+                  sx={{ overflowWrap: 'anywhere' }}
+                >
                   {dream.dream}
                 </Typography>
-                <div className="mt-3 line-clamp-2">
-                  {/* {dream.categories.map(category => <Chip key={category} label={category} sx={{ mr: '4px' }} />)} */}
+                <div className={`mt-3 line-clamp-2 ${isSimpleView && 'hidden'}`}>
                   {dream.recurrent && <Chip label="Recurrent" className="me-2 mb-2" />}
                   {dream.nightmare && <Chip label="Nightmare" className="me-2 mb-2" />}
                   {dream.paralysis && <Chip label="Paralysis" className="me-2 mb-2" />}
