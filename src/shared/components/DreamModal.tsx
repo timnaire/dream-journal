@@ -26,6 +26,7 @@ import {
   Typography,
 } from '@mui/material';
 import moment, { Moment } from 'moment';
+import { S3Service } from '../services/s3.service';
 
 const ModalBox = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -33,6 +34,7 @@ const ModalBox = styled(Box)(({ theme }) => ({
   left: '50%',
   transform: 'translate(-50%, -50%)',
   backgroundColor: theme.palette.background.paper,
+  color: theme.palette.text.primary,
   width: 300,
   [theme.breakpoints.up('sm')]: { width: 500 },
   [theme.breakpoints.up('md')]: { width: 700 },
@@ -57,8 +59,11 @@ export const DreamForm = forwardRef(function (
   { date, editDream, onWriteDreamClose, onDreamSaved }: DreamFormProps,
   ref: Ref<FormikProps<Dream>> | undefined
 ) {
+  const [file, setFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState('');
   const { isMobile } = useIsMobile();
   const { httpPost, httpPut } = useApi();
+  const s3 = new S3Service();
 
   const initializeDream: Dream = {
     id: editDream ? editDream.id : '',
@@ -70,8 +75,14 @@ export const DreamForm = forwardRef(function (
     favorite: editDream ? editDream.favorite : false,
   };
 
-  const handleSubmit = (values: Dream, setSubmitting: (isSubmitting: boolean) => void) => {
-    const data = { ...values, createdAt: date };
+  const handleSubmit = async (values: Dream, setSubmitting: (isSubmitting: boolean) => void) => {
+    let data = { ...values, createdAt: date };
+
+    if (file) {
+      const image = await s3.upload(file.name, file, file.type);
+      // data = {...data, imageFileName: image?.Key, imageUrl: image.Key};
+    }
+
     if (data.id) {
       httpPut<ApiResponse>('/dreams', data)
         .then((res) => {
@@ -91,6 +102,17 @@ export const DreamForm = forwardRef(function (
           setSubmitting(false);
         });
     }
+  };
+
+  const handleFileChange = (event: any) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      setFile(file);
+      const objectUrl = URL.createObjectURL(file);
+      setFilePreview(objectUrl);
+    }
+    console.log('file', file);
   };
 
   return (
@@ -155,6 +177,32 @@ export const DreamForm = forwardRef(function (
               label="Favorite"
             />
           </FormGroup>
+
+          {/* Image Viewer */}
+          {file && (
+            <>
+              <div className="flex justify-end px-24 mt-6">
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => {
+                    setFile(null);
+                    setFilePreview('');
+                  }}
+                >
+                  Remove
+                </Button>
+              </div>
+              <div className="h-56 w-full md:px-24 my-3 bg-contain bg-center">
+                <img src={filePreview} alt="preview" className="h-full w-full" />
+              </div>
+            </>
+          )}
+
+          <Button variant="contained" component="label">
+            Upload Image
+            <input type="file" hidden onChange={handleFileChange} accept="image/png, image/jpeg" />
+          </Button>
 
           {/* Actions */}
           {!isMobile && (
