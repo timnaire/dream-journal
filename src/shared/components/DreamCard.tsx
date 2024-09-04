@@ -1,9 +1,11 @@
-import { Button, Card, Chip, Stack, Typography } from '@mui/material';
-import { DeleteOutline, EditOutlined } from '@mui/icons-material';
+import { Button, Card, Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { DeleteOutline, EditOutlined, StarBorderOutlined, StarOutlined } from '@mui/icons-material';
 import { Dream } from '../models/dream';
 import { useToFriendlyDate } from '../hooks/useToFriendlyDate';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { useState } from 'react';
+import { ApiResponse, useApi } from '../hooks/useApi';
 
 export interface DreamCardProps {
   isSimpleView?: boolean;
@@ -13,7 +15,9 @@ export interface DreamCardProps {
 }
 
 export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDream }: DreamCardProps) {
+  const [favorite, setFavorite] = useState(dream.favorite);
   const { isMobile } = useIsMobile();
+  const { httpPut } = useApi();
   const createdAt = useToFriendlyDate(dream.createdAt ? dream.createdAt : new Date(), true);
 
   const handleEdit = (): void => {
@@ -26,6 +30,13 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
     if (onDeleteDream) {
       onDeleteDream(dream.id!);
     }
+  };
+
+  const handleToggleFavorite = (): void => {
+    setFavorite(!favorite);
+    httpPut<ApiResponse>('/dreams', { ...dream, favorite: !favorite }).then((res) => {
+      console.log(res);
+    });
   };
 
   return (
@@ -43,9 +54,15 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
               <div className="flex justify-between">
                 {/* Title */}
                 <Typography
-                  className="text-lg sm:text-xl md:text-2xl m-3 mb-0 line-clamp-1"
+                  className="text-lg sm:text-xl md:text-2xl m-3 mb-0 line-clamp-1 flex items-center"
                   sx={{ overflowWrap: 'anywhere' }}
                 >
+                  <Tooltip title="Favorite" placement="left-start">
+                    <IconButton className="me-1 mb-1" onClick={handleToggleFavorite}>
+                      {favorite && <StarOutlined className="text-yellow-300" />}
+                      {!favorite && <StarBorderOutlined className="text-yellow-300" />}
+                    </IconButton>
+                  </Tooltip>
                   {dream.title}
                 </Typography>
                 {/* Actions here */}
@@ -67,10 +84,9 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
                   {dream.dream}
                 </Typography>
                 <div className={`mt-3 line-clamp-2 ${isSimpleView && 'hidden'}`}>
-                  {dream.recurrent && <Chip label="Recurrent" className="me-2 mb-2" />}
-                  {dream.nightmare && <Chip label="Nightmare" className="me-2 mb-2" />}
-                  {dream.paralysis && <Chip label="Paralysis" className="me-2 mb-2" />}
-                  {dream.favorite && <Chip label="Favorite" className="me-2 mb-2" />}
+                  {dream.recurrent && <Chip label="Recurrent" className="bg-green-600 text-white me-2 mb-2" />}
+                  {dream.nightmare && <Chip label="Nightmare" className="bg-rose-600 text-white me-2 mb-2" />}
+                  {dream.paralysis && <Chip label="Paralysis" className="bg-fuchsia-600 text-white me-2 mb-2" />}
                 </div>
               </div>
             </Stack>

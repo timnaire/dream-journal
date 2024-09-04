@@ -1,5 +1,5 @@
 import { forwardRef, Ref, useRef, useState } from 'react';
-import { CheckOutlined, CloseOutlined } from '@mui/icons-material';
+import { CheckOutlined, CloseOutlined, MicNoneOutlined, PhotoOutlined } from '@mui/icons-material';
 import { Formik, FormikProps } from 'formik';
 import { ApiResponse, useApi } from '../hooks/useApi';
 import { Dream } from '../models/dream';
@@ -9,7 +9,10 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import {
+  Alert,
   AppBar,
+  BottomNavigation,
+  BottomNavigationAction,
   Box,
   Button,
   ButtonBase,
@@ -21,6 +24,7 @@ import {
   IconButton,
   Modal,
   styled,
+  Switch,
   TextField,
   Toolbar,
   Typography,
@@ -60,6 +64,7 @@ export const DreamForm = forwardRef(function (
   ref: Ref<FormikProps<Dream>> | undefined
 ) {
   const [file, setFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [filePreview, setFilePreview] = useState('');
   const { isMobile } = useIsMobile();
   const { httpPost, httpPut } = useApi();
@@ -78,10 +83,13 @@ export const DreamForm = forwardRef(function (
   const handleSubmit = async (values: Dream, setSubmitting: (isSubmitting: boolean) => void) => {
     let data = { ...values, createdAt: date };
 
-    if (file) {
-      const image = await s3.upload(file.name, file, file.type);
-      // data = {...data, imageFileName: image?.Key, imageUrl: image.Key};
-    }
+    console.log('data', data);
+
+    // if (file) {
+    //   const image = await s3.upload(file.name, file, file.type);
+    //   console.log('image', image);
+    //   // data = {...data, imageFileName: image?.Key, imageUrl: image.Key};
+    // }
 
     if (data.id) {
       httpPut<ApiResponse>('/dreams', data)
@@ -105,14 +113,23 @@ export const DreamForm = forwardRef(function (
   };
 
   const handleFileChange = (event: any) => {
+    setFileError(null);
     const file = event.target.files[0];
+
+    const bytes = 1024;
+    const megabytes = 5;
+    const maxSize = bytes * bytes * megabytes;
+
+    if (file.size > maxSize) {
+      setFileError(`Error: Max file upload of ${megabytes}MB`);
+      return;
+    }
 
     if (file) {
       setFile(file);
       const objectUrl = URL.createObjectURL(file);
       setFilePreview(objectUrl);
     }
-    console.log('file', file);
   };
 
   return (
@@ -124,6 +141,17 @@ export const DreamForm = forwardRef(function (
     >
       {({ values, handleChange, handleSubmit, isSubmitting }) => (
         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit}>
+          <div className="flex justify-end items-center text-xs mb-5">
+            Mark as Favorite
+            <Switch
+              color="info"
+              name="favorite"
+              checked={values.favorite}
+              value={values.favorite}
+              onChange={handleChange}
+            />
+          </div>
+
           {/* Fields */}
           <TextField
             name="title"
@@ -168,15 +196,13 @@ export const DreamForm = forwardRef(function (
               control={<Checkbox />}
               label="Sleep paralysis"
             />
-            <FormControlLabel
-              name="favorite"
-              checked={values.favorite}
-              value={values.favorite}
-              onChange={handleChange}
-              control={<Checkbox />}
-              label="Favorite"
-            />
           </FormGroup>
+
+          {fileError && (
+            <Alert variant="outlined" severity="error" className="mb-3">
+              {fileError}
+            </Alert>
+          )}
 
           {/* Image Viewer */}
           {file && (
@@ -211,6 +237,7 @@ export const DreamForm = forwardRef(function (
                 Close
               </Button>
               <Button variant="contained" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'submitting' : 'not submitting'}
                 <CheckOutlined sx={{ mr: '6px' }} /> Save Dream
               </Button>
             </Box>
@@ -235,7 +262,7 @@ export function DreamModal({ initialDate, isOpen, editDream, onWriteDreamClose, 
   };
 
   const handleDreamMobile = (): void => {
-    if (formikRef.current) {
+    if (formikRef.current && !formikRef.current.isSubmitting) {
       formikRef.current.submitForm();
     }
   };
@@ -300,6 +327,11 @@ export function DreamModal({ initialDate, isOpen, editDream, onWriteDreamClose, 
               onDreamSaved={onDreamSaved}
             />
           </DialogContent>
+
+          {/* <BottomNavigation value={''}>
+            <BottomNavigationAction label="Recents" icon={<PhotoOutlined />} />
+            <BottomNavigationAction label="Favorites" icon={<MicNoneOutlined />} />
+          </BottomNavigation> */}
         </Dialog>
       )}
 
