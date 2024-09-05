@@ -11,8 +11,6 @@ import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import {
   Alert,
   AppBar,
-  BottomNavigation,
-  BottomNavigationAction,
   Box,
   Button,
   ButtonBase,
@@ -22,7 +20,9 @@ import {
   FormControlLabel,
   FormGroup,
   IconButton,
+  Link,
   Modal,
+  Snackbar,
   styled,
   Switch,
   TextField,
@@ -70,6 +70,9 @@ export const DreamForm = forwardRef(function (
   const { httpPost, httpPut } = useApi();
   const s3 = new S3Service();
 
+  // Temp
+  const [audio, setAudio] = useState(false);
+
   const initializeDream: Dream = {
     id: editDream ? editDream.id : '',
     title: editDream ? editDream.title : 'Title here',
@@ -80,36 +83,34 @@ export const DreamForm = forwardRef(function (
     favorite: editDream ? editDream.favorite : false,
   };
 
-  const handleSubmit = async (values: Dream, setSubmitting: (isSubmitting: boolean) => void) => {
+  const handleSubmit = async (values: Dream, setSubmitting: (isSubmitting: boolean) => void): Promise<void> => {
     let data = { ...values, createdAt: date };
 
-    console.log('data', data);
-
-    // if (file) {
-    //   const image = await s3.upload(file.name, file, file.type);
-    //   console.log('image', image);
-    //   // data = {...data, imageFileName: image?.Key, imageUrl: image.Key};
-    // }
-
-    if (data.id) {
-      httpPut<ApiResponse>('/dreams', data)
-        .then((res) => {
-          onDreamSaved(res.data);
-          onWriteDreamClose();
-        })
-        .finally(() => {
-          setSubmitting(false);
-        });
-    } else {
-      httpPost<ApiResponse>('/dreams', data)
-        .then((res) => {
-          onDreamSaved(res.data);
-          onWriteDreamClose();
-        })
-        .finally(() => {
-          setSubmitting(false);
-        });
+    if (file) {
+      const image = await s3.upload(file.name, file, file.type);
+      data = { ...data, ...image };
+      console.log('data', data);
+      // const uploadedImage = await s3.get(file.name);
+      // console.log('uploadedImage', uploadedImage);
+      // Use base64 encoding
+      // const str = await uploadedImage.Body?.transformToString('base64');
+      // console.log('str', str);
     }
+    return new Promise((resolve) => {
+      if (data.id) {
+        httpPut<ApiResponse>('/dreams', data).then((res) => {
+          onDreamSaved(res.data);
+          onWriteDreamClose();
+          resolve();
+        });
+      } else {
+        httpPost<ApiResponse>('/dreams', data).then((res) => {
+          onDreamSaved(res.data);
+          onWriteDreamClose();
+          resolve();
+        });
+      }
+    });
   };
 
   const handleFileChange = (event: any) => {
@@ -132,6 +133,16 @@ export const DreamForm = forwardRef(function (
     }
   };
 
+  const audioContent = (
+    <Snackbar
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      open={audio}
+      autoHideDuration={3000}
+      onClose={() => setAudio(false)}
+      message="In Development..."
+    />
+  );
+
   return (
     <Formik
       innerRef={ref}
@@ -140,109 +151,144 @@ export const DreamForm = forwardRef(function (
       onSubmit={(values, { setSubmitting }) => handleSubmit(values, setSubmitting)}
     >
       {({ values, handleChange, handleSubmit, isSubmitting }) => (
-        <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit}>
-          <div className="flex justify-end items-center text-xs mb-5">
-            Mark as Favorite
-            <Switch
-              color="info"
-              name="favorite"
-              checked={values.favorite}
-              value={values.favorite}
+        <div className="h-full flex flex-col">
+          <Box
+            component="form"
+            noValidate
+            autoComplete="off"
+            onSubmit={handleSubmit}
+            className={`${isMobile ? 'p-4' : ''}`}
+          >
+            <div className="flex justify-end items-center text-xs mb-5">
+              Mark as Favorite
+              <Switch
+                color="info"
+                name="favorite"
+                checked={values.favorite}
+                value={values.favorite}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Fields */}
+            <TextField
+              name="title"
+              label="Title of your dream"
+              fullWidth={true}
+              sx={{ mb: '12px' }}
+              value={values.title}
               onChange={handleChange}
             />
-          </div>
-
-          {/* Fields */}
-          <TextField
-            name="title"
-            label="Title of your dream"
-            fullWidth={true}
-            sx={{ mb: '12px' }}
-            value={values.title}
-            onChange={handleChange}
-          />
-          <TextField
-            name="dream"
-            label="Enter your dream"
-            fullWidth={true}
-            multiline
-            rows={isMobile ? 15 : 4}
-            value={values.dream}
-            onChange={handleChange}
-          />
-
-          <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
-            <FormControlLabel
-              name="recurrent"
-              checked={values.recurrent}
-              value={values.recurrent}
+            <TextField
+              name="dream"
+              label="Enter your dream"
+              fullWidth={true}
+              multiline
+              rows={isMobile ? 15 : 4}
+              value={values.dream}
               onChange={handleChange}
-              control={<Checkbox />}
-              label="Recurrent"
             />
-            <FormControlLabel
-              name="nightmare"
-              checked={values.nightmare}
-              value={values.nightmare}
-              onChange={handleChange}
-              control={<Checkbox />}
-              label="Nightmare"
-            />
-            <FormControlLabel
-              name="paralysis"
-              checked={values.paralysis}
-              value={values.paralysis}
-              onChange={handleChange}
-              control={<Checkbox />}
-              label="Sleep paralysis"
-            />
-          </FormGroup>
 
-          {fileError && (
-            <Alert variant="outlined" severity="error" className="mb-3">
-              {fileError}
-            </Alert>
-          )}
+            <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
+              <FormControlLabel
+                name="recurrent"
+                checked={values.recurrent}
+                value={values.recurrent}
+                onChange={handleChange}
+                control={<Checkbox />}
+                label="Recurrent"
+              />
+              <FormControlLabel
+                name="nightmare"
+                checked={values.nightmare}
+                value={values.nightmare}
+                onChange={handleChange}
+                control={<Checkbox />}
+                label="Nightmare"
+              />
+              <FormControlLabel
+                name="paralysis"
+                checked={values.paralysis}
+                value={values.paralysis}
+                onChange={handleChange}
+                control={<Checkbox />}
+                label="Sleep paralysis"
+              />
+            </FormGroup>
 
-          {/* Image Viewer */}
-          {file && (
-            <>
-              <div className="flex justify-end px-24 mt-6">
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => {
-                    setFile(null);
-                    setFilePreview('');
-                  }}
-                >
-                  Remove
-                </Button>
+            {fileError && (
+              <Alert variant="outlined" severity="error" className="mb-3">
+                {fileError}
+              </Alert>
+            )}
+
+            {/* Image Viewer */}
+            {file && (
+              <>
+                <div className="h-56 w-full md:px-24 mt-3 bg-contain bg-center">
+                  <img src={filePreview} alt="preview" className="h-full w-full" />
+                </div>
+                <div className="w-full md:px-24">
+                  <Link
+                    component="button"
+                    variant="body2"
+                    color="error"
+                    onClick={() => {
+                      setFile(null);
+                      setFilePreview('');
+                    }}
+                  >
+                    Remove
+                  </Link>
+                </div>
+              </>
+            )}
+
+            {/* Actions */}
+            {!isMobile && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: '12px' }}>
+                <div className="flex">
+                  <IconButton component="label">
+                    <PhotoOutlined />
+                    <input type="file" hidden onChange={handleFileChange} accept="image/png, image/jpeg" />
+                  </IconButton>
+                  <IconButton component="label" onClick={() => setAudio(true)}>
+                    <MicNoneOutlined />
+                    {/* <input type="file" hidden onChange={handleFileChange} accept="audio/*" /> */}
+                    {audioContent}
+                  </IconButton>
+                </div>
+                <div>
+                  <Button variant="outlined" onClick={onWriteDreamClose} sx={{ mr: '6px' }}>
+                    Close
+                  </Button>
+                  <Button type="submit" variant="contained" disabled={isSubmitting}>
+                    {isSubmitting ? 'submitting' : 'not submitting'}
+                    <CheckOutlined sx={{ mr: '6px' }} /> Save Dream
+                  </Button>
+                </div>
+              </Box>
+            )}
+          </Box>
+
+          {isMobile && (
+            <div className="flex justify-center grow items-end">
+              <div className="grow text-center">
+                <ButtonBase component="label" className="w-full p-3">
+                  <PhotoOutlined />
+                  <input type="file" hidden onChange={handleFileChange} accept="image/png, image/jpeg" />
+                </ButtonBase>
               </div>
-              <div className="h-56 w-full md:px-24 my-3 bg-contain bg-center">
-                <img src={filePreview} alt="preview" className="h-full w-full" />
+              <div className="grow text-center">
+                <ButtonBase component="label" className="w-full p-3" onClick={() => setAudio(true)}>
+                  <MicNoneOutlined />
+                  {/* <input type="file" hidden onChange={handleFileChange} accept="audio/*" /> */}
+                  {audioContent}
+                </ButtonBase>
               </div>
-            </>
+            </div>
           )}
-
-          <Button variant="contained" component="label">
-            Upload Image
-            <input type="file" hidden onChange={handleFileChange} accept="image/png, image/jpeg" />
-          </Button>
-
-          {/* Actions */}
-          {!isMobile && (
-            <Box sx={{ display: 'flex', justifyContent: 'end', mt: '12px' }}>
-              <Button variant="outlined" onClick={onWriteDreamClose} sx={{ mr: '6px' }}>
-                Close
-              </Button>
-              <Button variant="contained" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'submitting' : 'not submitting'}
-                <CheckOutlined sx={{ mr: '6px' }} /> Save Dream
-              </Button>
-            </Box>
-          )}
-        </Box>
+        </div>
       )}
     </Formik>
   );
@@ -255,6 +301,7 @@ export function DreamModal({ initialDate, isOpen, editDream, onWriteDreamClose, 
   const calendarRef = useRef<HTMLInputElement | null>(null);
   const formikRef = useRef<FormikProps<Dream>>(null);
   const dateDisplay = date.format('ll');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleDreamClose = (): void => {
     onWriteDreamClose();
@@ -262,8 +309,9 @@ export function DreamModal({ initialDate, isOpen, editDream, onWriteDreamClose, 
   };
 
   const handleDreamMobile = (): void => {
-    if (formikRef.current && !formikRef.current.isSubmitting) {
-      formikRef.current.submitForm();
+    setIsSubmitting((s) => true);
+    if (formikRef.current) {
+      formikRef.current.submitForm().finally(() => setIsSubmitting((s) => false));
     }
   };
 
@@ -313,12 +361,18 @@ export function DreamModal({ initialDate, isOpen, editDream, onWriteDreamClose, 
                 </ButtonBase>
               </div>
 
-              <IconButton edge="end" color="inherit" onClick={handleDreamMobile} aria-label="save">
+              <IconButton
+                edge="end"
+                color="inherit"
+                disabled={isSubmitting}
+                onClick={handleDreamMobile}
+                aria-label="save"
+              >
                 <CheckOutlined />
               </IconButton>
             </Toolbar>
           </AppBar>
-          <DialogContent>
+          <DialogContent className="p-0">
             <DreamForm
               ref={formikRef}
               date={date}
@@ -327,11 +381,6 @@ export function DreamModal({ initialDate, isOpen, editDream, onWriteDreamClose, 
               onDreamSaved={onDreamSaved}
             />
           </DialogContent>
-
-          {/* <BottomNavigation value={''}>
-            <BottomNavigationAction label="Recents" icon={<PhotoOutlined />} />
-            <BottomNavigationAction label="Favorites" icon={<MicNoneOutlined />} />
-          </BottomNavigation> */}
         </Dialog>
       )}
 
