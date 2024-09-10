@@ -2,7 +2,7 @@ import { forwardRef, Ref, useRef, useState } from 'react';
 import { CheckOutlined, CloseOutlined, MicNoneOutlined, PhotoOutlined } from '@mui/icons-material';
 import { Formik, FormikProps } from 'formik';
 import { ApiResponse, useApi } from '../hooks/useApi';
-import { Dream } from '../models/dream';
+import { Dream, DreamRequest } from '../models/dream';
 import { dreamSchema } from '../schema/create-dream';
 import { Transition } from './Transition';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -15,6 +15,7 @@ import {
   Button,
   ButtonBase,
   Checkbox,
+  CircularProgress,
   Dialog,
   DialogContent,
   FormControlLabel,
@@ -83,28 +84,30 @@ export const DreamForm = forwardRef(function (
     favorite: editDream ? editDream.favorite : false,
   };
 
-  const handleSubmit = async (values: Dream, setSubmitting: (isSubmitting: boolean) => void): Promise<void> => {
-    let data = { ...values, createdAt: date };
+  const handleSubmit = async (values: Dream): Promise<void> => {
+    // return new Promise((resolve) => setTimeout(() => resolve(), 20000));
+    let payload = { ...values, createdAt: date } as DreamRequest;
 
     if (file) {
-      const image = await s3.upload(file.name, file, file.type);
-      data = { ...data, ...image };
-      console.log('data', data);
+      const img = await s3.upload(file.name, file, file.type);
+      const image = { ...img, size: file.size, fileType: file.type } || null;
+      payload = { ...payload, image };
+      // console.log('payload', payload);
       // const uploadedImage = await s3.get(file.name);
       // console.log('uploadedImage', uploadedImage);
-      // Use base64 encoding
+      // // Use base64 encoding
       // const str = await uploadedImage.Body?.transformToString('base64');
       // console.log('str', str);
     }
     return new Promise((resolve) => {
-      if (data.id) {
-        httpPut<ApiResponse>('/dreams', data).then((res) => {
+      if (payload.id) {
+        httpPut<ApiResponse>('/dreams', payload).then((res) => {
           onDreamSaved(res.data);
           onWriteDreamClose();
           resolve();
         });
       } else {
-        httpPost<ApiResponse>('/dreams', data).then((res) => {
+        httpPost<ApiResponse>('/dreams', payload).then((res) => {
           onDreamSaved(res.data);
           onWriteDreamClose();
           resolve();
@@ -148,10 +151,18 @@ export const DreamForm = forwardRef(function (
       innerRef={ref}
       initialValues={initializeDream}
       validationSchema={dreamSchema}
-      onSubmit={(values, { setSubmitting }) => handleSubmit(values, setSubmitting)}
+      onSubmit={(values) => handleSubmit(values)}
     >
       {({ values, handleChange, handleSubmit, isSubmitting }) => (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col relative">
+          {isSubmitting && (
+            <div className="absolute inset-0 bg-white/30 backdrop-opacity-10 z-20">
+              <div className="flex flex-col h-full justify-center items-center">
+                <CircularProgress />
+                Saving...
+              </div>
+            </div>
+          )}
           <Box
             component="form"
             noValidate
