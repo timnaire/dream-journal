@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
@@ -38,7 +38,7 @@ export function useAxiosIntance() {
     },
     (error) => {
       const Unauthorized = 401;
-      if (error.response.status === Unauthorized) {
+      if (error && error.response && error.response.status === Unauthorized) {
         return <Navigate to={error.response.data.redirect} replace />;
       }
       return Promise.reject(error);
@@ -50,33 +50,33 @@ export function useAxiosIntance() {
 export function useApi() {
   const { instance, isLoading, isError, error } = useAxiosIntance();
 
-  const httpGet = async <T,>(url: string, query = ''): Promise<T> => {
+  const httpGet = async <T,>(url: string, query = '', config?: AxiosRequestConfig): Promise<T> => {
     try {
-      return await instance.get(url + query).then((res) => res.data);
+      return await instance.get(url + query, config).then((res) => res.data);
     } catch (error) {
       throw new Error('An HTTP GET request error occured: ' + error);
     }
   };
 
-  const httpPost = async <T,>(url: string, payload: any): Promise<T> => {
+  const httpPost = async <T,>(url: string, payload: any, config?: AxiosRequestConfig): Promise<T> => {
     try {
-      return await instance.post(url, payload).then((res) => res.data);
+      return await instance.post(url, payload, config).then((res) => res.data);
     } catch (error) {
       throw new Error('An HTTP POST request error occured: ' + error);
     }
   };
 
-  const httpPut = async <T,>(url: string, payload: any): Promise<T> => {
+  const httpPut = async <T,>(url: string, payload: any, config?: AxiosRequestConfig): Promise<T> => {
     try {
-      return await instance.put(url, payload).then((res) => res.data);
+      return await instance.put(url, payload, config).then((res) => res.data);
     } catch (error) {
       throw new Error('An HTTP PUT request error occured: ' + error);
     }
   };
 
-  const httpDelete = async <T,>(url: string, query = ''): Promise<T> => {
+  const httpDelete = async <T,>(url: string, query = '', config?: AxiosRequestConfig): Promise<T> => {
     try {
-      return await instance.delete(url + query).then((res) => res.data);
+      return await instance.delete(url + query, config).then((res) => res.data);
     } catch (error) {
       throw new Error('An HTTP DELETE request error occured: ' + error);
     }

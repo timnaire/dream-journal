@@ -68,7 +68,7 @@ export const DreamForm = forwardRef(function (
   const [fileError, setFileError] = useState<string | null>(null);
   const [filePreview, setFilePreview] = useState('');
   const { isMobile } = useIsMobile();
-  const { httpPost, httpPut } = useApi();
+  const { httpPost, httpPut, isError, error } = useApi();
   const s3 = new S3Service();
 
   // Temp
@@ -102,14 +102,18 @@ export const DreamForm = forwardRef(function (
     return new Promise((resolve) => {
       if (payload.id) {
         httpPut<ApiResponse>('/dreams', payload).then((res) => {
-          onDreamSaved(res.data);
-          onWriteDreamClose();
+          if (res.success) {
+            onDreamSaved(res.data);
+            onWriteDreamClose();
+          }
           resolve();
         });
       } else {
         httpPost<ApiResponse>('/dreams', payload).then((res) => {
-          onDreamSaved(res.data);
-          onWriteDreamClose();
+          if (res.success) {
+            onDreamSaved(res.data);
+            onWriteDreamClose();
+          }
           resolve();
         });
       }
@@ -157,7 +161,7 @@ export const DreamForm = forwardRef(function (
         <div className="h-full flex flex-col relative">
           {isSubmitting && (
             <div className="absolute inset-0 bg-white/30 backdrop-opacity-10 z-20">
-              <div className="flex flex-col h-full justify-center items-center">
+              <div className="flex flex-col h-screen justify-center items-center">
                 <CircularProgress />
                 Saving...
               </div>
@@ -170,6 +174,12 @@ export const DreamForm = forwardRef(function (
             onSubmit={handleSubmit}
             className={`${isMobile ? 'p-4' : ''}`}
           >
+            {isError && <Alert variant="outlined" severity="error" className="mb-3">
+              {error}
+            </Alert>}
+
+
+
             <div className="flex justify-end items-center text-xs mb-5">
               Mark as Favorite
               <Switch

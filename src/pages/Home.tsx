@@ -108,6 +108,7 @@ export function Home() {
 
   const handleDreamSaved = (dream: Dream): void => {
     if (editDream) {
+      console.log('editDream', dream);
       dispatch(updateDream(dream));
     } else {
       dispatch(addDream([dream]));
