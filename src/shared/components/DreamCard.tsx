@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Box,
   Button,
   Card,
   Chip,
@@ -9,6 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Modal,
   Stack,
   Tooltip,
   Typography,
@@ -19,6 +21,7 @@ import { useToFriendlyDate } from '../hooks/useToFriendlyDate';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { ApiResponse, useApi } from '../hooks/useApi';
+import { S3Service } from '../services/s3.service';
 
 export interface DreamCardProps {
   isSimpleView?: boolean;
@@ -30,14 +33,20 @@ export interface DreamCardProps {
 export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDream }: DreamCardProps) {
   const [favorite, setFavorite] = useState(dream.favorite);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openImage, setOpenImage] = useState(false);
+  const [dreamImage, setDreamImage] = useState<string | null>(null);
   const { isMobile } = useIsMobile();
   const { httpPut } = useApi();
   const createdAt = useToFriendlyDate(dream.createdAt ? dream.createdAt : new Date(), true);
   const debounceFavorite = debounce((favorite) => {
     httpPut<ApiResponse>('/dreams', { ...dream, favorite: favorite }).then((res) => {
-      setFavorite(favorite);
+      if (res.success) {
+        setFavorite(favorite);
+      }
     });
   }, 200);
+
+  const s3 = new S3Service();
 
   const handleEdit = (): void => {
     if (onEditDream) {
@@ -51,17 +60,29 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
     }
   };
 
-  const handleToggleFavorite = async () => {
+  const handleToggleFavorite = (): void => {
     debounceFavorite(!favorite);
   };
 
-  const handleClick = (): void => {
+  const handleClick = async () => {
     setOpenDialog(true);
+
+    if (!dreamImage && dream.image?.filename) {
+      const image = await s3.get(dream.image?.filename);
+      const prefix = `data:${image.ContentType};base64, `;
+      // Use base64 encoding
+      const base64Image = (await image.Body?.transformToString('base64')) || null;
+      setDreamImage(prefix + base64Image);
+    }
   };
 
-  const recurrent = (dream.recurrent && <Chip label="Recurrent" className="bg-green-600 text-white me-2 mb-2" />)
-  const nightmare = (dream.nightmare && <Chip label="Nightmare" className="bg-rose-600 text-white me-2 mb-2" />)
-  const paralysis = (dream.paralysis && <Chip label="Paralysis" className="bg-fuchsia-600 text-white me-2 mb-2" />)
+  const handleOpenImage = (): void => {
+    setOpenImage(true);
+  };
+
+  const recurrent = dream.recurrent && <Chip label="Recurrent" className="bg-green-600 text-white me-2 mb-2" />;
+  const nightmare = dream.nightmare && <Chip label="Nightmare" className="bg-rose-600 text-white me-2 mb-2" />;
+  const paralysis = dream.paralysis && <Chip label="Paralysis" className="bg-fuchsia-600 text-white me-2 mb-2" />;
 
   return (
     <div className="flex relative mb-5">
@@ -144,11 +165,34 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
             {nightmare}
             {paralysis}
           </div>
+
+          {dreamImage && (
+            <div role="img" aria-label="Dream image">
+              <img src={dreamImage} alt="the dream" height="50px" width="50px" onClick={handleOpenImage} />
+            </div>
+          )}
+          {dream.image?.filename && !dreamImage && <div className="flex justify-center">Loading image...</div>}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      <Modal open={openImage} onClose={() => setOpenImage(false)} aria-labelledby="The Dream Image">
+        <Box
+          sx={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '100%', md: '65%', lg: '85%' },
+          }}
+        >
+          <div className="px-5 h-full">
+            {dreamImage && <img src={dreamImage} alt="the dream" height="100%" width="100%" />}
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 }

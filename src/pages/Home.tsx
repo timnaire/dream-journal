@@ -47,6 +47,8 @@ export function Home() {
   const [showAlert, setShowAlert] = useState(false);
   const [status, setStatus] = useState<'adding' | 'editing' | 'deleting'>('adding');
 
+  const [deleteAbortController, setDeleteAbortController] = useState<AbortController | null>(null);
+
   const { isDarkMode } = useContext(AppContext);
 
   const { httpGet, httpDelete } = useApi();
@@ -126,19 +128,31 @@ export function Home() {
   };
 
   const handleDeleteDream = (id: string): void => {
+    setDeleteAbortController(new AbortController());
     setIsOpenDeleteDialog(true);
     setDreamId(id);
     setStatus('deleting');
   };
 
-  const handleOk = (): void => {
+  const handleCancelDelete = (): void => {
+    if (deleteAbortController) {
+      deleteAbortController.abort();
+    }
     setIsOpenDeleteDialog(false);
-    httpDelete<ApiResponse>('/dreams/' + dreamId).then((res) => {
-      if (res.success) {
-        dispatch(removeDream(dreamId!));
-        setShowAlert(true);
-      }
-    });
+    setDeleteAbortController(null);
+  };
+
+  const handleOk = (): void => {
+    const signal = deleteAbortController?.signal;
+    httpDelete<ApiResponse>('/dreams/' + dreamId, '', { signal })
+      .then((res) => {
+        if (res.success) {
+          setIsOpenDeleteDialog(false);
+          dispatch(removeDream(dreamId!));
+          setShowAlert(true);
+        }
+      })
+      .catch((error) => console.log('Error: ', error));
   };
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -269,7 +283,7 @@ export function Home() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsOpenDeleteDialog(false)}>Close</Button>
+          <Button onClick={handleCancelDelete}>Cancel</Button>
           <Button variant="contained" onClick={handleOk}>
             Okay
           </Button>

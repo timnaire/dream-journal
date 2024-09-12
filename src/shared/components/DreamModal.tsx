@@ -85,20 +85,14 @@ export const DreamForm = forwardRef(function (
   };
 
   const handleSubmit = async (values: Dream): Promise<void> => {
-    // return new Promise((resolve) => setTimeout(() => resolve(), 20000));
     let payload = { ...values, createdAt: date } as DreamRequest;
 
     if (file) {
       const img = await s3.upload(file.name, file, file.type);
       const image = { ...img, size: file.size, fileType: file.type } || null;
       payload = { ...payload, image };
-      // console.log('payload', payload);
-      // const uploadedImage = await s3.get(file.name);
-      // console.log('uploadedImage', uploadedImage);
-      // // Use base64 encoding
-      // const str = await uploadedImage.Body?.transformToString('base64');
-      // console.log('str', str);
     }
+
     return new Promise((resolve) => {
       if (payload.id) {
         httpPut<ApiResponse>('/dreams', payload).then((res) => {
@@ -158,10 +152,10 @@ export const DreamForm = forwardRef(function (
       onSubmit={(values) => handleSubmit(values)}
     >
       {({ values, handleChange, handleSubmit, isSubmitting }) => (
-        <div className="h-full flex flex-col relative">
+        <div className={`flex flex-col relative ${!file && 'h-full'}`}>
           {isSubmitting && (
             <div className="absolute inset-0 bg-white/30 backdrop-opacity-10 z-20">
-              <div className="flex flex-col h-screen justify-center items-center">
+              <div className="flex flex-col justify-center items-center h-full">
                 <CircularProgress />
                 Saving...
               </div>
@@ -177,8 +171,6 @@ export const DreamForm = forwardRef(function (
             {isError && <Alert variant="outlined" severity="error" className="mb-3">
               {error}
             </Alert>}
-
-
 
             <div className="flex justify-end items-center text-xs mb-5">
               Mark as Favorite

@@ -75,11 +75,27 @@ export function useApi() {
   };
 
   const httpDelete = async <T,>(url: string, query = '', config?: AxiosRequestConfig): Promise<T> => {
-    try {
-      return await instance.delete(url + query, config).then((res) => res.data);
-    } catch (error) {
-      throw new Error('An HTTP DELETE request error occured: ' + error);
+    return await instance
+      .delete(url + query, config)
+      .then((res) => res.data)
+      .catch((error) => handleError(error));
+    // try {
+    //   return await instance.delete(url + query, config).then((res) => res.data);
+    // } catch (error) {
+    //   throw new Error('An HTTP DELETE request error occured: ' + error);
+    // }
+  };
+
+  const handleError = async (error: any) => {
+    let errorMessage = '';
+    if (error.error instanceof ErrorEvent) {
+      // client-side error
+      errorMessage = `An error occurred: ${error.error.message}`;
+    } else {
+      // server-side error
+      errorMessage = `Error Code: ${error.status} \n Message: ${error.message}`;
     }
+    return errorMessage;
   };
 
   return { instance, isLoading, isError, error, httpGet, httpPost, httpPut, httpDelete };
