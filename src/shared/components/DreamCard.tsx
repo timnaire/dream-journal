@@ -39,11 +39,13 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
   const { httpPut } = useApi();
   const createdAt = useToFriendlyDate(dream.createdAt ? dream.createdAt : new Date(), true);
   const debounceFavorite = debounce((favorite) => {
-    httpPut<ApiResponse>('/dreams', { ...dream, favorite: favorite }).then((res) => {
-      if (res.success) {
-        setFavorite(favorite);
-      }
-    });
+    httpPut<ApiResponse>('/dreams', { ...dream, favorite: favorite })
+      .then((res) => {
+        if (res && res.success) {
+          setFavorite(favorite);
+        }
+      })
+      .catch((error) => console.log('Error:', error));
   }, 200);
 
   const s3 = new S3Service();
@@ -188,7 +190,7 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
             width: { xs: '100%', md: '65%', lg: '85%' },
           }}
         >
-          <div className="px-5 h-full">
+          <div className="px-5">
             {dreamImage && <img src={dreamImage} alt="the dream" height="100%" width="100%" />}
           </div>
         </Box>

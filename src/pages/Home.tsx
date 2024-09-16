@@ -51,7 +51,7 @@ export function Home() {
 
   const { isDarkMode } = useContext(AppContext);
 
-  const { httpGet, httpDelete } = useApi();
+  const { isLoading, httpGet, httpDelete } = useApi();
   const { isMobile } = useIsMobile();
 
   const dreams = useAppSelector((state) => state.dream.dreams);
@@ -70,11 +70,13 @@ export function Home() {
 
     if (dreams.length === 0) {
       try {
-        httpGet<ApiResponse<Dream[]>>('/dreams').then((res) => {
-          if (mounted) {
-            dispatch(initializeDream(res.data));
-          }
-        });
+        httpGet<ApiResponse<Dream[]>>('/dreams')
+          .then((res) => {
+            if (mounted) {
+              dispatch(initializeDream(res.data));
+            }
+          })
+          .catch((error) => console.log('Error:', error));
       } catch (error) {
         console.error('error:', error);
       }
@@ -146,13 +148,14 @@ export function Home() {
     const signal = deleteAbortController?.signal;
     httpDelete<ApiResponse>('/dreams/' + dreamId, '', { signal })
       .then((res) => {
-        if (res.success) {
+        if (res && res.success) {
           setIsOpenDeleteDialog(false);
           dispatch(removeDream(dreamId!));
           setShowAlert(true);
+          setDreamId('');
         }
       })
-      .catch((error) => console.log('Error: ', error));
+      .catch((error) => console.log('Delete action cancelled'));
   };
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -284,7 +287,7 @@ export function Home() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelDelete}>Cancel</Button>
-          <Button variant="contained" onClick={handleOk}>
+          <Button variant="contained" onClick={handleOk} disabled={isLoading}>
             Okay
           </Button>
         </DialogActions>

@@ -95,21 +95,25 @@ export const DreamForm = forwardRef(function (
 
     return new Promise((resolve) => {
       if (payload.id) {
-        httpPut<ApiResponse>('/dreams', payload).then((res) => {
-          if (res.success) {
-            onDreamSaved(res.data);
-            onWriteDreamClose();
-          }
-          resolve();
-        });
+        httpPut<ApiResponse>('/dreams', payload)
+          .then((res) => {
+            if (res && res.success) {
+              onDreamSaved(res.data);
+              onWriteDreamClose();
+            }
+            resolve();
+          })
+          .catch((error) => console.log('Error:', error));
       } else {
-        httpPost<ApiResponse>('/dreams', payload).then((res) => {
-          if (res.success) {
-            onDreamSaved(res.data);
-            onWriteDreamClose();
-          }
-          resolve();
-        });
+        httpPost<ApiResponse>('/dreams', payload)
+          .then((res) => {
+            if (res && res.success) {
+              onDreamSaved(res.data);
+              onWriteDreamClose();
+            }
+            resolve();
+          })
+          .catch((error) => console.log('Error:', error));
       }
     });
   };
@@ -168,9 +172,11 @@ export const DreamForm = forwardRef(function (
             onSubmit={handleSubmit}
             className={`${isMobile ? 'p-4' : ''}`}
           >
-            {isError && <Alert variant="outlined" severity="error" className="mb-3">
-              {error}
-            </Alert>}
+            {isError && (
+              <Alert variant="outlined" severity="error" className="mb-3">
+                {error}
+              </Alert>
+            )}
 
             <div className="flex justify-end items-center text-xs mb-5">
               Mark as Favorite

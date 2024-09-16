@@ -11,7 +11,7 @@ export interface ApiResponse<T = any> {
 export function useAxiosIntance() {
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const instance: AxiosInstance = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
     headers: {
@@ -19,6 +19,11 @@ export function useAxiosIntance() {
       Accept: 'application/json',
     },
     withCredentials: true,
+  });
+
+  instance.interceptors.request.use((config) => {
+    setIsLoading(true);
+    return config;
   });
 
   instance.interceptors.response.use(
@@ -38,9 +43,17 @@ export function useAxiosIntance() {
     },
     (error) => {
       const Unauthorized = 401;
+
+      if (axios.isCancel(error)) {
+        setIsLoading(false);
+        return;
+      }
+
       if (error && error.response && error.response.status === Unauthorized) {
         return <Navigate to={error.response.data.redirect} replace />;
       }
+
+      setIsLoading(false);
       return Promise.reject(error);
     }
   );
@@ -52,7 +65,7 @@ export function useApi() {
 
   const httpGet = async <T,>(url: string, query = '', config?: AxiosRequestConfig): Promise<T> => {
     try {
-      return await instance.get(url + query, config).then((res) => res.data);
+      return await instance.get(url + query, config).then((res) => res?.data);
     } catch (error) {
       throw new Error('An HTTP GET request error occured: ' + error);
     }
@@ -60,7 +73,7 @@ export function useApi() {
 
   const httpPost = async <T,>(url: string, payload: any, config?: AxiosRequestConfig): Promise<T> => {
     try {
-      return await instance.post(url, payload, config).then((res) => res.data);
+      return await instance.post(url, payload, config).then((res) => res?.data);
     } catch (error) {
       throw new Error('An HTTP POST request error occured: ' + error);
     }
@@ -68,34 +81,18 @@ export function useApi() {
 
   const httpPut = async <T,>(url: string, payload: any, config?: AxiosRequestConfig): Promise<T> => {
     try {
-      return await instance.put(url, payload, config).then((res) => res.data);
+      return await instance.put(url, payload, config).then((res) => res?.data);
     } catch (error) {
       throw new Error('An HTTP PUT request error occured: ' + error);
     }
   };
 
   const httpDelete = async <T,>(url: string, query = '', config?: AxiosRequestConfig): Promise<T> => {
-    return await instance
-      .delete(url + query, config)
-      .then((res) => res.data)
-      .catch((error) => handleError(error));
-    // try {
-    //   return await instance.delete(url + query, config).then((res) => res.data);
-    // } catch (error) {
-    //   throw new Error('An HTTP DELETE request error occured: ' + error);
-    // }
-  };
-
-  const handleError = async (error: any) => {
-    let errorMessage = '';
-    if (error.error instanceof ErrorEvent) {
-      // client-side error
-      errorMessage = `An error occurred: ${error.error.message}`;
-    } else {
-      // server-side error
-      errorMessage = `Error Code: ${error.status} \n Message: ${error.message}`;
+    try {
+      return await instance.delete(url + query, config).then((res) => res?.data);
+    } catch (error) {
+      throw new Error('An HTTP DELETE request error occured: ' + error);
     }
-    return errorMessage;
   };
 
   return { instance, isLoading, isError, error, httpGet, httpPost, httpPut, httpDelete };

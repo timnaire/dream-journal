@@ -66,6 +66,7 @@ export function SignUp() {
       .then((response) => {
         setData(response.data);
       })
+      .catch((error) => console.log('Error:', error))
       .finally(() => {
         setSubmitting(false);
       });

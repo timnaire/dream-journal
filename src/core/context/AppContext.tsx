@@ -105,6 +105,7 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
             });
           }
         })
+        .catch((error) => console.log('Error:', error))
         .finally(() => {
           setAppState({ loading: false });
         });

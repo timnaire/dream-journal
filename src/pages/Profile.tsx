@@ -21,9 +21,11 @@ export function Profile() {
   const { httpPost } = useApi();
 
   const handleSignOut = (): void => {
-    httpPost('/auth/sign-out', {}).then((res) => {
-      setAppState({ isAuthenticated: false });
-    });
+    httpPost('/auth/sign-out', {})
+      .then((res) => {
+        setAppState({ isAuthenticated: false });
+      })
+      .catch((error) => console.log('Error:', error));
   };
 
   return (

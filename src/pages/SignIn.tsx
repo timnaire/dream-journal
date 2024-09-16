@@ -63,6 +63,7 @@ export function SignIn() {
           setAppState({ loading: false, isAuthenticated: true, user: res.data });
         }
       })
+      .catch((error) => console.log('Error:', error))
       .finally(() => setSubmitting(false));
   };
 
