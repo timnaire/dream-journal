@@ -1,8 +1,8 @@
 import { ChangeEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
-import { DreamCard } from '../shared/components/DreamCard';
-import { DreamModal } from '../shared/components/DreamModal';
+import { DreamCard } from '../components/dream/DreamCard';
+import { DreamModal } from '../components/dream/DreamModal';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
 import { Dream } from '../shared/models/dream';
 import { useAppDispatch, useAppSelector } from '../core/store/hooks';
@@ -10,19 +10,7 @@ import { CalendarIcon } from '@mui/x-date-pickers';
 import { useIsMobile } from '../shared/hooks/useIsMobile';
 import { MobileFooter, MobileHeader } from '../core/models/constants';
 import { AppContext } from '../core/context/AppContext';
-import { DreamCalendar } from '../shared/components/DreamCalendar';
-import {
-  Alert,
-  Box,
-  Button,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Snackbar,
-} from '@mui/material';
+import { Alert, Box, Button, Chip, Container, Snackbar } from '@mui/material';
 import {
   initializeDream,
   addDream,
@@ -33,11 +21,15 @@ import {
 } from '../core/store/dreams/dreamSlice';
 import Fab from '@mui/material/Fab';
 import moment from 'moment';
+import { CalendarDream } from '../components/dream/CalendarDream';
+import { DeleteDream } from '../components/dream/DeleteDream';
+import { FilterDream } from '../components/dream/FilterDream';
 
 export function Home() {
   const [isOpenDreamModal, setIsOpenDreamModal] = useState(false);
-  const [isOpenDreamCalendar, setIsOpenDreamCalendar] = useState(false);
+  const [isOpenCalendarDream, setIsOpenCalendarDream] = useState(false);
   const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState(false);
+  const [isOpenFilter, setIsOpenFilter] = useState(false);
 
   const [date, setDate] = useState(moment());
 
@@ -58,6 +50,7 @@ export function Home() {
   const displayDreams = useAppSelector((state) => state.dream.displayDreams);
   const filteredDreams = useAppSelector((state) => state.dream.filteredDreams);
   const displayFilteredDreams = useAppSelector((state) => state.dream.displayFilteredDreams);
+  const filters = useAppSelector((state) => state.dream.filters);
 
   const searchRef = useRef<HTMLInputElement | null>(null);
   const dispatch = useAppDispatch();
@@ -89,7 +82,7 @@ export function Home() {
 
   useEffect(() => {
     if (!isMobile) {
-      setIsOpenDreamCalendar(false);
+      setIsOpenCalendarDream(false);
       setIsSearching(false);
     }
   }, [isMobile]);
@@ -116,7 +109,7 @@ export function Home() {
       dispatch(updateDream(dream));
     } else {
       dispatch(addDream([dream]));
-      setIsOpenDreamCalendar(false);
+      setIsOpenCalendarDream(false);
       setDate(moment());
     }
     setShowAlert(true);
@@ -144,7 +137,7 @@ export function Home() {
     setDeleteAbortController(null);
   };
 
-  const handleOk = (): void => {
+  const handleOkDelete = (): void => {
     const signal = deleteAbortController?.signal;
     httpDelete<ApiResponse>('/dreams/' + dreamId, '', { signal })
       .then((res) => {
@@ -165,7 +158,7 @@ export function Home() {
 
   const handleOpenCalendar = (): void => {
     setDate(moment());
-    setIsOpenDreamCalendar(true);
+    setIsOpenCalendarDream(true);
   };
 
   const dreamsContent =
@@ -200,7 +193,7 @@ export function Home() {
   return (
     <Container className="p-0 md:p-5">
       <div>
-        {/* Search & Filters */}
+        {/* Add dream using Calendar & Search */}
         {!isSearching && (
           <div className="flex justify-end pt-20 pb-2 md:hidden">
             <Button onClick={handleOpenCalendar}>
@@ -212,6 +205,7 @@ export function Home() {
           </div>
         )}
 
+        {/* Search Entry & Filter CTA */}
         {isSearching && (
           <div className="flex justify-end items-center pt-20 pb-2">
             <Button onClick={handleToggleSearch}>
@@ -224,7 +218,7 @@ export function Home() {
                 onSearch={handleSearch}
               />
             </div>
-            <Button onClick={() => console.log('Filter settings')}>
+            <Button onClick={() => setIsOpenFilter(true)}>
               <TuneOutlined color="primary" />
             </Button>
           </div>
@@ -243,8 +237,26 @@ export function Home() {
               },
             }}
           >
-            <div className="flex justify-end mb-3">
+            <div className="flex md:justify-between mb-3">
               {/* Desktop create dream */}
+              <div>
+                {filters && (
+                  <div>
+                    <span className="me-2">Applied Filters:</span>
+                    {filters.favoriteOnly && <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />}
+                    {filters.date && <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />}
+                    {filters.dreamCharacteristic.recurrent && (
+                      <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />
+                    )}
+                    {filters.dreamCharacteristic.nightmare && (
+                      <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />
+                    )}
+                    {filters.dreamCharacteristic.paralysis && (
+                      <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />
+                    )}
+                  </div>
+                )}
+              </div>
               <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
                 <EditOutlined className="me-2" /> Write a dream
               </Button>
@@ -267,31 +279,26 @@ export function Home() {
       </div>
 
       {/* Create dream using Calendar */}
-      <DreamCalendar
-        isOpenDreamCalendar={isOpenDreamCalendar}
-        onClose={() => setIsOpenDreamCalendar(false)}
+      <CalendarDream
+        isOpenCalendarDream={isOpenCalendarDream}
+        onClose={() => setIsOpenCalendarDream(false)}
         onWriteDream={handleWriteDreamOpen}
         onEditDream={handleEditDream}
         onDeleteDream={handleDeleteDream}
         onDateChange={(e) => setDate(e)}
       />
 
+      <FilterDream isOpenFilter={isOpenFilter} onClose={() => setIsOpenFilter(false)} />
+
       {/* Delete dreams confirmation */}
-      <Dialog open={isOpenDeleteDialog} onClose={() => setIsOpenDeleteDialog(false)}>
-        <DialogTitle>Warning !</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to continue? This dream <span className="font-bold">{dream && dream.title}</span> will
-            be deleted.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDelete}>Cancel</Button>
-          <Button variant="contained" onClick={handleOk} disabled={isLoading}>
-            Okay
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteDream
+        dream={dream}
+        isOpenDeleteDream={isOpenDeleteDialog}
+        isLoading={isLoading}
+        onClose={() => setIsOpenDeleteDialog(false)}
+        onCancel={handleCancelDelete}
+        onOk={handleOkDelete}
+      />
 
       {/* Create/Edit Dreams */}
       {isOpenDreamModal && (

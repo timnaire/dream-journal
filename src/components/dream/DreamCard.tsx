@@ -16,12 +16,12 @@ import {
   Typography,
 } from '@mui/material';
 import { DeleteOutline, EditOutlined, StarBorderOutlined, StarOutlined } from '@mui/icons-material';
-import { Dream } from '../models/dream';
-import { useToFriendlyDate } from '../hooks/useToFriendlyDate';
+import { Dream } from '../../shared/models/dream';
+import { useToFriendlyDate } from '../../shared/hooks/useToFriendlyDate';
 import { motion } from 'framer-motion';
-import { useIsMobile } from '../hooks/useIsMobile';
-import { ApiResponse, useApi } from '../hooks/useApi';
-import { S3Service } from '../services/s3.service';
+import { useIsMobile } from '../../shared/hooks/useIsMobile';
+import { ApiResponse, useApi } from '../../shared/hooks/useApi';
+import { S3Service } from '../../shared/services/s3.service';
 
 export interface DreamCardProps {
   isSimpleView?: boolean;
@@ -84,7 +84,7 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
 
   const recurrent = dream.recurrent && <Chip label="Recurrent" className="bg-green-600 text-white me-2 mb-2" />;
   const nightmare = dream.nightmare && <Chip label="Nightmare" className="bg-rose-600 text-white me-2 mb-2" />;
-  const paralysis = dream.paralysis && <Chip label="Paralysis" className="bg-fuchsia-600 text-white me-2 mb-2" />;
+  const paralysis = dream.paralysis && <Chip label="Sleep Paralysis" className="bg-fuchsia-600 text-white me-2 mb-2" />;
 
   return (
     <div className="flex relative mb-5">

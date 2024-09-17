@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { AppBar, Box, Button, Dialog, DialogContent, IconButton, Toolbar, Typography } from '@mui/material';
-import { Transition } from './Transition';
 import { CalendarMonthOutlined, CalendarViewMonthOutlined, Close } from '@mui/icons-material';
 import { DateCalendar, LocalizationProvider, PickersDay, PickersDayProps } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { useAppSelector } from '../../core/store/hooks';
 import { DreamCard } from './DreamCard';
 import moment, { Moment } from 'moment';
+import { Transition } from '../../shared/components/Transition';
 
-interface DreamCalendarProps {
-  isOpenDreamCalendar: boolean;
+interface CalendarDreamProps {
+  isOpenCalendarDream: boolean;
   onClose: () => void;
   onWriteDream: () => void;
   onEditDream: (id: string) => void;
@@ -38,8 +38,8 @@ export function HasDreamDay(props: PickersDayProps<Moment> & { highlightedDays?:
   );
 }
 
-export function DreamCalendar(props: DreamCalendarProps) {
-  const { isOpenDreamCalendar, onClose, onWriteDream, onEditDream, onDeleteDream, onDateChange } = props;
+export function CalendarDream(props: CalendarDreamProps) {
+  const { isOpenCalendarDream, onClose, onWriteDream, onEditDream, onDeleteDream, onDateChange } = props;
 
   const [date, setDate] = useState(moment());
   const [month, setMonth] = useState(moment());
@@ -81,7 +81,7 @@ export function DreamCalendar(props: DreamCalendarProps) {
   };
 
   return (
-    <Dialog fullScreen open={isOpenDreamCalendar} onClose={handleClose} TransitionComponent={Transition}>
+    <Dialog fullScreen open={isOpenCalendarDream} onClose={handleClose} TransitionComponent={Transition}>
       <AppBar sx={{ position: 'relative' }}>
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">

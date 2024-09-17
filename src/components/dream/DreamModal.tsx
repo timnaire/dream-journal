@@ -1,11 +1,11 @@
 import { forwardRef, Ref, useRef, useState } from 'react';
 import { CheckOutlined, CloseOutlined, MicNoneOutlined, PhotoOutlined } from '@mui/icons-material';
 import { Formik, FormikProps } from 'formik';
-import { ApiResponse, useApi } from '../hooks/useApi';
-import { Dream, DreamRequest } from '../models/dream';
-import { dreamSchema } from '../schema/create-dream';
-import { Transition } from './Transition';
-import { useIsMobile } from '../hooks/useIsMobile';
+import { ApiResponse, useApi } from '../../shared/hooks/useApi';
+import { Dream, DreamRequest } from '../../shared/models/dream';
+import { dreamSchema } from '../../shared/schema/create-dream';
+import { Transition } from '../../shared/components/Transition';
+import { useIsMobile } from '../../shared/hooks/useIsMobile';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import {
@@ -31,7 +31,7 @@ import {
   Typography,
 } from '@mui/material';
 import moment, { Moment } from 'moment';
-import { S3Service } from '../services/s3.service';
+import { S3Service } from '../../shared/services/s3.service';
 
 const ModalBox = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -282,7 +282,6 @@ export const DreamForm = forwardRef(function (
                     Close
                   </Button>
                   <Button type="submit" variant="contained" disabled={isSubmitting}>
-                    {isSubmitting ? 'submitting' : 'not submitting'}
                     <CheckOutlined sx={{ mr: '6px' }} /> Save Dream
                   </Button>
                 </div>

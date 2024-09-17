@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Dream } from '../../../shared/models/dream';
 import moment from 'moment';
+import { Filter } from '../../../components/dream/FilterDream';
 
 interface ListDream {
   [key: string]: Dream[];
@@ -15,6 +16,7 @@ interface InitialState {
   recentRecurrent: Dream[];
   search?: string;
   filteredDreams: Dream[];
+  filters?: Filter;
   displayFilteredDreams: ListDream;
 }
 
@@ -27,6 +29,7 @@ const initialState: InitialState = {
   recentRecurrent: [],
   search: '',
   filteredDreams: [],
+  filters: undefined,
   displayFilteredDreams: {},
 };
 
@@ -72,6 +75,18 @@ export const dreamSlice = createSlice({
       state.dreams = state.dreams.filter((dream) => dream.id !== action.payload);
       updateDisplayDreams(state);
     },
+    filterDream: (state, action: { type: string; payload: Filter }) => {
+      const payload = action.payload;
+      state.filters = action.payload;
+      state.filteredDreams = state.dreams.filter(
+        (dream) =>
+          dream.favorite === payload.favoriteOnly &&
+          dream.recurrent === payload.dreamCharacteristic.recurrent &&
+          dream.nightmare === payload.dreamCharacteristic.nightmare &&
+          dream.paralysis === payload.dreamCharacteristic.paralysis
+      );
+      state.displayFilteredDreams = getToDisplayDreams(state.filteredDreams);
+    },
     searchDream: (state, action: { type: string; payload: string }) => {
       const keyword = action.payload.toLowerCase();
       if (state.search !== keyword) {
@@ -91,5 +106,6 @@ export const dreamSlice = createSlice({
   },
 });
 
-export const { initializeDream, addDream, updateDream, removeDream, searchDream, clearSearch } = dreamSlice.actions;
+export const { initializeDream, addDream, updateDream, removeDream, searchDream, clearSearch, filterDream } =
+  dreamSlice.actions;
 export default dreamSlice.reducer;
