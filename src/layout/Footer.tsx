@@ -27,6 +27,7 @@ export function Footer() {
 
   return (
     <footer>
+      <div id="write"></div>
       <div className="md:hidden">
         <div className="w-full size-14"></div>
         <Paper className="fixed bottom-0 end-0 w-full" elevation={3}>

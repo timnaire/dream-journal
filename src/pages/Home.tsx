@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, SyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
 import { DreamCard } from '../components/dream/DreamCard';
@@ -10,7 +10,7 @@ import { CalendarIcon } from '@mui/x-date-pickers';
 import { useIsMobile } from '../shared/hooks/useIsMobile';
 import { MobileFooter, MobileHeader } from '../core/models/constants';
 import { AppContext } from '../core/context/AppContext';
-import { Alert, Box, Button, Chip, Container, Snackbar } from '@mui/material';
+import { Alert, Box, Button, Chip, Container, Portal, Snackbar } from '@mui/material';
 import {
   initializeDream,
   addDream,
@@ -24,6 +24,7 @@ import moment from 'moment';
 import { CalendarDream } from '../components/dream/CalendarDream';
 import { DeleteDream } from '../components/dream/DeleteDream';
 import { FilterDream } from '../components/dream/FilterDream';
+import { motion } from 'framer-motion';
 
 export function Home() {
   const [isOpenDreamModal, setIsOpenDreamModal] = useState(false);
@@ -52,11 +53,19 @@ export function Home() {
   const displayFilteredDreams = useAppSelector((state) => state.dream.displayFilteredDreams);
   const filters = useAppSelector((state) => state.dream.filters);
 
+  const writeRef = useRef<HTMLElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
   const dispatch = useAppDispatch();
 
   // Used to get the Dream when deleting
   const dream = useMemo(() => dreams.find((d) => d.id === dreamId), [dreams, dreamId]);
+
+  useEffect(() => {
+    const writeDiv = document.getElementById('write');
+    if (writeRef.current === null) {
+      writeRef.current = writeDiv;
+    }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -161,6 +170,11 @@ export function Home() {
     setIsOpenCalendarDream(true);
   };
 
+  const handleRemoveFilter = (e: SyntheticEvent<Element, Event>): void => {
+    const target = e.target as HTMLButtonElement;
+    console.log(target);
+  };
+
   const dreamsContent =
     !isSearching &&
     dreams.length > 0 &&
@@ -192,16 +206,29 @@ export function Home() {
 
   return (
     <Container className="p-0 md:p-5">
-      <div>
+      <motion.div
+        drag={isMobile && 'y'}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ bottom: 0.1 }}
+        dragMomentum={false}
+        onDrag={(event, info) => console.log(info.offset.y)}
+        dragPropagation={true}
+        dragListener={true}
+      >
         {/* Add dream using Calendar & Search */}
         {!isSearching && (
-          <div className="flex justify-end pt-20 pb-2 md:hidden">
-            <Button onClick={handleOpenCalendar}>
-              <CalendarIcon color="primary" />
-            </Button>
-            <Button onClick={handleToggleSearch}>
-              <SearchOutlined color="primary" />
-            </Button>
+          <div className="flex justify-between items-center pt-20 pb-2 md:hidden">
+            <div className="ms-5">
+              <h4 className="m-0">My Dream Journal</h4>
+            </div>
+            <div>
+              <Button onClick={handleOpenCalendar}>
+                <CalendarIcon color="primary" />
+              </Button>
+              <Button onClick={handleToggleSearch}>
+                <SearchOutlined color="primary" />
+              </Button>
+            </div>
           </div>
         )}
 
@@ -240,22 +267,38 @@ export function Home() {
             <div className="flex md:justify-between mb-3">
               {/* Desktop create dream */}
               <div>
-                {filters && (
+                {/* {filters && (
                   <div>
                     <span className="me-2">Applied Filters:</span>
-                    {filters.favoriteOnly && <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />}
-                    {filters.date && <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />}
+                    {filters.favoriteOnly && (
+                      <Chip
+                        label="Favorite Only"
+                        className="text-white me-2 mb-2"
+                        onDelete={() => console.log('remove')}
+                      />
+                    )}
+                    {filters.date && (
+                      <Chip
+                        label={filters.date}
+                        className="text-white me-2 mb-2"
+                        onDelete={() => console.log('remove')}
+                      />
+                    )}
                     {filters.dreamCharacteristic.recurrent && (
-                      <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />
+                      <Chip label="Recurrent" className="text-white me-2 mb-2" onDelete={() => console.log('remove')} />
                     )}
                     {filters.dreamCharacteristic.nightmare && (
-                      <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />
+                      <Chip label="Nightmare" className="text-white me-2 mb-2" onDelete={() => console.log('remove')} />
                     )}
                     {filters.dreamCharacteristic.paralysis && (
-                      <Chip label="Favorite Only" className="text-white me-2" onDelete={()=> console.log('remove')} />
+                      <Chip
+                        label="Paralysis"
+                        className="text-white me-2 mb-2"
+                        onDelete={(e) => handleRemoveFilter(e)}
+                      />
                     )}
                   </div>
-                )}
+                )} */}
               </div>
               <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
                 <EditOutlined className="me-2" /> Write a dream
@@ -272,11 +315,18 @@ export function Home() {
 
         {/* Mobile create dream */}
         <div className="md:hidden">
-          <Fab className="fixed bottom-0 end-0 end-3 bottom-16" color="primary" onClick={handleWriteDreamOpen}>
-            <EditOutlined />
-          </Fab>
+          {writeRef.current && (
+            <Portal
+              children={
+                <Fab className="fixed bottom-0 end-0 end-3 bottom-16" color="primary" onClick={handleWriteDreamOpen}>
+                  <EditOutlined />
+                </Fab>
+              }
+              container={writeRef.current}
+            />
+          )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Create dream using Calendar */}
       <CalendarDream

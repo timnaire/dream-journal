@@ -20,9 +20,11 @@ interface DreamCharacteristic {
 }
 
 export interface Filter {
-  favoriteOnly: boolean;
-  date: string;
-  dreamCharacteristic: DreamCharacteristic;
+  name: string;
+  value: string | boolean;
+  // favoriteOnly: boolean;
+  // date: string;
+  // dreamCharacteristic: DreamCharacteristic;
 }
 
 export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
@@ -34,6 +36,7 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
     nightmare: false,
     paralysis: false,
   });
+  const [filters, setFilters] = useState<Filter[]>([]);
   const dispatch = useAppDispatch();
 
   const handleDreamCharacteristic = (e: SyntheticEvent<Element, Event>): void => {
@@ -42,16 +45,34 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
       ...dreamCharacteristic,
       [target.name]: !isTrue(target.value),
     });
+
+    const exist = filters.find((f) => f.name === target.name);
+    console.log('exist', exist);
+    if (exist) {
+      exist.value = !isTrue(target.value);
+      setFilters([...filters.filter((f) => f.name === exist.name), exist]);
+    } else {
+      const newFilters = { name: target.name, value: !isTrue(target.value) };
+      setFilters([...filters, newFilters]);
+    }
   };
 
   const handleFilter = (): void => {
-    const filter: Filter = {
-      favoriteOnly,
-      date: '',
-      dreamCharacteristic,
-    };
-    console.log('filter', filter);
-    dispatch(filterDream(filter));
+    console.log('filters', filters);
+    // const filter: Filter = {
+    //   favoriteOnly,
+    //   date: '',
+    //   dreamCharacteristic,
+    // };
+    // const filters = [
+    //   { name: 'favorite', value: favoriteOnly },
+    //   { name: 'toDate', value: toDate },
+    //   { name: 'fromDate', value: fromDate },
+    //   { name: 'recurrent', value: dreamCharacteristic.recurrent },
+    //   { name: 'nightmare', value: dreamCharacteristic.nightmare },
+    //   { name: 'paralysis', value: dreamCharacteristic.paralysis },
+    // ];
+    // dispatch(filterDream(filters));
     onClose();
   };
 

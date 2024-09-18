@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Dream } from '../../../shared/models/dream';
-import moment from 'moment';
 import { Filter } from '../../../components/dream/FilterDream';
+import moment from 'moment';
 
 interface ListDream {
   [key: string]: Dream[];
@@ -78,13 +78,13 @@ export const dreamSlice = createSlice({
     filterDream: (state, action: { type: string; payload: Filter }) => {
       const payload = action.payload;
       state.filters = action.payload;
-      state.filteredDreams = state.dreams.filter(
-        (dream) =>
-          dream.favorite === payload.favoriteOnly &&
-          dream.recurrent === payload.dreamCharacteristic.recurrent &&
-          dream.nightmare === payload.dreamCharacteristic.nightmare &&
-          dream.paralysis === payload.dreamCharacteristic.paralysis
-      );
+      // state.filteredDreams = state.dreams.filter(
+      //   (dream) =>
+      //     dream.favorite === payload.favoriteOnly &&
+      //     dream.recurrent === payload.dreamCharacteristic.recurrent &&
+      //     dream.nightmare === payload.dreamCharacteristic.nightmare &&
+      //     dream.paralysis === payload.dreamCharacteristic.paralysis
+      // );
       state.displayFilteredDreams = getToDisplayDreams(state.filteredDreams);
     },
     searchDream: (state, action: { type: string; payload: string }) => {
