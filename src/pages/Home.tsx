@@ -114,7 +114,6 @@ export function Home() {
 
   const handleDreamSaved = (dream: Dream): void => {
     if (editDream) {
-      console.log('editDream', dream);
       dispatch(updateDream(dream));
     } else {
       dispatch(addDream([dream]));
@@ -202,7 +201,7 @@ export function Home() {
       );
     });
 
-  console.log('dreams', dreams);
+  console.log('filters', filters);
 
   return (
     <Container className="p-0 md:p-5">
@@ -267,38 +266,23 @@ export function Home() {
             <div className="flex md:justify-between mb-3">
               {/* Desktop create dream */}
               <div>
-                {/* {filters && (
+                {filters && filters.length > 0 && (
                   <div>
                     <span className="me-2">Applied Filters:</span>
-                    {filters.favoriteOnly && (
-                      <Chip
-                        label="Favorite Only"
-                        className="text-white me-2 mb-2"
-                        onDelete={() => console.log('remove')}
-                      />
-                    )}
-                    {filters.date && (
-                      <Chip
-                        label={filters.date}
-                        className="text-white me-2 mb-2"
-                        onDelete={() => console.log('remove')}
-                      />
-                    )}
-                    {filters.dreamCharacteristic.recurrent && (
-                      <Chip label="Recurrent" className="text-white me-2 mb-2" onDelete={() => console.log('remove')} />
-                    )}
-                    {filters.dreamCharacteristic.nightmare && (
-                      <Chip label="Nightmare" className="text-white me-2 mb-2" onDelete={() => console.log('remove')} />
-                    )}
-                    {filters.dreamCharacteristic.paralysis && (
-                      <Chip
-                        label="Paralysis"
-                        className="text-white me-2 mb-2"
-                        onDelete={(e) => handleRemoveFilter(e)}
-                      />
+                    {filters.map((f) =>
+                      f.value ? (
+                        <Chip
+                          key={f.name}
+                          label={f.name}
+                          className="text-white me-2 mb-2"
+                          onDelete={() => console.log('remove')}
+                        />
+                      ) : (
+                        ''
+                      )
                     )}
                   </div>
-                )} */}
+                )}
               </div>
               <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
                 <EditOutlined className="me-2" /> Write a dream
