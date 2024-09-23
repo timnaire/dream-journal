@@ -1,6 +1,7 @@
 export interface Filter {
   name: string;
-  value: string | boolean;
+  value: string[] | boolean;
+  displayName?: string;
 }
 
 export enum FilterType {
@@ -8,6 +9,5 @@ export enum FilterType {
   Recurrent = 'recurrent',
   Nightmare = 'nightmare',
   Paralysis = 'paralysis',
-  FromDate = 'fromDate',
-  ToDate = 'toDate',
+  Date = 'date',
 }

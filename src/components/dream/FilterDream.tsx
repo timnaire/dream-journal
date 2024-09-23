@@ -1,4 +1,4 @@
-import { SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
 import {
   Button,
   ButtonBase,
@@ -12,11 +12,12 @@ import {
 import { Transition } from '../../shared/components/Transition';
 import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import { useAppDispatch } from '../../core/store/hooks';
+import { useAppDispatch, useAppSelector } from '../../core/store/hooks';
 import { filterDream } from './../../core/store/dreams/dreamSlice';
 import { Filter, FilterType } from '../../shared/models/filter';
 import { isTrue } from '../../shared/utils/is-true';
 import moment, { Moment } from 'moment';
+import { CloseOutlined } from '@mui/icons-material';
 
 interface FilterDreamProps {
   isOpenFilter: boolean;
@@ -39,11 +40,59 @@ const defaultFromDate = moment().date(new Date().getDate() - 7);
 
 export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
   const [favoriteOnly, setFavoriteOnly] = useState(false);
-  const [fromDate, setToDate] = useState(defaultFromDate);
-  const [toDate, setFromDate] = useState(moment());
+  const [includeDate, setIncludeDate] = useState(false);
+  const [fromDate, setFromDate] = useState(defaultFromDate);
+  const [toDate, setToDate] = useState(moment());
   const [dreamCharacteristic, setDreamCharacteristic] = useState<DreamCharacteristic>(defaultDreamCharacteristic);
   const [filters, setFilters] = useState<Filter[]>([]);
+  const stateFilter = useAppSelector((state) => state.dream.filters);
   const dispatch = useAppDispatch();
+
+  const dateDisplayName = `${moment(fromDate.toISOString()).format('L')} - ${moment(toDate.toISOString()).format('L')}`;
+  const dateValue = [fromDate.toISOString(), toDate.toISOString()];
+
+  useEffect(() => {
+    const dreamCharacteristic = { ...defaultDreamCharacteristic };
+    let favorite = false;
+    let hasDate = false;
+    let from;
+    let to;
+    stateFilter.forEach((filter: Filter) => {
+      if (dreamCharacteristic.hasOwnProperty(filter.name)) {
+        const key = filter.name as keyof DreamCharacteristic;
+        dreamCharacteristic[key] = filter.value as boolean;
+      }
+
+      if (filter.name === FilterType.Favorite) {
+        favorite = filter.value as boolean;
+      }
+
+      if (filter.name === FilterType.Date) {
+        hasDate = true;
+        from = (filter?.value as string[])[0];
+        to = (filter?.value as string[])[1];
+        setFromDate(moment(from));
+        setToDate(moment(to));
+      }
+    });
+
+    setFilters(stateFilter);
+    setDreamCharacteristic({ ...dreamCharacteristic });
+    setFavoriteOnly(favorite);
+    if (hasDate) {
+      setFromDate(moment(from));
+      setToDate(moment(to));
+    } else {
+      setIncludeDate(false);
+    }
+  }, [stateFilter]);
+
+  useEffect(() => {
+    if (includeDate) {
+      updateFilter(FilterType.Date, false);
+      updateFilter(FilterType.Date, dateValue, dateDisplayName);
+    }
+  }, [fromDate, toDate]);
 
   const handleFavoriteOnly = (e: SyntheticEvent<Element, Event>): void => {
     const target = e.target as HTMLInputElement;
@@ -52,14 +101,7 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
   };
 
   const handleDate = (e: Moment, type: string): void => {
-    if (type === FilterType.FromDate) {
-      setFromDate(e);
-    }
-    if (type === FilterType.ToDate) {
-      setToDate(e);
-    }
-    console.log('type', type);
-    updateFilter(type, e.toISOString());
+    type === 'from' ? setFromDate(e) : setToDate(e);
   };
 
   const handleDreamCharacteristic = (e: SyntheticEvent<Element, Event>): void => {
@@ -71,9 +113,20 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
     updateFilter(target.name, !isTrue(target.value));
   };
 
+  const handleAddDateFilter = (): void => {
+    setIncludeDate(true);
+    setFromDate(defaultFromDate);
+    setToDate(moment());
+  };
+
+  const handleRemoveDate = (): void => {
+    setIncludeDate(false);
+    updateFilter(FilterType.Date, false);
+    setFromDate(defaultFromDate);
+    setToDate(moment());
+  };
+
   const handleFilter = (): void => {
-    // handleDate(fromDate, FilterType.FromDate);
-    // handleDate(toDate, FilterType.ToDate);
     dispatch(filterDream(filters));
     onClose();
   };
@@ -81,19 +134,18 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
   const handleClearFilter = (): void => {
     setFavoriteOnly(false);
     setDreamCharacteristic(defaultDreamCharacteristic);
+    setIncludeDate(false);
     setFromDate(defaultFromDate);
     setToDate(moment());
     setFilters([]);
   };
 
-  const updateFilter = (name: string, value: string | boolean): void => {
+  const updateFilter = (name: string, value: string[] | boolean, displayName?: string): void => {
     setFilters((prevFilters) => {
       let updatedFilters = prevFilters.filter((f) => f.value);
-      console.log('prevFilters', prevFilters);
-      // // const filterExists = updatedFilters.some((f) => f.name === name);
 
       if (value) {
-        updatedFilters.push({ name, value });
+        displayName ? updatedFilters.push({ name, value, displayName }) : updatedFilters.push({ name, value });
       } else {
         updatedFilters = updatedFilters.filter((f) => f.name !== name);
       }
@@ -125,29 +177,43 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
 
           <section className="mb-3 p-3 bg-gray-600 rounded-lg">
             <h4 className="mt-0 mb-2">Date</h4>
-            <div id="date" className="flex items-center">
-              <div>
-                <LocalizationProvider dateAdapter={AdapterMoment}>
-                  <MobileDatePicker
-                    label="From Date"
-                    onAccept={(e) => handleDate(e!, FilterType.FromDate)}
-                    value={fromDate}
-                    disableFuture={true}
-                  />
-                </LocalizationProvider>
+            {!includeDate && (
+              <Button variant="outlined" onClick={handleAddDateFilter}>
+                add
+              </Button>
+            )}
+
+            {includeDate && (
+              <div className="flex items-center">
+                <div id="date" className="flex items-center">
+                  <div>
+                    <LocalizationProvider dateAdapter={AdapterMoment}>
+                      <MobileDatePicker
+                        label="From Date"
+                        onAccept={(e) => handleDate(e!, 'from')}
+                        value={fromDate}
+                        disableFuture={true}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                  <div className="mx-3">to</div>
+                  <div>
+                    <LocalizationProvider dateAdapter={AdapterMoment}>
+                      <MobileDatePicker
+                        label="To Date"
+                        onAccept={(e) => handleDate(e!, 'to')}
+                        value={toDate}
+                        minDate={fromDate}
+                        disableFuture={true}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                </div>
+                <ButtonBase className="rounded-xl p-2" onClick={handleRemoveDate}>
+                  <CloseOutlined />
+                </ButtonBase>
               </div>
-              <div className="mx-3">to</div>
-              <div>
-                <LocalizationProvider dateAdapter={AdapterMoment}>
-                  <MobileDatePicker
-                    label="To Date"
-                    onAccept={(e) => handleDate(e!, FilterType.ToDate)}
-                    value={toDate}
-                    disableFuture={true}
-                  />
-                </LocalizationProvider>
-              </div>
-            </div>
+            )}
           </section>
 
           <section className="mb-3 p-3 bg-gray-600 rounded-lg">

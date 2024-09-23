@@ -77,7 +77,6 @@ export const dreamSlice = createSlice({
     },
     filterDream: (state, action: { type: string; payload: Filter[] }) => {
       const filters = action.payload;
-      console.log(filters);
       state.filters = filters;
 
       let dreams: Dream[] = [...state.dreams];
@@ -90,15 +89,23 @@ export const dreamSlice = createSlice({
       };
 
       for (const [key, value] of Object.entries(filterConditions)) {
-        // Only filter True values
         if (value) {
           dreams = dreams.filter((d) => d[key as keyof Dream] === value);
         }
       }
 
-      // TODO: Filter dates
-      const fromDate = filters.find((p) => p.name === FilterType.FromDate);
-      const toDate = filters.find((p) => p.name === FilterType.ToDate);
+      const hasDateFilter = filters.some((p) => p.name === FilterType.Date);
+
+      if (hasDateFilter) {
+        const date = filters.find((p) => p.name === FilterType.Date);
+        const from = (date?.value as string[])[0];
+        const to = (date?.value as string[])[1];
+
+        dreams = dreams.filter(
+          (dream) =>
+            moment(dream.createdAt).unix() >= moment(from).unix() && moment(dream.createdAt).unix() <= moment(to).unix()
+        );
+      }
 
       state.filteredDreams = filters.length > 0 ? dreams : [];
       state.displayFilteredDreams = getToDisplayDreams(state.filteredDreams);
@@ -106,7 +113,7 @@ export const dreamSlice = createSlice({
     searchDream: (state, action: { type: string; payload: string }) => {
       const keyword = action.payload.toLowerCase();
 
-      // TODO: When include applied filters in the results
+      // TODO: To Apply filters in the search results
       if (state.search !== keyword) {
         state.filteredDreams = keyword
           ? state.dreams.filter(

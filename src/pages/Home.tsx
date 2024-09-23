@@ -11,6 +11,11 @@ import { useIsMobile } from '../shared/hooks/useIsMobile';
 import { MobileFooter, MobileHeader } from '../core/models/constants';
 import { AppContext } from '../core/context/AppContext';
 import { Alert, Box, Button, Chip, Container, Portal, Snackbar } from '@mui/material';
+import { CalendarDream } from '../components/dream/CalendarDream';
+import { DeleteDream } from '../components/dream/DeleteDream';
+import { FilterDream } from '../components/dream/FilterDream';
+import { motion } from 'framer-motion';
+import { Filter } from '../shared/models/filter';
 import {
   initializeDream,
   addDream,
@@ -18,13 +23,10 @@ import {
   removeDream,
   searchDream,
   clearSearch,
+  filterDream,
 } from '../core/store/dreams/dreamSlice';
 import Fab from '@mui/material/Fab';
 import moment from 'moment';
-import { CalendarDream } from '../components/dream/CalendarDream';
-import { DeleteDream } from '../components/dream/DeleteDream';
-import { FilterDream } from '../components/dream/FilterDream';
-import { motion } from 'framer-motion';
 
 export function Home() {
   const [isOpenDreamModal, setIsOpenDreamModal] = useState(false);
@@ -169,9 +171,9 @@ export function Home() {
     setIsOpenCalendarDream(true);
   };
 
-  const handleRemoveFilter = (e: SyntheticEvent<Element, Event>): void => {
-    const target = e.target as HTMLButtonElement;
-    console.log(target);
+  const handleRemoveFilter = (filter: Filter): void => {
+    const newFilters = filters.filter((f) => f.name !== filter.name);
+    dispatch(filterDream(newFilters));
   };
 
   const dreamsContent =
@@ -273,9 +275,9 @@ export function Home() {
                       f.value ? (
                         <Chip
                           key={f.name}
-                          label={f.name}
+                          label={f.displayName ? f.displayName : f.name}
                           className="text-white me-2 mb-2"
-                          onDelete={() => console.log('remove')}
+                          onDelete={() => handleRemoveFilter(f)}
                         />
                       ) : (
                         ''
