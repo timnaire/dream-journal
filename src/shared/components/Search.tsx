@@ -1,9 +1,9 @@
 import { TextField } from '@mui/material';
-import { ChangeEvent, forwardRef } from 'react';
+import { KeyboardEvent, forwardRef } from 'react';
 
 interface SearchProps {
   placeholder?: string;
-  onSearch: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSearch: (e: KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export const Search = forwardRef(function ({ placeholder = '', onSearch }: SearchProps, ref) {
@@ -16,7 +16,7 @@ export const Search = forwardRef(function ({ placeholder = '', onSearch }: Searc
       size="small"
       placeholder={placeholder}
       variant="standard"
-      onChange={onSearch}
+      onKeyUp={onSearch}
     />
   );
 });

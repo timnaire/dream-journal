@@ -1,4 +1,4 @@
-import { ChangeEvent, SyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { KeyboardEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
 import { DreamCard } from '../components/dream/DreamCard';
@@ -51,7 +51,7 @@ export function Home() {
 
   const dreams = useAppSelector((state) => state.dream.dreams);
   const displayDreams = useAppSelector((state) => state.dream.displayDreams);
-  const filteredDreams = useAppSelector((state) => state.dream.filteredDreams);
+  const filteredDreams = useAppSelector((state) => state.dream.searchResults);
   const displayFilteredDreams = useAppSelector((state) => state.dream.displayFilteredDreams);
   const filters = useAppSelector((state) => state.dream.filters);
 
@@ -161,9 +161,11 @@ export function Home() {
       .catch((error) => console.log('Delete action cancelled'));
   };
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
-    const keyword = e.target.value.trim();
+  const handleSearch = (e: KeyboardEvent<HTMLInputElement>): void => {
+    const target = e.target as HTMLInputElement;
+    const keyword = target.value.trim();
     dispatch(searchDream(keyword));
+    dispatch(filterDream(filters));
   };
 
   const handleOpenCalendar = (): void => {
@@ -202,8 +204,6 @@ export function Home() {
         </div>
       );
     });
-
-  console.log('filters', filters);
 
   return (
     <Container className="p-0 md:p-5">

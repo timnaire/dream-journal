@@ -97,7 +97,7 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
   const handleFavoriteOnly = (e: SyntheticEvent<Element, Event>): void => {
     const target = e.target as HTMLInputElement;
     setFavoriteOnly(!favoriteOnly);
-    updateFilter(target.name, !favoriteOnly);
+    updateFilter(target.name, !favoriteOnly, 'Favorite');
   };
 
   const handleDate = (e: Moment, type: string): void => {
@@ -108,9 +108,10 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
     const target = e.target as HTMLInputElement;
     setDreamCharacteristic({
       ...dreamCharacteristic,
-      [target.name]: !isTrue(target.value),
+      [target.name]: target.checked,
     });
-    updateFilter(target.name, !isTrue(target.value));
+    const label = document.querySelector(`label[for=${target.id}]`) as HTMLLabelElement;
+    updateFilter(target.name, target.checked, label.innerText ?? '');
   };
 
   const handleAddDateFilter = (): void => {
@@ -219,33 +220,39 @@ export function FilterDream({ isOpenFilter, onClose }: FilterDreamProps) {
           <section className="mb-3 p-3 bg-gray-600 rounded-lg">
             <h4 className="mt-0 mb-2">Dream Characteristic</h4>
             <div>
-              <FormControlLabel
-                className="block"
-                name="recurrent"
-                checked={dreamCharacteristic.recurrent}
-                value={dreamCharacteristic.recurrent}
-                onChange={(e) => handleDreamCharacteristic(e)}
-                control={<Checkbox />}
-                label="Recurrent"
-              />
-              <FormControlLabel
-                className="block"
-                name="nightmare"
-                checked={dreamCharacteristic.nightmare}
-                value={dreamCharacteristic.nightmare}
-                onChange={(e) => handleDreamCharacteristic(e)}
-                control={<Checkbox />}
-                label="Nightmare"
-              />
-              <FormControlLabel
-                className="block"
-                name="paralysis"
-                checked={dreamCharacteristic.paralysis}
-                value={dreamCharacteristic.paralysis}
-                onChange={(e) => handleDreamCharacteristic(e)}
-                control={<Checkbox />}
-                label="Sleep Paralysis"
-              />
+              <div>
+                <FormControlLabel
+                  htmlFor="recurrent"
+                  name="recurrent"
+                  checked={dreamCharacteristic.recurrent}
+                  value={dreamCharacteristic.recurrent}
+                  onChange={(e) => handleDreamCharacteristic(e)}
+                  control={<Checkbox id="recurrent" />}
+                  label="Recurrent"
+                />
+              </div>
+              <div>
+                <FormControlLabel
+                  htmlFor="nightmare"
+                  name="nightmare"
+                  checked={dreamCharacteristic.nightmare}
+                  value={dreamCharacteristic.nightmare}
+                  onChange={(e) => handleDreamCharacteristic(e)}
+                  control={<Checkbox id="nightmare" />}
+                  label="Nightmare"
+                />
+              </div>
+              <div>
+                <FormControlLabel
+                  htmlFor="paralysis"
+                  name="paralysis"
+                  checked={dreamCharacteristic.paralysis}
+                  value={dreamCharacteristic.paralysis}
+                  onChange={(e) => handleDreamCharacteristic(e)}
+                  control={<Checkbox id="paralysis" />}
+                  label="Sleep Paralysis"
+                />
+              </div>
             </div>
           </section>
         </div>

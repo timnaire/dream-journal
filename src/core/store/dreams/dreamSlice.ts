@@ -15,7 +15,8 @@ interface InitialState {
   recentParalysis: Dream[];
   recentRecurrent: Dream[];
   search?: string;
-  filteredDreams: Dream[];
+  filteredResults: Dream[];
+  searchResults: Dream[];
   filters: Filter[];
   displayFilteredDreams: ListDream;
 }
@@ -28,7 +29,8 @@ const initialState: InitialState = {
   recentParalysis: [],
   recentRecurrent: [],
   search: '',
-  filteredDreams: [],
+  filteredResults: [], // Stores results after applying filters
+  searchResults: [], // Stores results after applying search
   filters: [],
   displayFilteredDreams: {},
 };
@@ -58,28 +60,34 @@ export const dreamSlice = createSlice({
   name: 'dream',
   initialState,
   reducers: {
-    initializeDream: (state, action: { type: string; payload: Dream[] }) => {
+    initializeDream: (state: InitialState, action: { type: string; payload: Dream[] }) => {
       state.dreams = action.payload;
       updateDisplayDreams(state);
     },
-    addDream: (state, action: { type: string; payload: Dream[] }) => {
+    addDream: (state: InitialState, action: { type: string; payload: Dream[] }) => {
       state.dreams = [...state.dreams, ...action.payload];
       updateDisplayDreams(state);
     },
-    updateDream: (state, action: { type: string; payload: Dream }) => {
+    updateDream: (state: InitialState, action: { type: string; payload: Dream }) => {
       const id = action.payload.id;
       state.dreams = state.dreams.map((dream) => (dream.id === id ? action.payload : dream));
       updateDisplayDreams(state);
     },
-    removeDream: (state, action: { type: string; payload: string }) => {
+    removeDream: (state: InitialState, action: { type: string; payload: string }) => {
       state.dreams = state.dreams.filter((dream) => dream.id !== action.payload);
       updateDisplayDreams(state);
     },
-    filterDream: (state, action: { type: string; payload: Filter[] }) => {
+    filterDream: (state: InitialState, action: { type: string; payload: Filter[] }) => {
       const filters = action.payload;
       state.filters = filters;
 
-      let dreams: Dream[] = [...state.dreams];
+      // Apply Search before hand if there is a search keyword, otherwise just get all the dreams
+      let dreams: Dream[] = state.search
+        ? state.dreams.filter(
+            (dream) =>
+              dream.title.toLowerCase().includes(state.search!) || dream.dream.toLowerCase().includes(state.search!)
+          )
+        : [...state.dreams];
 
       const filterConditions: Partial<Record<keyof Dream, boolean>> = {
         favorite: (filters.find((p) => p.name === FilterType.Favorite)?.value || false) as boolean,
@@ -107,25 +115,31 @@ export const dreamSlice = createSlice({
         );
       }
 
-      state.filteredDreams = filters.length > 0 ? dreams : [];
-      state.displayFilteredDreams = getToDisplayDreams(state.filteredDreams);
+      state.filteredResults = filters.length > 0 ? dreams : state.search ? dreams : [];
+      state.displayFilteredDreams = getToDisplayDreams(state.filteredResults);
+      state.searchResults = [...state.filteredResults];
     },
-    searchDream: (state, action: { type: string; payload: string }) => {
+    searchDream: (state: InitialState, action: { type: string; payload: string }) => {
       const keyword = action.payload.toLowerCase();
 
-      // TODO: To Apply filters in the search results
-      if (state.search !== keyword) {
-        state.filteredDreams = keyword
-          ? state.dreams.filter(
-              (dream) => dream.title.toLowerCase().includes(keyword) || dream.dream.toLowerCase().includes(keyword)
-            )
+      const dreamsToSearch = state.filters?.length > 0 ? state.filteredResults : state.dreams;
+      const searchResults = keyword
+        ? dreamsToSearch.filter(
+            (dream) => dream.title.toLowerCase().includes(keyword) || dream.dream.toLowerCase().includes(keyword)
+          )
+        : state.filters?.length > 0
+          ? state.filteredResults
           : [];
-        state.displayFilteredDreams = getToDisplayDreams(state.filteredDreams);
-        state.search = keyword;
-      }
+
+      state.searchResults = searchResults;
+      state.displayFilteredDreams = getToDisplayDreams(state.searchResults);
+      state.search = keyword;
     },
-    clearSearch: (state) => {
-      state.filteredDreams = [];
+    clearSearch: (state: InitialState) => {
+      state.search = '';
+      state.searchResults = [];
+      state.filteredResults = [];
+      state.filters = [];
       state.displayFilteredDreams = {};
     },
   },
