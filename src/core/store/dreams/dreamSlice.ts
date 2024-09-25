@@ -15,10 +15,10 @@ interface InitialState {
   recentParalysis: Dream[];
   recentRecurrent: Dream[];
   search?: string;
-  filteredResults: Dream[];
   searchResults: Dream[];
   filters: Filter[];
-  displayFilteredDreams: ListDream;
+  filteredResults: Dream[];
+  displaySearchedDreams: ListDream;
 }
 
 const initialState: InitialState = {
@@ -29,10 +29,10 @@ const initialState: InitialState = {
   recentParalysis: [],
   recentRecurrent: [],
   search: '',
-  filteredResults: [], // Stores results after applying filters
   searchResults: [], // Stores results after applying search
   filters: [],
-  displayFilteredDreams: {},
+  filteredResults: [], // Stores results after applying filters
+  displaySearchedDreams: {},
 };
 
 const getToDisplayDreams = (dreams: Dream[]): ListDream => {
@@ -116,7 +116,7 @@ export const dreamSlice = createSlice({
       }
 
       state.filteredResults = filters.length > 0 ? dreams : state.search ? dreams : [];
-      state.displayFilteredDreams = getToDisplayDreams(state.filteredResults);
+      state.displaySearchedDreams = getToDisplayDreams(state.filteredResults);
       state.searchResults = [...state.filteredResults];
     },
     searchDream: (state: InitialState, action: { type: string; payload: string }) => {
@@ -132,7 +132,7 @@ export const dreamSlice = createSlice({
           : [];
 
       state.searchResults = searchResults;
-      state.displayFilteredDreams = getToDisplayDreams(state.searchResults);
+      state.displaySearchedDreams = getToDisplayDreams(state.searchResults);
       state.search = keyword;
     },
     clearSearch: (state: InitialState) => {
@@ -140,7 +140,7 @@ export const dreamSlice = createSlice({
       state.searchResults = [];
       state.filteredResults = [];
       state.filters = [];
-      state.displayFilteredDreams = {};
+      state.displaySearchedDreams = {};
     },
   },
 });

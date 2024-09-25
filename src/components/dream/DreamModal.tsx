@@ -8,6 +8,8 @@ import { Transition } from '../../shared/components/Transition';
 import { useIsMobile } from '../../shared/hooks/useIsMobile';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
+import { ModalBox } from '../../shared/styles/modal';
+import { S3Service } from '../../shared/services/s3.service';
 import {
   Alert,
   AppBar,
@@ -24,29 +26,12 @@ import {
   Link,
   Modal,
   Snackbar,
-  styled,
   Switch,
   TextField,
   Toolbar,
   Typography,
 } from '@mui/material';
 import moment, { Moment } from 'moment';
-import { S3Service } from '../../shared/services/s3.service';
-
-const ModalBox = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  backgroundColor: theme.palette.background.paper,
-  color: theme.palette.text.primary,
-  width: 300,
-  [theme.breakpoints.up('sm')]: { width: 500 },
-  [theme.breakpoints.up('md')]: { width: 700 },
-  padding: 14,
-  boxShadow: theme.shadows[24],
-  borderRadius: theme.shape.borderRadius * 1,
-}));
 
 export interface DreamModalProps extends DreamFormProps {
   isOpen: boolean;

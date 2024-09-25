@@ -1,3 +1,7 @@
+import { Link } from 'react-router-dom';
+import { ErrorMessage, Formik } from 'formik';
+import { AccountCircleOutlined } from '@mui/icons-material';
+import { ReactComponent as BgAuth } from './../assets/illustrations/bg_auth.svg';
 import {
   Box,
   Button,
@@ -9,10 +13,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { ReactComponent as BgAuth } from './../assets/illustrations/bg_auth.svg';
-import { ErrorMessage, Formik } from 'formik';
-import { Link } from 'react-router-dom';
-import { AccountCircleOutlined } from '@mui/icons-material';
 import * as yup from 'yup';
 
 interface InitialState {

@@ -1,4 +1,4 @@
-import { TextField } from '@mui/material';
+import { debounce, TextField } from '@mui/material';
 import { KeyboardEvent, forwardRef } from 'react';
 
 interface SearchProps {
@@ -7,6 +7,10 @@ interface SearchProps {
 }
 
 export const Search = forwardRef(function ({ placeholder = '', onSearch }: SearchProps, ref) {
+  const debounceSearch = debounce((e) => {
+    onSearch(e);
+  }, 500);
+
   return (
     <TextField
       inputRef={ref}
@@ -16,7 +20,7 @@ export const Search = forwardRef(function ({ placeholder = '', onSearch }: Searc
       size="small"
       placeholder={placeholder}
       variant="standard"
-      onKeyUp={onSearch}
+      onKeyUp={debounceSearch}
     />
   );
 });

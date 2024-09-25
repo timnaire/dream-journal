@@ -1,5 +1,9 @@
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AutoStoriesOutlined, DarkModeOutlined, DesktopWindowsOutlined, LightModeOutlined } from '@mui/icons-material';
+import { AppContext } from '../core/context/AppContext';
+import { AvatarCard } from '../shared/components/AvatarCard';
+import { useApi } from '../shared/hooks/useApi';
 import {
   Avatar,
   Container,
@@ -14,10 +18,6 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { AutoStoriesOutlined, DarkModeOutlined, DesktopWindowsOutlined, LightModeOutlined } from '@mui/icons-material';
-import { AppContext } from '../core/context/AppContext';
-import { AvatarCard } from '../shared/components/AvatarCard';
-import { useApi } from '../shared/hooks/useApi';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 

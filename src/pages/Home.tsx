@@ -1,5 +1,5 @@
 import { KeyboardEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined } from '@mui/icons-material';
+import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined, Tune } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
 import { DreamCard } from '../components/dream/DreamCard';
 import { DreamModal } from '../components/dream/DreamModal';
@@ -51,8 +51,9 @@ export function Home() {
 
   const dreams = useAppSelector((state) => state.dream.dreams);
   const displayDreams = useAppSelector((state) => state.dream.displayDreams);
-  const filteredDreams = useAppSelector((state) => state.dream.searchResults);
-  const displayFilteredDreams = useAppSelector((state) => state.dream.displayFilteredDreams);
+  const searchResults = useAppSelector((state) => state.dream.searchResults);
+  const displaySearchedDreams = useAppSelector((state) => state.dream.displaySearchedDreams);
+  const searchKeyword = useAppSelector((state) => state.dream.search);
   const filters = useAppSelector((state) => state.dream.filters);
 
   const writeRef = useRef<HTMLElement | null>(null);
@@ -107,10 +108,11 @@ export function Home() {
 
   const handleToggleSearch = (): void => {
     setIsSearching(!isSearching);
+    dispatch(filterDream([]));
+    dispatch(clearSearch());
+
     if (isSearching && searchRef.current) {
       searchRef.current.focus();
-    } else {
-      dispatch(clearSearch());
     }
   };
 
@@ -192,9 +194,9 @@ export function Home() {
       );
     });
 
-  const filteredContent =
-    filteredDreams.length > 0 &&
-    Object.entries(displayFilteredDreams).map(([month, dreams]) => {
+  const searchedContent =
+    searchResults.length > 0 &&
+    Object.entries(displaySearchedDreams).map(([month, dreams]) => {
       return (
         <div key={month}>
           <div className="text-lg sm:text-xl md:text-2xl ms-1 mb-3">{month}</div>
@@ -205,114 +207,124 @@ export function Home() {
       );
     });
 
+  console.log('filters', filters);
+
   return (
     <Container className="p-0 md:p-5">
-      <motion.div
-        drag={isMobile && 'y'}
-        dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={{ bottom: 0.1 }}
-        dragMomentum={false}
-        onDrag={(event, info) => console.log(info.offset.y)}
-        dragPropagation={true}
-        dragListener={true}
-      >
-        {/* Add dream using Calendar & Search */}
-        {!isSearching && (
-          <div className="flex justify-between items-center pt-20 pb-2 md:hidden">
-            <div className="ms-5">
-              <h4 className="m-0">My Dream Journal</h4>
-            </div>
-            <div>
-              <Button onClick={handleOpenCalendar}>
-                <CalendarIcon color="primary" />
-              </Button>
-              <Button onClick={handleToggleSearch}>
-                <SearchOutlined color="primary" />
-              </Button>
-            </div>
+      {/* Add dream using Calendar & Search */}
+      {!isSearching && (
+        <div className="flex justify-between items-center pt-20 pb-2 md:hidden">
+          <div className="ms-5">
+            <h4 className="m-0">My Dream Journal</h4>
           </div>
-        )}
-
-        {/* Search Entry & Filter CTA */}
-        {isSearching && (
-          <div className="flex justify-end items-center pt-20 pb-2">
-            <Button onClick={handleToggleSearch}>
-              <ArrowBackIosNewOutlined color="primary" />
+          <div>
+            <Button onClick={handleOpenCalendar}>
+              <CalendarIcon color="primary" />
             </Button>
-            <div className="grow">
+            <Button onClick={handleToggleSearch}>
+              <SearchOutlined color="primary" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Search Filters */}
+      {isSearching && (
+        <div className="flex justify-end items-center pt-20 pb-2">
+          <Button onClick={handleToggleSearch}>
+            <ArrowBackIosNewOutlined color="primary" />
+          </Button>
+          <div className="grow">
+            <Search
+              ref={searchRef}
+              placeholder={`Search in ${dreams.length} dream${dreams.length > 0 ? 's' : ''}`}
+              onSearch={handleSearch}
+            />
+          </div>
+          <Button onClick={() => setIsOpenFilter(true)}>
+            <TuneOutlined color="primary" />
+          </Button>
+        </div>
+      )}
+
+      <Box
+        className={`overflow-hidden md:overflow-visible rounded-t-lg ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+        sx={{ borderTop: { xs: 2, md: 0 } }}
+      >
+        <Box
+          className={`${isMobile ? 'overflow-y-auto overflow-x-hidden md:overflow-y-hidden' : ''} p-5`}
+          sx={{
+            height: {
+              xs: `calc(100vh - (${MobileHeader}px + ${MobileFooter}px))`,
+              md: `100%`,
+            },
+          }}
+        >
+          {/* Desktop Search Filters */}
+          <div className="hidden md:flex md:justify-between mb-3">
+            <div className="basis-1/2">
               <Search
                 ref={searchRef}
                 placeholder={`Search in ${dreams.length} dream${dreams.length > 0 ? 's' : ''}`}
                 onSearch={handleSearch}
               />
             </div>
-            <Button onClick={() => setIsOpenFilter(true)}>
-              <TuneOutlined color="primary" />
-            </Button>
-          </div>
-        )}
-
-        <Box
-          className={`overflow-hidden md:overflow-visible rounded-t-lg ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
-          sx={{ borderTop: { xs: 2, md: 0 } }}
-        >
-          <Box
-            className={`${isMobile ? 'overflow-y-auto overflow-x-hidden md:overflow-y-hidden' : ''} p-5`}
-            sx={{
-              height: {
-                xs: `calc(100vh - (${MobileHeader}px + ${MobileFooter}px))`,
-                md: `100%`,
-              },
-            }}
-          >
-            <div className="flex md:justify-between mb-3">
-              {/* Desktop create dream */}
-              <div>
-                {filters && filters.length > 0 && (
-                  <div>
-                    <span className="me-2">Applied Filters:</span>
-                    {filters.map((f) =>
-                      f.value ? (
-                        <Chip
-                          key={f.name}
-                          label={f.displayName ? f.displayName : f.name}
-                          className="text-white me-2 mb-2"
-                          onDelete={() => handleRemoveFilter(f)}
-                        />
-                      ) : (
-                        ''
-                      )
-                    )}
-                  </div>
-                )}
-              </div>
-              <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
-                <EditOutlined className="me-2" /> Write a dream
+            <div className="basis-1/2 text-right">
+              <Button onClick={() => setIsOpenFilter(true)}>
+                <Tune className="me-2" /> Filters
               </Button>
             </div>
+          </div>
 
-            {/* List of Dreams */}
-            {isSearching && filteredDreams.length > 0 ? filteredContent : dreamsContent}
-            {((dreams && dreams.length === 0) || (isSearching && filteredDreams.length === 0)) && (
-              <p className="text-center">No dreams found.</p>
-            )}
-          </Box>
-        </Box>
+          <div className="flex md:justify-between mb-3">
+            {/* Desktop create dream */}
+            <div>
+              {filters && filters.length > 0 && (
+                <div>
+                  <span className="me-2">Applied Filters:</span>
+                  {filters.map((f) =>
+                    f.value ? (
+                      <Chip
+                        key={f.name}
+                        label={f.displayName ? f.displayName : f.name}
+                        className="text-white me-2 mb-2"
+                        onDelete={() => handleRemoveFilter(f)}
+                      />
+                    ) : (
+                      ''
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+            <Button className="hidden md:flex" variant="contained" onClick={handleWriteDreamOpen}>
+              <EditOutlined className="me-2" /> Write a dream
+            </Button>
+          </div>
 
-        {/* Mobile create dream */}
-        <div className="md:hidden">
-          {writeRef.current && (
-            <Portal
-              children={
-                <Fab className="fixed bottom-0 end-0 end-3 bottom-16" color="primary" onClick={handleWriteDreamOpen}>
-                  <EditOutlined />
-                </Fab>
-              }
-              container={writeRef.current}
-            />
+          {/* List of Dreams */}
+          {isMobile && <div>{isSearching && searchResults.length > 0 ? searchedContent : dreamsContent}</div>}
+          {!isMobile && <div>{searchKeyword && searchResults.length > 0 ? searchedContent : dreamsContent}</div>}
+
+          {((dreams && dreams.length === 0) || (isSearching && searchResults.length === 0)) && (
+            <p className="text-center">No dreams found.</p>
           )}
-        </div>
-      </motion.div>
+        </Box>
+      </Box>
+
+      {/* Mobile create dream */}
+      <div className="md:hidden">
+        {writeRef.current && (
+          <Portal
+            children={
+              <Fab className="fixed bottom-0 end-0 end-3 bottom-16" color="primary" onClick={handleWriteDreamOpen}>
+                <EditOutlined />
+              </Fab>
+            }
+            container={writeRef.current}
+          />
+        )}
+      </div>
 
       {/* Create dream using Calendar */}
       <CalendarDream

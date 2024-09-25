@@ -1,20 +1,8 @@
 import { useContext } from 'react';
 import { Avatar, Box, Button, Card, Container, Typography } from '@mui/material';
 import { AppContext } from '../core/context/AppContext';
-import Grid from '@mui/material/Unstable_Grid2';
 import { useApi } from '../shared/hooks/useApi';
-
-// const avatarStyle = {
-//   width: '150px',
-//   height: '150px',
-//   display: 'flex',
-//   justifyContent: 'center',
-//   alignItems: 'center',
-//   borderRadius: '50%',
-//   fontSize: '70px',
-//   backgroundColor: '#bdbdbd',
-//   color: '#fff',
-// };
+import Grid from '@mui/material/Unstable_Grid2';
 
 export function Profile() {
   const { user, setAppState } = useContext(AppContext);

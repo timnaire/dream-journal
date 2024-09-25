@@ -1,3 +1,10 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ErrorMessage, Formik } from 'formik';
+import { ApiResponse, useApi } from '../shared/hooks/useApi';
+import { usePasswordWithIcon } from '../shared/hooks/usePasswordWithIcon';
+import { AccountCircleOutlined } from '@mui/icons-material';
+import { ReactComponent as BgAuth } from './../assets/illustrations/bg_auth.svg';
 import {
   Alert,
   Box,
@@ -10,14 +17,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { ErrorMessage, Formik } from 'formik';
-import { ApiResponse, useApi } from '../shared/hooks/useApi';
-import { useState } from 'react';
-import { ReactComponent as BgAuth } from './../assets/illustrations/bg_auth.svg';
-import { Link } from 'react-router-dom';
-import { usePasswordWithIcon } from '../shared/hooks/usePasswordWithIcon';
 import * as yup from 'yup';
-import { AccountCircleOutlined } from '@mui/icons-material';
 
 interface User {
   firstname: string;
