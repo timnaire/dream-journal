@@ -22,7 +22,7 @@ export function Profile() {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt={user?.fullname} src="/static/images/avatar/1.jpg" sx={{ width: 56, height: 56 }} />
           <Box sx={{ flexGrow: 1 }}>
-            <Typography sx={{ ml: '25px' }}>
+            <Typography sx={{ ml: '25px' }} className="text-xs sm:text-sm md:text-base">
               Name: {user?.fullname}
               <br />
               Email: {user?.email}

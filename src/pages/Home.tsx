@@ -207,8 +207,6 @@ export function Home() {
       );
     });
 
-  console.log('filters', filters);
-
   return (
     <Container className="p-0 md:p-5">
       {/* Add dream using Calendar & Search */}
@@ -287,7 +285,7 @@ export function Home() {
                       <Chip
                         key={f.name}
                         label={f.displayName ? f.displayName : f.name}
-                        className="text-white me-2 mb-2"
+                        className="text-white m-2"
                         onDelete={() => handleRemoveFilter(f)}
                       />
                     ) : (
@@ -304,7 +302,7 @@ export function Home() {
 
           {/* List of Dreams */}
           {isMobile && <div>{isSearching && searchResults.length > 0 ? searchedContent : dreamsContent}</div>}
-          {!isMobile && <div>{searchKeyword && searchResults.length > 0 ? searchedContent : dreamsContent}</div>}
+          {!isMobile && <div>{searchKeyword || searchResults.length > 0 ? searchedContent : dreamsContent}</div>}
 
           {((dreams && dreams.length === 0) || (isSearching && searchResults.length === 0)) && (
             <p className="text-center">No dreams found.</p>
