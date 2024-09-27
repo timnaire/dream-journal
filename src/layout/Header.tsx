@@ -66,6 +66,8 @@ export function Header() {
             Dream Journal
           </Typography>
 
+          {/* TODO: To add Learn and Analyze menu here */}
+
           {/* To occupy space */}
           <Box sx={{ flexGrow: 1 }}></Box>
 

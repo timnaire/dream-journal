@@ -142,7 +142,7 @@ export const DreamForm = forwardRef(function (
     >
       {({ values, handleChange, handleSubmit, isSubmitting }) => (
         <div className={`flex flex-col relative ${!file && 'h-full'}`}>
-          {isSubmitting && (
+          {isSubmitting && isMobile && (
             <div className="absolute inset-0 bg-white/30 backdrop-opacity-10 z-20">
               <div className="flex flex-col justify-center items-center h-full">
                 <CircularProgress />

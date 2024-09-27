@@ -1,4 +1,12 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from '@mui/material';
 import { Dream } from '../../shared/models/dream';
 
 interface DreamProps {
@@ -23,7 +31,7 @@ export function DeleteDream({ dream, isOpenDeleteDream, isLoading, onClose, onCa
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
         <Button variant="contained" onClick={onOk} disabled={isLoading}>
-          Okay
+          {isLoading ? <CircularProgress size={25} /> : 'Okay'}
         </Button>
       </DialogActions>
     </Dialog>

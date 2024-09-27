@@ -100,7 +100,7 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
             <div className="flex justify-between">
               {/* Title */}
               <Typography
-                className="text-lg sm:text-xl md:text-2xl m-3 mb-0 line-clamp-1 flex items-center w-full"
+                className="text-lg sm:text-xl md:text-2xl m-3 mb-0 flex items-center w-full"
                 sx={{ overflowWrap: 'anywhere' }}
               >
                 <Tooltip title="Favorite" placement="left-start">
@@ -109,7 +109,7 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
                     {!favorite && <StarBorderOutlined className="text-yellow-300" />}
                   </IconButton>
                 </Tooltip>
-                <span className="w-full" onClick={handleClick}>
+                <span className="w-full line-clamp-1" onClick={handleClick}>
                   {dream.title}
                 </span>
               </Typography>
