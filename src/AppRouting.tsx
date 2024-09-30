@@ -5,7 +5,7 @@ import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Home } from './pages/Home';
-import { Analyze } from './pages/Analyze';
+import { Analysis } from './pages/Analysis';
 import { Learn } from './pages/Learn';
 import { Profile } from './pages/Profile';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -30,8 +30,8 @@ export const appRoutes = createBrowserRouter([
             element: <Home />,
           },
           {
-            path: '/analyze',
-            element: <Analyze />,
+            path: '/analysis',
+            element: <Analysis />,
           },
           {
             path: '/learn',

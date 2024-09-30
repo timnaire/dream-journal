@@ -4,7 +4,7 @@ import { MobileFooter, MobileHeader } from '../core/models/constants';
 import { useIsMobile } from '../shared/hooks/useIsMobile';
 import { Box, Container } from '@mui/material';
 
-export function Analyze() {
+export function Analysis() {
   const { isDarkMode } = useContext(AppContext);
   const { isMobile } = useIsMobile();
 
@@ -12,7 +12,7 @@ export function Analyze() {
     <Container className="p-0 md:p-5">
       <div className="pt-20 pb-2 md:hidden">
         <div className="ms-5">
-          <h4 className="m-0">Analyze</h4>
+          <h3 className="m-0">Dream Analysis</h3>
         </div>
       </div>
       <Box

@@ -1,11 +1,13 @@
 import { AutoStoriesOutlined, HomeOutlined, LightbulbOutlined, PersonOutlineOutlined } from '@mui/icons-material';
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function Footer() {
-  const [value, setValue] = useState('home');
   const navigate = useNavigate();
+  const location = useLocation();
+  const defaultValue = location.pathname.split('/')[1] === '' ? 'home' : location.pathname.split('/')[1];
+  const [value, setValue] = useState(defaultValue);
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -13,8 +15,8 @@ export function Footer() {
       case 'home':
         navigate('/');
         break;
-      case 'analyze':
-        navigate('/analyze');
+      case 'analysis':
+        navigate('/analysis');
         break;
       case 'learn':
         navigate('/learn');
@@ -33,7 +35,7 @@ export function Footer() {
         <Paper className="fixed bottom-0 end-0 w-full" elevation={3}>
           <BottomNavigation value={value} onChange={handleChange}>
             <BottomNavigationAction label="Home" value="home" icon={<HomeOutlined />} />
-            <BottomNavigationAction label="Analyze" value="analyze" icon={<AutoStoriesOutlined />} />
+            <BottomNavigationAction label="Analysis" value="analysis" icon={<AutoStoriesOutlined />} />
             <BottomNavigationAction label="Learn" value="learn" icon={<LightbulbOutlined />} />
             <BottomNavigationAction label="Profile" value="profile" icon={<PersonOutlineOutlined />} />
           </BottomNavigation>

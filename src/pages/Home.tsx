@@ -213,7 +213,7 @@ export function Home() {
       {!isSearching && (
         <div className="flex justify-between items-center pt-20 pb-2 md:hidden">
           <div className="ms-5">
-            <h4 className="m-0">My Dream Journal</h4>
+            <h3 className="m-0">My Dream Journal</h3>
           </div>
           <div>
             <Button onClick={handleOpenCalendar}>
