@@ -6,18 +6,9 @@ import { useAppDispatch, useAppSelector } from '../../core/store/hooks';
 import { filterDream } from './../../core/store/dreams/dreamSlice';
 import { Filter, FilterType } from '../../shared/models/filter';
 import { CloseOutlined } from '@mui/icons-material';
-import {
-  Button,
-  ButtonBase,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Drawer,
-  FormControlLabel,
-} from '@mui/material';
-import moment, { Moment } from 'moment';
+import { Button, ButtonBase, Checkbox, Dialog, DialogContent, Drawer, FormControlLabel } from '@mui/material';
 import { useIsMobile } from '../../shared/hooks/useIsMobile';
+import moment, { Moment } from 'moment';
 
 interface FilterDreamProps {
   isOpenFilter: boolean;

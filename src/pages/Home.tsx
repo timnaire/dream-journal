@@ -14,7 +14,6 @@ import { Alert, Box, Button, Chip, Container, Portal, Snackbar } from '@mui/mate
 import { CalendarDream } from '../components/dream/CalendarDream';
 import { DeleteDream } from '../components/dream/DeleteDream';
 import { FilterDream } from '../components/dream/FilterDream';
-import { motion } from 'framer-motion';
 import { Filter } from '../shared/models/filter';
 import {
   initializeDream,

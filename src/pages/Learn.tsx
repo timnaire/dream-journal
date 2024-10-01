@@ -7,6 +7,7 @@ import { ArrowBackIosOutlined } from '@mui/icons-material';
 import { AppBar, Box, Container, Dialog, DialogContent, IconButton, Toolbar, Typography } from '@mui/material';
 import { DreamAndSleep, LucidDreaming } from '../core/models/learn';
 
+
 export function Learn() {
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [item, setItem] = useState<any>(null);
@@ -49,7 +50,7 @@ export function Learn() {
               <div className="flex gap-5">
                 {DreamAndSleep.map((item) => (
                   <div key={item.title} role="button" className="flex flex-col w-28" onClick={() => handleClick(item)}>
-                    <img src={item.imageUrl} alt={item.title} />
+                    <img className="rounded-lg" src={item.imageUrl} alt={item.title} />
                     <div className="text-sm mt-2">{item.title}</div>
                   </div>
                 ))}
@@ -61,7 +62,7 @@ export function Learn() {
               <div className="flex gap-5">
                 {LucidDreaming.map((item) => (
                   <div key={item.title} role="button" className="flex flex-col w-28" onClick={() => handleClick(item)}>
-                    <img src={item.imageUrl} alt={item.title} />
+                    <img className="rounded-lg" src={item.imageUrl} alt={item.title} />
                     <div className="text-sm mt-2">{item.title}</div>
                   </div>
                 ))}
