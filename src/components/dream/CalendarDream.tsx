@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { AppBar, Box, Button, Dialog, DialogContent, IconButton, Toolbar, Typography } from '@mui/material';
 import { CalendarMonthOutlined, CalendarViewMonthOutlined, Close } from '@mui/icons-material';
-import { DateCalendar, LocalizationProvider, PickersDay, PickersDayProps } from '@mui/x-date-pickers';
+import { DateCalendar, LocalizationProvider, MonthCalendar, PickersDay, PickersDayProps } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { useAppSelector } from '../../core/store/hooks';
 import { DreamCard } from './DreamCard';
@@ -46,7 +46,7 @@ export function CalendarDream(props: CalendarDreamProps) {
   const [years, setYears] = useState(
     Array(12)
       .fill(null)
-      .map((d, i) => moment(new Date(`${i + 1}-1-${new Date().getFullYear()}`)))
+      .map((d, i) => moment(new Date(new Date().getFullYear(), i)))
   );
   const dreams = useAppSelector((state) => state.dream.dreams);
   const displayDreams = useAppSelector((state) => state.dream.displayDreams);
@@ -156,11 +156,10 @@ export function CalendarDream(props: CalendarDreamProps) {
           )}
 
           {view === 'year' && (
-            <div>
-              <LocalizationProvider dateAdapter={AdapterMoment}>
-                {years.map((year) => (
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+              {/* {years.map((year) => (
                   <DateCalendar
-                    className="h-36"
+                    className="scale-50 h-fit w-fit"
                     key={year.toISOString()}
                     value={year}
                     onChange={(e) => handleDate(e!)}
@@ -172,9 +171,9 @@ export function CalendarDream(props: CalendarDreamProps) {
                     }}
                     views={['day']}
                   />
-                ))}
-              </LocalizationProvider>
-            </div>
+                ))} */}
+              <MonthCalendar className="w-full p-o m-0" />
+            </LocalizationProvider>
           )}
         </div>
       </DialogContent>
