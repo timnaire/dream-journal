@@ -131,7 +131,7 @@ export function DreamCard({ isSimpleView = false, dream, onEditDream, onDeleteDr
               >
                 {dream.dream}
               </Typography>
-              <div className={`mt-3 line-clamp-2 ${isSimpleView && 'hidden'}`}>
+              <div className={`mt-3 ${isSimpleView && 'hidden'}`}>
                 {recurrent}
                 {nightmare}
                 {paralysis}

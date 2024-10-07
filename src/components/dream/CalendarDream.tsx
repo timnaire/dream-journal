@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { AppBar, Box, Button, Dialog, DialogContent, IconButton, Toolbar, Typography } from '@mui/material';
-import { CalendarMonthOutlined, CalendarViewMonthOutlined, Close } from '@mui/icons-material';
-import { DateCalendar, LocalizationProvider, MonthCalendar, PickersDay, PickersDayProps } from '@mui/x-date-pickers';
+import { Close } from '@mui/icons-material';
+import { DateCalendar, LocalizationProvider, PickersDay, PickersDayProps } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { useAppSelector } from '../../core/store/hooks';
 import { DreamCard } from './DreamCard';
@@ -20,8 +20,9 @@ interface CalendarDreamProps {
 export function HasDreamDay(props: PickersDayProps<Moment> & { highlightedDays?: number[] }) {
   const { highlightedDays = [], day, outsideCurrentMonth, ...other } = props;
 
-  const isSelected = !props.outsideCurrentMonth && highlightedDays.indexOf(props.day.date()) >= 0;
-  const dots = highlightedDays.filter((d) => d === props.day.date());
+  const isSelected =
+    !props.outsideCurrentMonth && highlightedDays.map((hd: any) => hd[props.day.year()]).indexOf(props.day.date()) >= 0;
+  const dots = highlightedDays.filter((d: any) => d[props.day.year()] === props.day.date());
 
   return (
     <div className="relative">
@@ -42,19 +43,15 @@ export function CalendarDream(props: CalendarDreamProps) {
   const { isOpenCalendarDream, onClose, onWriteDream, onEditDream, onDeleteDream, onDateChange } = props;
   const [date, setDate] = useState(moment());
   const [month, setMonth] = useState(moment());
-  const [view, setView] = useState('month');
-  const [years, setYears] = useState(
-    Array(12)
-      .fill(null)
-      .map((d, i) => moment(new Date(new Date().getFullYear(), i)))
-  );
   const dreams = useAppSelector((state) => state.dream.dreams);
   const displayDreams = useAppSelector((state) => state.dream.displayDreams);
 
   const highlightedDays = useMemo(() => {
     const selectedMonth = moment(month).format('MMM');
     const filteredDreams = dreams.filter((dream) => moment(dream.createdAt).format('MMM') === selectedMonth);
-    return filteredDreams.map((dream) => +moment(dream.createdAt).format('D'));
+    return filteredDreams.map((dream) => ({
+      [+moment(dream.createdAt).format('YYYY')]: +moment(dream.createdAt).format('D'),
+    }));
   }, [month, dreams]);
 
   const selectedDateContent =
@@ -85,11 +82,6 @@ export function CalendarDream(props: CalendarDreamProps) {
     onDateChange(moment());
   };
 
-  const handleView = (view: string): void => {
-    setView(view);
-  };
-
-  console.log('years', years);
   return (
     <Dialog fullScreen open={isOpenCalendarDream} onClose={handleClose} TransitionComponent={Transition}>
       <AppBar sx={{ position: 'relative' }}>
@@ -103,78 +95,35 @@ export function CalendarDream(props: CalendarDreamProps) {
         </Toolbar>
       </AppBar>
       <DialogContent className="p-0">
-        <div className="h-full">
-          <div className="flex justify-end mx-6 sm:mx-12 my-3 gap-2">
-            <IconButton
-              className={view === 'month' ? 'shadow-lg shadow-gray-700/50' : ''}
-              color="inherit"
-              onClick={() => handleView('month')}
-            >
-              <CalendarMonthOutlined color="primary" />
-            </IconButton>
+        <div>
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+            <DateCalendar
+              value={date}
+              onChange={(e) => handleDate(e!)}
+              onMonthChange={(e) => handleMonth(e!)}
+              disableFuture={true}
+              slots={{ day: HasDreamDay }}
+              slotProps={{
+                day: { highlightedDays } as any,
+              }}
+              views={['day']}
+            />
+          </LocalizationProvider>
 
-            <IconButton
-              className={view === 'year' ? 'shadow-lg shadow-gray-700/50' : ''}
-              color="inherit"
-              onClick={() => handleView('year')}
-            >
-              <CalendarViewMonthOutlined color="primary" />
-            </IconButton>
-          </div>
-
-          {view === 'month' && (
-            <div>
-              <LocalizationProvider dateAdapter={AdapterMoment}>
-                <DateCalendar
-                  value={date}
-                  onChange={(e) => handleDate(e!)}
-                  onMonthChange={(e) => handleMonth(e!)}
-                  disableFuture={true}
-                  slots={{ day: HasDreamDay }}
-                  slotProps={{
-                    day: { highlightedDays } as any,
-                  }}
-                  views={['day']}
-                />
-              </LocalizationProvider>
-
-              {/* Date picker height: 336px; Menu height: 40px; */}
-              <Box className="overflow-auto" sx={{ height: `calc(100% - 336px - 40px)` }}>
-                {!selectedDateContent && (
-                  <div className="flex justify-center">
-                    <Button variant="contained" onClick={onWriteDream}>
-                      Add Dream
-                    </Button>
-                  </div>
-                )}
-                <div className="flex flex-col justify-center mx-12 sm:mx-36 mt-5">
-                  {selectedDateContent}
-                  {!selectedDateContent && <div className="text-center">No dreams for this day.</div>}
-                </div>
-              </Box>
+          {/* Date picker height: 336px; Menu height: 40px; */}
+          <Box className="overflow-auto" sx={{ height: `calc(100% - 336px - 40px)` }}>
+            {!selectedDateContent && (
+              <div className="flex justify-center">
+                <Button variant="contained" onClick={onWriteDream}>
+                  Add Dream
+                </Button>
+              </div>
+            )}
+            <div className="flex flex-col justify-center mx-12 sm:mx-36 mt-5">
+              {selectedDateContent}
+              {!selectedDateContent && <div className="text-center">No dreams for this day.</div>}
             </div>
-          )}
-
-          {view === 'year' && (
-            <LocalizationProvider dateAdapter={AdapterMoment}>
-              {/* {years.map((year) => (
-                  <DateCalendar
-                    className="scale-50 h-fit w-fit"
-                    key={year.toISOString()}
-                    value={year}
-                    onChange={(e) => handleDate(e!)}
-                    onMonthChange={(e) => handleMonth(e!)}
-                    disableFuture={true}
-                    slots={{ day: HasDreamDay }}
-                    slotProps={{
-                      day: { highlightedDays } as any,
-                    }}
-                    views={['day']}
-                  />
-                ))} */}
-              <MonthCalendar className="w-full p-o m-0" />
-            </LocalizationProvider>
-          )}
+          </Box>
         </div>
       </DialogContent>
     </Dialog>
