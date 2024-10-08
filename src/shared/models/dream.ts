@@ -20,3 +20,13 @@ export interface DreamRequest extends Dream {
   image?: MediaModel;
   audio?: MediaModel;
 }
+
+export interface DreamResponse {
+  totalItems: number;
+  totalPages: number;
+  page: number;
+  pageSize: number;
+  isFirstPage: boolean;
+  isLastPage: boolean;
+  items: Dream[];
+}

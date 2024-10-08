@@ -4,7 +4,7 @@ import { Search } from '../shared/components/Search';
 import { DreamCard } from '../components/dream/DreamCard';
 import { DreamModal } from '../components/dream/DreamModal';
 import { ApiResponse, useApi } from '../shared/hooks/useApi';
-import { Dream } from '../shared/models/dream';
+import { Dream, DreamResponse } from '../shared/models/dream';
 import { useAppDispatch, useAppSelector } from '../core/store/hooks';
 import { CalendarIcon } from '@mui/x-date-pickers';
 import { useIsMobile } from '../shared/hooks/useIsMobile';
@@ -57,10 +57,20 @@ export function Home() {
 
   const writeRef = useRef<HTMLElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const dreamsRef = useRef<HTMLElement | null>(null);
   const dispatch = useAppDispatch();
 
   // Used to get the Dream when deleting
   const dream = useMemo(() => dreams.find((d) => d.id === dreamId), [dreams, dreamId]);
+
+  useEffect(() => {
+    // TODO: Handle infinite scrolling
+    const dreamsDiv = document.getElementById('dreams');
+    if (dreamsRef.current === null) {
+      dreamsRef.current = dreamsDiv;
+      console.log('current: ', dreamsRef.current);
+    }
+  }, []);
 
   useEffect(() => {
     const writeDiv = document.getElementById('write');
@@ -74,10 +84,11 @@ export function Home() {
 
     if (dreams.length === 0) {
       try {
-        httpGet<ApiResponse<Dream[]>>('/dreams')
+        httpGet<ApiResponse<DreamResponse>>('/dreams')
           .then((res) => {
             if (mounted) {
-              dispatch(initializeDream(res.data));
+              const items = res.data.items;
+              dispatch(initializeDream(items));
             }
           })
           .catch((error) => console.log('Error:', error));
@@ -249,6 +260,7 @@ export function Home() {
         sx={{ borderTop: { xs: 2, md: 0 } }}
       >
         <Box
+          id="dreams"
           className={`${isMobile ? 'overflow-y-auto overflow-x-hidden md:overflow-y-hidden' : ''} p-5`}
           sx={{
             height: {
