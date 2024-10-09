@@ -1,4 +1,4 @@
-import { KeyboardEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { KeyboardEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EditOutlined, SearchOutlined, TuneOutlined, ArrowBackIosNewOutlined, Tune } from '@mui/icons-material';
 import { Search } from '../shared/components/Search';
 import { DreamCard } from '../components/dream/DreamCard';
@@ -10,7 +10,7 @@ import { CalendarIcon } from '@mui/x-date-pickers';
 import { useIsMobile } from '../shared/hooks/useIsMobile';
 import { MobileFooter, MobileHeader } from '../core/models/constants';
 import { AppContext } from '../core/context/AppContext';
-import { Alert, Box, Button, Chip, Container, Portal, Snackbar } from '@mui/material';
+import { Alert, Box, Button, Chip, CircularProgress, Container, debounce, Portal, Snackbar } from '@mui/material';
 import { CalendarDream } from '../components/dream/CalendarDream';
 import { DeleteDream } from '../components/dream/DeleteDream';
 import { FilterDream } from '../components/dream/FilterDream';
@@ -55,21 +55,45 @@ export function Home() {
   const searchKeyword = useAppSelector((state) => state.dream.search);
   const filters = useAppSelector((state) => state.dream.filters);
 
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const lastPageRef = useRef(false);
+
   const writeRef = useRef<HTMLElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
-  const dreamsRef = useRef<HTMLElement | null>(null);
   const dispatch = useAppDispatch();
 
   // Used to get the Dream when deleting
   const dream = useMemo(() => dreams.find((d) => d.id === dreamId), [dreams, dreamId]);
 
+  const debouncePage = debounce(() => {
+    setPage((p) => (p += 1));
+  }, 200);
+
   useEffect(() => {
-    // TODO: Handle infinite scrolling
-    const dreamsDiv = document.getElementById('dreams');
-    if (dreamsRef.current === null) {
-      dreamsRef.current = dreamsDiv;
-      console.log('current: ', dreamsRef.current);
+    let mounted = true;
+
+    try {
+      httpGet<ApiResponse<DreamResponse>>(`/dreams?page=${page}&pageSize=${pageSize}`)
+        .then((res) => {
+          if (mounted) {
+            lastPageRef.current = res.data.isLastPage;
+            dispatch(initializeDream(res.data.items));
+          }
+        })
+        .catch((error) => console.log('Error:', error));
+    } catch (error) {
+      console.error('error:', error);
     }
+
+    return () => {
+      mounted = false;
+    };
+  }, [page]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -80,34 +104,17 @@ export function Home() {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-
-    if (dreams.length === 0) {
-      try {
-        httpGet<ApiResponse<DreamResponse>>('/dreams')
-          .then((res) => {
-            if (mounted) {
-              const items = res.data.items;
-              dispatch(initializeDream(items));
-            }
-          })
-          .catch((error) => console.log('Error:', error));
-      } catch (error) {
-        console.error('error:', error);
-      }
-    }
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
     if (!isMobile) {
       setIsOpenCalendarDream(false);
       setIsSearching(false);
     }
   }, [isMobile]);
+
+  const handleScroll = useCallback(() => {
+    if (window.innerHeight + window.scrollY > document.body.scrollHeight && !lastPageRef.current) {
+      debouncePage();
+    }
+  }, []);
 
   const handleWriteDreamOpen = (): void => {
     setIsOpenDreamModal(true);
@@ -315,8 +322,14 @@ export function Home() {
           {isMobile && <div>{isSearching && searchResults.length > 0 ? searchedContent : dreamsContent}</div>}
           {!isMobile && <div>{searchKeyword || searchResults.length > 0 ? searchedContent : dreamsContent}</div>}
 
-          {((dreams && dreams.length === 0) || (isSearching && searchResults.length === 0)) && (
+          {((dreams && dreams.length === 0) || (isSearching && searchResults.length === 0)) && !isLoading && (
             <p className="text-center">No dreams found.</p>
+          )}
+
+          {isLoading && (
+            <div className="flex justify-center items-center">
+              <CircularProgress className="me-3" size={25} /> Loading dreams...
+            </div>
           )}
         </Box>
       </Box>

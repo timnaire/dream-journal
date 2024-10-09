@@ -74,7 +74,7 @@ export const DreamForm = forwardRef(function (
 
     if (file) {
       const img = await s3.upload(file.name, file, file.type);
-      const image = { ...img, size: file.size, fileType: file.type } || null;
+      const image = { ...img, size: file.size, fileType: file.type };
       payload = { ...payload, image };
     }
 

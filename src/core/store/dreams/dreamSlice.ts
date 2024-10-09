@@ -61,7 +61,11 @@ export const dreamSlice = createSlice({
   initialState,
   reducers: {
     initializeDream: (state: InitialState, action: { type: string; payload: Dream[] }) => {
-      state.dreams = action.payload;
+      const existingDreamIds = new Set(state.dreams.map((dream) => dream.id));
+      // Add only dreams that don't already exist in state.dreams
+      const newDreams = action.payload.filter((dream) => !existingDreamIds.has(dream.id));
+
+      state.dreams = [...state.dreams, ...newDreams];
       updateDisplayDreams(state);
     },
     addDream: (state: InitialState, action: { type: string; payload: Dream[] }) => {
